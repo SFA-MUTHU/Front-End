@@ -7,6 +7,7 @@ import Customers from "./pages/Customers";
 import Products from "./pages/Products";
 import Suppliers from "./pages/Suppliers";
 import MessagingPage from './pages/MessagingPage';
+import AddProductPage from './pages/AddProductPage'; // new component for adding products
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/suppliers" element={<Suppliers />} />
         <Route path="/messaging" element={<MessagingPage />} />
+        <Route path="/addproductpage" element={<AddProductPage />} />
         <Route path="*" element={<Login />} />
       </Routes>
     </BrowserRouter>
