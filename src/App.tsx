@@ -6,6 +6,7 @@ import Employees from "./pages/Employees";
 import Customers from "./pages/Customers";
 import Products from "./pages/Products";
 import Suppliers from "./pages/Suppliers";
+import MessagingPage from './pages/MessagingPage';
 import './App.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/customers" element={<Customers />} />
         <Route path="/products" element={<Products />} />
         <Route path="/suppliers" element={<Suppliers />} />
+        <Route path="/messaging" element={<MessagingPage />} />
         <Route path="*" element={<Login />} />
       </Routes>
     </BrowserRouter>
