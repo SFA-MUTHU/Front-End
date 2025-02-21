@@ -8,7 +8,6 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
-import UserProfile from "../components/UserProfile";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -51,7 +50,7 @@ const App: React.FC = () => {
             <Layout>
                 <Header style={{ padding: 0, background: '#B8B8B8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div />
-                    <UserProfile /> {/* Add UserProfile component */}
+
                 </Header>
                 <Content style={{ margin: '0 16px' }}>
                     <Breadcrumb style={{ margin: '16px 0' }}>

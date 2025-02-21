@@ -57,7 +57,7 @@ const Home: React.FC = () => {
     <DashboardNavigation>
       <Row gutter={16} style={{ padding: 24 }}>
         <Col span={6}>
-          <StatCard title="Net Income" value="$498,000" change="24%" period="last month" />
+          <StatCard title="Net Income" value="$498,000" change="24%" period="last month"  />
         </Col>
         <Col span={6}>
           <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
