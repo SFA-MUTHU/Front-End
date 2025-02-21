@@ -10,6 +10,7 @@ import {
 import type { MenuProps } from 'antd';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
+import CurrentDateTime from "./CurrentDateTime.tsx";
 
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -46,6 +47,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
         getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Customers</span>, '/customers', <UserOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/customers')),
         getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Products</span>, '/products', <ShoppingOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/products')),
         getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Suppliers</span>, '/suppliers', <ShopOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/suppliers')),
+
         getItem(<span style={{fontWeight: 'bold', color: 'white' }}>GENERAL</span>, '6', <SettingOutlined style={{ fontSize: '24px', color: 'white' }} />),
         getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Settings</span>, '7', <UserOutlined style={{ fontSize: '24px', color: 'white' }} />),
     ];
@@ -94,8 +96,11 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                 />
             </Sider>
             <Layout>
-                <Header style={{ padding: 0, background: '#B8B8B8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Header style={{ padding: 20, background: '#B8B8B8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <CurrentDateTime   />
                     <div />
+
+
                 </Header>
                 <Content style={{ margin: '0 16px' }}>
                     <Breadcrumb 
