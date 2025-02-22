@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, List, Avatar, Tag, Select, Input, Button, Radio, Modal, Form, Progress, Upload } from 'antd';
-import { PlusOutlined, UploadOutlined, MoreOutlined } from '@ant-design/icons';
+import { Card, Col, Row, List, Avatar,  Select, Input, Button, Radio, Modal, Form, Progress, Upload } from 'antd';
+import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 
 const { Option } = Select;
@@ -71,10 +71,10 @@ const Employees: React.FC = () => {
                 hoverable
                 style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
               >
-                <Radio.Group defaultValue="daily" buttonStyle="solid">
-                  <Radio.Button value="daily">Daily</Radio.Button>
-                  <Radio.Button value="weekly">Weekly</Radio.Button>
-                  <Radio.Button value="monthly">Monthly</Radio.Button>
+                <Radio.Group defaultValue="daily" buttonStyle="solid" style={{ backgroundColor: '#DBC1AD' }}>
+                  <Radio.Button value="daily" style={{ backgroundColor: '#DBC1AD', color: 'black' }}>Daily</Radio.Button>
+                  <Radio.Button value="weekly" style={{ backgroundColor: '#DBC1AD', color: 'black' }}>Weekly</Radio.Button>
+                  <Radio.Button value="monthly" style={{ backgroundColor: '#DBC1AD', color: 'black' }}>Monthly</Radio.Button>
                 </Radio.Group>
                 <div style={{ marginTop: 16 }}>
                   <p style={{ marginBottom: 8 }}>Task Completion Rate</p>
@@ -90,7 +90,12 @@ const Employees: React.FC = () => {
                 hoverable
                 style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
               >
-                <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={showModal}
+                    style={{ backgroundColor: '#DBC1AD', color: '#000' }}
+                >
                   Add Employee
                 </Button>
                 <Modal title="Add Employee" visible={modalVisible} onOk={handleOk} onCancel={handleCancel}>

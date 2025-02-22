@@ -100,18 +100,18 @@ const Customers: React.FC = () => {
         
         {/* Content Area */}
         <Content style={{ margin: '24px', backgroundColor: '#fff', padding: '24px', borderRadius: '4px' }}>
-          <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ marginBottom: '16px' }}>
-            <TabPane tab="All" key="1" />
-            <TabPane tab="Basic Members" key="2" />
-            <TabPane tab="Platinum Members" key="3" />
-            <TabPane tab="Premium Members" key="4" />
+          <Tabs activeKey={activeTab} onChange={setActiveTab} className="mb-4">
+            <TabPane tab={<span className={`${activeTab === '1' ? 'text-[#DBC1AD] border-b-2 border-[#DBC1AD] no-underline' : 'hover:text-[#DBC1AD] no-underline'}`}>All</span>} key="1" />
+            <TabPane tab={<span className={`${activeTab === '2' ? 'text-[#DBC1AD] border-b-2 border-[#DBC1AD] no-underline' : 'hover:text-[#DBC1AD] no-underline'}`}>Basic Members</span>} key="2" />
+            <TabPane tab={<span className={`${activeTab === '3' ? 'text-[#DBC1AD] border-b-2 border-[#DBC1AD] no-underline' : 'hover:text-[#DBC1AD] no-underline'}`}>Platinum Members</span>} key="3" />
+            <TabPane tab={<span className={`${activeTab === '4' ? 'text-[#DBC1AD] border-b-2 border-[#DBC1AD] no-underline' : 'hover:text-[#DBC1AD] no-underline'}`}>Premium Members</span>} key="4" />
           </Tabs>
           
           <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }}>
             <Col>
               <Button 
                 type="primary" 
-                style={{ marginRight: '8px' }}
+                style={{ marginRight: '8px' ,backgroundColor:'#DBC1AD' ,color:'black'}}
                 onClick={() => navigate('/messaging')}
               >
                 Message
