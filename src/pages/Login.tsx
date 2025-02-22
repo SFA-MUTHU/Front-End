@@ -1,6 +1,9 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
+import BagroundImag from "../assets/img/background .webp";
+
+
 
 const Login: React.FC = () => {
   const onFinish = (values: { email: string; password: string }) => {
@@ -8,8 +11,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '50px auto' }}>
-    <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1890ff' }}>Login</h2>
+
+
+    <div style={{ backgroundImage:`url(${BagroundImag})` ,backgroundSize:'cover' ,padding:'20px'  }}>
+    <div style={{maxWidth: 400, margin: '300px auto'}} >
+      <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1890ff' }}>Login</h2>
       <Form layout="vertical" onFinish={onFinish}>
         <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Please input your email!' }]}>
           <Input />
@@ -31,6 +37,7 @@ const Login: React.FC = () => {
         </Form.Item>
       </Form>
     </div>
+</div>
   );
 };
 
