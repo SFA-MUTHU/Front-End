@@ -50,7 +50,7 @@ const Suppliers: React.FC = () => {
         <Sider
           width={240}
           style={{
-            background: 'linear-gradient(135deg, #74ABE2, #5563DE)',
+            background: '#9C7456',
             padding: '20px',
             borderRadius: '8px',
             margin: '20px 10px'
@@ -60,16 +60,16 @@ const Suppliers: React.FC = () => {
             style={{
               textAlign: 'center',
               marginBottom: '20px',
-              color: '#fff',
+              color: 'white',
               fontSize: '1.5rem',
               fontWeight: 'bold'
             }}
           >
             Suppliers Profile
           </div>
-          <Menu theme="dark" mode="inline" style={{ background: 'transparent', borderRight: 'none' }}>
+          <Menu theme="light" mode="inline" style={{ background: 'transparent',backgroundColor:'#9C7456' , borderRight: 'none' }}>
             {suppliersList.map((supplier, index) => (
-              <Menu.Item key={index}>{supplier}</Menu.Item>
+                <Menu.Item key={index} style={{ fontSize: '14px', fontWeight: 'bold' }}>{supplier}</Menu.Item>
             ))}
           </Menu>
         </Sider>

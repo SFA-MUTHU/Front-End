@@ -71,7 +71,7 @@ const Customers: React.FC = () => {
     { 
       title: 'Action', 
       key: 'action',
-      render: (text: any, record: any) => (
+      render: (_text: any, record: any) => (
         <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
           <EllipsisOutlined style={{ fontSize: '18px', cursor: 'pointer' }} />
         </Dropdown>
