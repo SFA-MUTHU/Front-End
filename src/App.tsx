@@ -1,17 +1,34 @@
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Home from "./pages/Home";
+import Employees from "./pages/Employees";
+import Customers from "./pages/Customers";
+import Products from "./pages/Products";
+import Suppliers from "./pages/Suppliers";
+import MessagingPage from './pages/MessagingPage';
+import AddProductPage from './pages/AddProductPage'; // new component for adding products
+import AddSupplierPage from './pages/Addsupplierpage';
+import './App.css';
 
 function App() {
-  
-
   return (
-    <>
-     <div>
-     <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-     </div>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/employees" element={<Employees />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/suppliers" element={<Suppliers />} />
+        <Route path="/messaging" element={<MessagingPage />} />
+        <Route path="/addproductpage" element={<AddProductPage />} />
+        <Route path="/addsupplier" element={<AddSupplierPage />} />
+        <Route path="*" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

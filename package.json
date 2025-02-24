@@ -10,16 +10,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.0.6",
+    "@ant-design/plots": "^2.3.3",
+    "@tailwindcss/vite": "^4.0.7",
+    "antd": "^5.24.1",
+    "chart.js": "^4.4.8",
+    "lucide-react": "^0.475.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.5",
     "sfa": "file:",
-    "tailwindcss": "^4.0.6"
+    "tailwindcss": "^4.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "eslint": "^9.19.0",
     "eslint-plugin-react-hooks": "^5.0.0",
