@@ -1,0 +1,129 @@
+@use './variables' as vars;
+
+.messaging-container {
+  padding: vars.$spacing-lg;
+  background-color: #f5f5f5;
+}
+
+.messaging-header {
+  background-color: white;
+  padding: vars.$spacing-md;
+  margin-bottom: vars.$spacing-md;
+  border: 1px solid vars.$border-color;
+  
+  &__title-row {
+    display: flex;
+    align-items: center;
+  }
+  
+  &__back-btn {
+    margin-right: vars.$spacing-md;
+  }
+  
+  &__title {
+    margin: 0;
+  }
+  
+  &__tabs {
+    margin-top: vars.$spacing-md;
+  }
+}
+
+.messaging-tab {
+  &--active {
+    background-color: vars.$primary !important;
+    border-color: vars.$primary !important;
+  }
+}
+
+.messaging-content {
+  background-color: white;
+  border: 1px solid vars.$border-color;
+  padding: vars.$spacing-md;
+}
+
+.messaging-section {
+  &__title {
+    margin-bottom: vars.$spacing-sm;
+  }
+  
+  &__divider {
+    margin: 12px 0;
+  }
+}
+
+.recipient-dropdown {
+  width: 100%;
+  text-align: left;
+  height: auto;
+  padding: 8px 12px;
+  
+  &__row {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  &__tag {
+    margin: 2px;
+  }
+}
+
+.recipients-preview {
+  margin-top: vars.$spacing-md;
+  border: 1px solid #e8e8e8;
+  padding: vars.$spacing-sm;
+  border-radius: vars.$border-radius-sm;
+}
+
+.message-preview-section {
+  margin-top: vars.$spacing-lg;
+}
+
+.compose-section {
+  &__label {
+    margin-bottom: vars.$spacing-sm;
+  }
+  
+  &__input {
+    margin-bottom: vars.$spacing-md;
+  }
+  
+  &__actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.message-tab {
+  background-color: white;
+  border: 1px solid vars.$border-color;
+  padding: vars.$spacing-md;
+  text-align: center;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.membership {
+  &--all {
+    color: purple;
+  }
+  
+  &--platinum {
+    color: vars.$platinum;
+  }
+  
+  &--gold {
+    color: vars.$gold;
+  }
+  
+  &--silver {
+    color: vars.$silver;
+  }
+  
+  &--basic {
+    color: vars.$basic;
+  }
+}
