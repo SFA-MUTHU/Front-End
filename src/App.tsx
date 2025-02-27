@@ -1,34 +1,45 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Home from './pages/Home';
+import Employees from './pages/Employees';
+import Customers from './pages/Customers';
+import Products from './pages/Products';
+import Suppliers from './pages/Suppliers';
+import AddProductPage from './pages/Addproductpage';
+import AddSupplierPage from './pages/Addsupplierpage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Home from "./pages/Home";
-import Employees from "./pages/Employees";
-import Customers from "./pages/Customers";
-import Products from "./pages/Products";
-import Suppliers from "./pages/Suppliers";
-import MessagingPage from './pages/MessagingPage';
-import AddProductPage from './pages/AddProductPage'; // new component for adding products
-import AddSupplierPage from './pages/Addsupplierpage';
+import Settings from './pages/Settings';
+import Messaging from './pages/Messaging';
 import './App.css';
 
-function App() {
+const App: React.FC = () => {
+  // You would normally check for authentication here
+  const isAuthenticated = true; // For demonstration purposes
+
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
+        {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/employees" element={<Employees />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/suppliers" element={<Suppliers />} />
-        <Route path="/messaging" element={<MessagingPage />} />
-        <Route path="/addproductpage" element={<AddProductPage />} />
-        <Route path="/addsupplier" element={<AddSupplierPage />} />
-        <Route path="*" element={<Login />} />
+        
+        {/* Protected Routes */}
+        <Route path="/home" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
+        <Route path="/employees" element={isAuthenticated ? <Employees /> : <Navigate to="/login" />} />
+        <Route path="/customers" element={isAuthenticated ? <Customers /> : <Navigate to="/login" />} />
+        <Route path="/products" element={isAuthenticated ? <Products /> : <Navigate to="/login" />} />
+        <Route path="/suppliers" element={isAuthenticated ? <Suppliers /> : <Navigate to="/login" />} />
+        <Route path="/addproductpage" element={isAuthenticated ? <AddProductPage /> : <Navigate to="/login" />} />
+        <Route path="/addsupplier" element={isAuthenticated ? <AddSupplierPage /> : <Navigate to="/login" />} />
+        <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
+        <Route path="/messaging" element={isAuthenticated ? <Messaging /> : <Navigate to="/login" />} />
+        
+        {/* Default Route Redirect */}
+        <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
-}
+};
 
 export default App;
