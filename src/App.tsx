@@ -10,7 +10,7 @@ import AddSupplierPage from './pages/Addsupplierpage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Settings from './pages/Settings';
-import Messaging from './pages/Messaging';
+import MessagingPage from './pages/MessagingPage'; // Changed from Messaging to MessagingPage
 import './App.css';
 
 const App: React.FC = () => {
@@ -33,7 +33,7 @@ const App: React.FC = () => {
         <Route path="/addproductpage" element={isAuthenticated ? <AddProductPage /> : <Navigate to="/login" />} />
         <Route path="/addsupplier" element={isAuthenticated ? <AddSupplierPage /> : <Navigate to="/login" />} />
         <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
-        <Route path="/messaging" element={isAuthenticated ? <Messaging /> : <Navigate to="/login" />} />
+        <Route path="/messaging" element={isAuthenticated ? <MessagingPage /> : <Navigate to="/login" />} />
         
         {/* Default Route Redirect */}
         <Route path="*" element={<Navigate to="/home" />} />
