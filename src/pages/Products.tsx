@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
-import { Row, Col, Button, Card, Statistic, Table, Tag, Modal, Form, Input, Select } from 'antd';
+import { Row, Col, Button, Card, Statistic, Table, Tag, Modal, Form, Input, Select, Divider } from 'antd';
 import { SearchOutlined, FilterOutlined, PlusOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
 
 const { Option } = Select;
 
@@ -41,11 +46,113 @@ const Products: React.FC = () => {
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
   };
 
-  // Summary Cards data
+  // Chart data for Total Orders (keep as is)
+  const ordersChartData = {
+    labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+    datasets: [
+      {
+        label: 'Orders',
+        data: [320, 350, 390, 360, 370, 400],
+        borderColor: '#3f8600',
+        backgroundColor: 'rgba(63, 134, 0, 0.1)',
+        tension: 0.4,
+        fill: true,
+      }
+    ]
+  };
+
+  // Updated chart data for Total Sell - changed to line chart with time series
+  const sellsChartData = {
+    labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+    datasets: [
+      {
+        label: 'Sales',
+        data: [38.20, 40.15, 45.62, 48.30, 44.75, 42.51],
+        borderColor: '#cf1322',
+        backgroundColor: 'rgba(207, 19, 34, 0.1)',
+        tension: 0.4,
+        fill: true,
+      }
+    ]
+  };
+
+  // Updated chart data for Total Products - changed to line chart with time series
+  const productsChartData = {
+    labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+    datasets: [
+      {
+        label: 'Products',
+        data: [16420, 16435, 16450, 16455, 16465, 16468],
+        borderColor: '#1890ff',
+        backgroundColor: 'rgba(24, 144, 255, 0.1)',
+        tension: 0.4,
+        fill: true,
+      }
+    ]
+  };
+
+  // Enhanced chart options with consistent styling
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        mode: 'index' as const,
+        intersect: false,
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
+        }
+      },
+      x: {
+        grid: {
+          display: false,
+        }
+      }
+    },
+    elements: {
+      line: {
+        tension: 0.4
+      },
+      point: {
+        radius: 3,
+        hitRadius: 10,
+        hoverRadius: 5,
+      }
+    }
+  };
+
+  // Summary Cards data with updated charts
   const summaryData = [
-    { title: 'Total Orders', value: 400, subtext: '↑10% vs last month', trend: 'up' },
-    { title: 'Total Sell', value: '$42.51', subtext: '↓5% vs last month', trend: 'down' },
-    { title: 'Total Products', value: '16,468', subtext: '↑3 vs last month', trend: 'up' }
+    { 
+      title: 'Total Orders', 
+      value: 400, 
+      subtext: '↑10% vs last month', 
+      trend: 'up',
+      chart: <Line data={ordersChartData} options={chartOptions} height={100} />
+    },
+    { 
+      title: 'Total Sell', 
+      value: '$42.51', 
+      subtext: '↓5% vs last month', 
+      trend: 'down',
+      chart: <Line data={sellsChartData} options={chartOptions} height={100} />
+    },
+    { 
+      title: 'Total Products', 
+      value: '16,468', 
+      subtext: '↑3 vs last month', 
+      trend: 'up',
+      chart: <Line data={productsChartData} options={chartOptions} height={100} />
+    }
   ];
 
   // Table columns & data
@@ -99,14 +206,26 @@ const Products: React.FC = () => {
           </Col>
         </Row>
 
-        {/* Summary Cards */}
+        {/* Summary Cards with Charts */}
         <Row gutter={16} style={{ marginBottom: '20px' }}>
           {summaryData.map((item, index) => (
             <Col span={8} key={index}>
               <Card style={cardStyle}>
-                <Statistic title={item.title} value={item.value} />
-                <div style={{ marginTop: '10px', color: item.trend === 'up' ? 'green' : 'red' }}>
-                  {item.trend === 'up' ? <ArrowUpOutlined /> : <ArrowDownOutlined />} {item.subtext}
+                <Statistic 
+                  title={item.title} 
+                  value={item.value} 
+                  valueStyle={{ color: item.trend === 'up' ? '#3f8600' : (item.trend === 'down' ? '#cf1322' : '') }}
+                />
+                <div style={{ 
+                  marginTop: '10px', 
+                  color: item.trend === 'up' ? '#3f8600' : (item.trend === 'down' ? '#cf1322' : '') 
+                }}>
+                  {item.trend === 'up' ? <ArrowUpOutlined /> : (item.trend === 'down' ? <ArrowDownOutlined /> : null)} 
+                  {item.subtext}
+                </div>
+                <Divider style={{ margin: '12px 0' }} />
+                <div style={{ height: 150 }}>
+                  {item.chart}
                 </div>
               </Card>
             </Col>
