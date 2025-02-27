@@ -124,7 +124,7 @@ const Suppliers: React.FC = () => {
       dataIndex: 'status', 
       key: 'status', 
       render: (status: string) => {
-        let color = status === 'Success' ? 'green' : status === 'In Process' ? 'orange' : 'red';
+        const color = status === 'Success' ? 'green' : status === 'In Process' ? 'orange' : 'red';
         return <Tag color={color}>{status}</Tag>;
       }
     },
