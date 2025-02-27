@@ -72,7 +72,7 @@ const MessagingPage: React.FC = () => {
             headStyle={{ color: '#1890ff', fontSize: 20, fontWeight: 600, borderBottom: '1px solid #eaeaea' }}
           >
             <Form layout="vertical">
-              <Form.Item label="Package" labelStyle={{ fontWeight: 500 }}>
+              <Form.Item label={<span style={{ fontWeight: 500 }}>Package</span>}>
                 <Select 
                   placeholder="Select the package"
                   value={selectedPackage}
@@ -85,7 +85,7 @@ const MessagingPage: React.FC = () => {
                   <Option value="premium">Premium Members</Option>
                 </Select>
               </Form.Item>
-              <Form.Item label="Formatting" labelStyle={{ fontWeight: 500 }}>
+              <Form.Item label={<span style={{ fontWeight: 500 }}>Formatting</span>}>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Button icon={<BoldOutlined />} style={{ borderRadius: 4 }} />
                   <Button icon={<ItalicOutlined />} style={{ borderRadius: 4 }} />
@@ -94,7 +94,7 @@ const MessagingPage: React.FC = () => {
                   <Button icon={<OrderedListOutlined />} style={{ borderRadius: 4 }} />
                 </div>
               </Form.Item>
-              <Form.Item label="Title" labelStyle={{ fontWeight: 500 }}>
+              <Form.Item label={<span style={{ fontWeight: 500 }}>Title</span>}>
                 <Input 
                   placeholder="Type the Title" 
                   value={title}
@@ -102,7 +102,7 @@ const MessagingPage: React.FC = () => {
                   style={{ borderRadius: 4, padding: '8px 12px' }}
                 />
               </Form.Item>
-              <Form.Item label="Message" labelStyle={{ fontWeight: 500 }}>
+              <Form.Item label={<span style={{ fontWeight: 500 }}>Message</span>}>
                 <TextArea 
                   rows={6} 
                   placeholder="Type your message" 
