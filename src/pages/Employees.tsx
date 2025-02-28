@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, List, Avatar,  Select, Input, Button, Radio, Modal, Form, Progress, Upload } from 'antd';
+import { Card, Col, Row, List, Avatar, Input, Button, Radio, Modal, Form, Upload } from 'antd';
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
+import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar, Doughnut } from 'react-chartjs-2';
 
-const { Option } = Select;
+// Register ChartJS components
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+
 const { Search } = Input;
 
 const Employees: React.FC = () => {
@@ -34,6 +38,30 @@ const Employees: React.FC = () => {
 
   // Modern card style reused with extra margin for spacing
   const cardStyle = { borderRadius: 12, boxShadow: '0 6px 20px rgba(0,0,0,0.15)', background: '#fff', marginBottom: '16px' };
+
+  // Task completion chart data
+  const taskCompletionData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    datasets: [
+      {
+        label: 'Completed Tasks',
+        data: [65, 72, 78, 69, 85],
+        backgroundColor: '#3f8600',
+      }
+    ]
+  };
+
+  // Task status chart data
+  const taskStatusData = {
+    labels: ['Complete', 'Not Finished'],
+    datasets: [
+      {
+        data: [28, 72],
+        backgroundColor: ['#3f8600', '#cf1322'],
+        borderWidth: 1,
+      }
+    ]
+  };
 
   return (
     <DashboardNavigation>
@@ -71,14 +99,31 @@ const Employees: React.FC = () => {
                 hoverable
                 style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
               >
-                <Radio.Group defaultValue="daily" buttonStyle="solid" style={{ backgroundColor: '#DBC1AD' }}>
+                <Radio.Group defaultValue="daily" buttonStyle="solid" style={{ backgroundColor: '#DBC1AD', marginBottom: '16px' }}>
                   <Radio.Button value="daily" style={{ backgroundColor: '#DBC1AD', color: 'black' }}>Daily</Radio.Button>
                   <Radio.Button value="weekly" style={{ backgroundColor: '#DBC1AD', color: 'black' }}>Weekly</Radio.Button>
                   <Radio.Button value="monthly" style={{ backgroundColor: '#DBC1AD', color: 'black' }}>Monthly</Radio.Button>
                 </Radio.Group>
-                <div style={{ marginTop: 16 }}>
-                  <p style={{ marginBottom: 8 }}>Task Completion Rate</p>
-                  <Progress percent={75} size="small" strokeColor="#3f8600" />
+                <div style={{ height: 160 }}>
+                  <Bar data={taskCompletionData} options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      title: {
+                        display: true,
+                        text: 'Task Completion Rate'
+                      },
+                      legend: {
+                        display: false
+                      }
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100
+                      }
+                    }
+                  }} />
                 </div>
               </Card>
             </Col>
@@ -136,10 +181,17 @@ const Employees: React.FC = () => {
                 hoverable
                 style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
               >
-                <p style={{ marginBottom: 8 }}>Task not finished</p>
-                <Progress percent={72} size="small" strokeColor="#cf1322" style={{ marginBottom: 16 }} />
-                <p style={{ marginBottom: 8 }}>Complete Task</p>
-                <Progress percent={28} size="small" strokeColor="#3f8600" />
+                <div style={{ height: 180 }}>
+                  <Doughnut data={taskStatusData} options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'bottom'
+                      }
+                    }
+                  }} />
+                </div>
               </Card>
             </Col>
           </Row>
