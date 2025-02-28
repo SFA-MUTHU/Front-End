@@ -6,16 +6,30 @@ import {
     ShopOutlined,
     UserOutlined,
     SettingOutlined,
+    HomeOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Breadcrumb, Layout, Menu, theme, Typography } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import CurrentDateTime from "./CurrentDateTime.tsx";
-
+import HeaderControls from "./HeaderControls";
 
 const { Header, Content, Footer, Sider } = Layout;
+const { Title } = Typography;
 
 type MenuItem = Required<MenuProps>['items'][number];
+
+// Color theme constants
+const colors = {
+  primary: '#9C7456',
+  primaryLight: '#DBC1AD',
+  secondary: '#4A6FA5',
+  accent: '#47B881',
+  text: '#333333',
+  background: '#F8F9FA',
+  cardBg: '#FFFFFF',
+  headerBg: '#F0F2F5',
+};
 
 function getItem(
     label: React.ReactNode,
@@ -38,23 +52,30 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
     const navigate = useNavigate();
     const location = useLocation();
     const {
-        token: { colorBgContainer, borderRadiusLG },
+        token: { borderRadiusLG },
     } = theme.useToken();
 
-    const items: MenuItem[] = [
-        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Overview</span>, '/home', <AppstoreOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/home')),
-        getItem(<span style={{ fontWeight: 'bold',color: 'white' }}>Employees</span>, '/employees', <TeamOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/employees')),
-        getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Customers</span>, '/customers', <UserOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/customers')),
-        getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Products</span>, '/products', <ShoppingOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/products')),
-        getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Suppliers</span>, '/suppliers', <ShopOutlined style={{ fontSize: '24px', color: 'white' }} />, undefined, () => navigate('/suppliers')),
-
-        getItem(<span style={{fontWeight: 'bold', color: 'white' }}>GENERAL</span>, '6', <SettingOutlined style={{ fontSize: '24px', color: 'white' }} />),
-        getItem(<span style={{fontWeight: 'bold', color: 'white' }}>Settings</span>, '7', <UserOutlined style={{ fontSize: '24px', color: 'white' }} />),
+    // Main navigation items with enhanced styling
+    const mainNavItems: MenuItem[] = [
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Overview</span>, '/home', <AppstoreOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/home')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Employees</span>, '/employees', <TeamOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/employees')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Customers</span>, '/customers', <UserOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/customers')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Products</span>, '/products', <ShoppingOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/products')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Suppliers</span>, '/suppliers', <ShopOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/suppliers')),
     ];
+
+    // Bottom navigation items (GENERAL and Settings)
+    const bottomNavItems: MenuItem[] = [
+      
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Settings</span>, '/settings', <SettingOutlined style={{ fontSize: '24px', color: 'white' }} />),
+    ];
+
+    // Combine both for navigation purposes
+    const allNavItems = [...mainNavItems, ...bottomNavItems];
 
     useEffect(() => {
         const currentPath = location.pathname;
-        const selectedItem = items.find(item => item?.key === currentPath);
+        const selectedItem = allNavItems.find(item => item?.key === currentPath);
         if (selectedItem) {
             setSelectedKeys([selectedItem.key as string]);
         }
@@ -74,35 +95,111 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                 return 'Products';
             case '/suppliers':
                 return 'Suppliers';
+            case '/profile':
+                return 'Profile';
             default:
                 return 'Overview';
         }
     };
 
     return (
-        <Layout style={{ minHeight: '100vh'  }}>
-            <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} style={{ background: '#9C7456' }}>
-                <div className="demo-logo-vertical" />
+        <Layout style={{ height: '100vh', overflow: 'hidden' }}>
+            <Sider 
+                collapsible 
+                collapsed={collapsed} 
+                onCollapse={(value) => setCollapsed(value)} 
+                style={{ 
+                    background: colors.primary, 
+                    height: '100%', 
+                    overflow: 'auto', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    boxShadow: '2px 0 8px rgba(0,0,0,0.15)'
+                }}
+            >
+                <div className="logo" style={{ 
+                    height: '64px', 
+                    background: colors.primary, 
+                    margin: '16px 0 8px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    {!collapsed && (
+                        <Title level={4} style={{ margin: 0, color: 'white', letterSpacing: '1px' }}>WRENIX</Title>
+                    )}
+                    {collapsed && (
+                        <HomeOutlined style={{ fontSize: '24px', color: 'white' }} />
+                    )}
+                </div>
+                
                 <Menu
                     theme="dark"
                     mode="inline"
-                    items={items}
+                    items={mainNavItems}
                     selectedKeys={selectedKeys}
                     onClick={({ key }) => {
                         navigate(key);
                         setSelectedKeys([key]);
                     }}
-                    style={{ display: 'flex', backgroundColor:'#9C7456', flexDirection: 'column', justifyContent: 'space-between' }}
+                    style={{ 
+                        backgroundColor: colors.primary, 
+                        flex: 1,
+                        marginTop: '0',
+                        padding: '0',
+                        borderRight: 'none'
+                    }}
                 />
+                
+                <div style={{ 
+                    marginTop: 'auto', 
+                    borderTop: '1px solid rgba(255,255,255,0.2)', 
+                    paddingTop: '8px' 
+                }}>
+                    <Menu
+                        theme="dark"
+                        mode="inline"
+                        items={bottomNavItems}
+                        selectedKeys={selectedKeys}
+                        onClick={({ key }) => {
+                            if (key !== 'general-header') {
+                                navigate(key);
+                                setSelectedKeys([key]);
+                            }
+                        }}
+                        style={{ backgroundColor: colors.primary, borderRight: 'none' }}
+                    />
+                </div>
             </Sider>
             <Layout>
-                <Header style={{ padding: 20, background: '#B8B8B8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <CurrentDateTime   />
-                    <div />
-
-
+                <Header style={{
+                    padding: '0 20px',
+                    background: colors.headerBg,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    position: 'fixed',
+                    top: 0,
+                    left: collapsed ? 80 : 200,
+                    right: 0,
+                    zIndex: 100,
+                    transition: 'left 0.2s',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}>
+                    <Title level={4} style={{ margin: 0, color: colors.text }}>
+                        {getBreadcrumb()}
+                    </Title>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                        <CurrentDateTime />
+                        <HeaderControls userName="Admin User" />
+                    </div>
                 </Header>
-                <Content style={{ margin: '0 16px' }}>
+                <Content style={{
+                    margin: '0 16px',
+                    marginTop: 80,
+                    overflow: 'auto',
+                    height: 'calc(100vh - 80px - 69px)'
+                }}>
                     <Breadcrumb 
                         style={{ margin: '16px 0' }}
                         items={[
@@ -113,16 +210,26 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                     <div
                         style={{
                             padding: 24,
-                            minHeight: 800,
-                            background: colorBgContainer,
+                            background: colors.cardBg,
                             borderRadius: borderRadiusLG,
+                            height: 'calc(100vh - 80px - 69px - 48px)',
+                            overflow: 'auto',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
                         }}
                     >
                         {children}
                     </div>
                 </Content>
-                <Footer style={{ textAlign: 'center' }}>
-                    Wrenix ©{new Date().getFullYear()} All Right Reserved by Wrenix
+                <Footer style={{ 
+                    textAlign: 'center',
+                    padding: '12px 20px',
+                    position: 'sticky',
+                    bottom: 0,
+                    background: colors.cardBg,
+                    boxShadow: '0px -2px 10px rgba(0,0,0,0.05)',
+                    color: '#666'
+                }}>
+                    Wrenix ©{new Date().getFullYear()} All Rights Reserved
                 </Footer>
             </Layout>
         </Layout>

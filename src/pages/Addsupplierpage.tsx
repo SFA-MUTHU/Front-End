@@ -18,15 +18,21 @@ const AddSupplierPage: React.FC = () => {
     background: '#fafafa'
   };
 
-  const headerStyle = {
+  const headerStyle: React.CSSProperties = {
     background: '#f0f2f5',
     padding: '15px 20px',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    position: 'fixed', // changed from sticky to fixed
+    top: 0,
+    left: 0,
+    right: 0,
+    width: '1200px', // match container width
+    zIndex: 100 // higher z-index to ensure it stays on top
   };
 
-  const photoAreaStyle = {
+  const photoAreaStyle: React.CSSProperties = {
     border: '2px dashed #ccc',
     borderRadius: '8px',
     padding: '20px',
@@ -54,8 +60,8 @@ const AddSupplierPage: React.FC = () => {
             </Col>
           </Row>
 
-          {/* Photo Section */}
-          <div style={{ padding: '20px' }}>
+          {/* Photo Section - add padding-top to prevent overlap with fixed header */}
+          <div style={{ padding: '20px', paddingTop: '70px' }}>
             <div style={photoAreaStyle}>
               <p style={{ margin: 0, fontSize: '1rem', color: '#888' }}>+ Add Photo</p>
             </div>
