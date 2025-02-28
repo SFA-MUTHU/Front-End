@@ -95,6 +95,8 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                 return 'Products';
             case '/suppliers':
                 return 'Suppliers';
+            case '/profile':
+                return 'Profile';
             default:
                 return 'Overview';
         }

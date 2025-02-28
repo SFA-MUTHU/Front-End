@@ -8,6 +8,7 @@ import {
   SettingOutlined,
   LogoutOutlined
 } from '@ant-design/icons';
+import {useNavigate} from "react-router-dom";
 
 const { Text } = Typography;
 
@@ -23,10 +24,11 @@ interface HeaderControlsProps {
   userAvatar?: string;
 }
 
-const HeaderControls: React.FC<HeaderControlsProps> = ({ 
+const HeaderControls: React.FC<HeaderControlsProps> = ({
   userName = 'Admin User',
   userAvatar
 }) => {
+    const navigate = useNavigate();
   // User dropdown menu
   const userMenu = (
     <Menu 
@@ -35,6 +37,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
           key: '1',
           icon: <UserOutlined />,
           label: 'Profile',
+            onClick: () => navigate('/profile'),
         },
         {
           key: '2',
