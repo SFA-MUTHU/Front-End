@@ -5,6 +5,7 @@ import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
+import '../style/main.scss'
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, TimeScale, Title, Tooltip, Legend);
@@ -36,29 +37,29 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon }) => (
-  <Card 
-    hoverable 
-    style={{ 
-      borderRadius: 12, 
-      boxShadow: colors.shadowLight, 
-      background: colors.cardGradient1,
-      transition: 'all 0.3s ease',
-      border: '1px solid #f0f0f0',
-      overflow: 'hidden',
-    }}
-  >
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-      <Text style={{ color: '#888', fontSize: '15px' }}>{title}</Text>
-      {icon || <MoreOutlined style={{ color: '#bbb' }} />}
-    </div>
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 8 }}>
-      <AntTitle level={3} style={{ margin: 0 }}>{value}</AntTitle>
-      <Text style={{ color: colors.green, fontSize: '14px', display: 'flex', alignItems: 'center' }}>
-        <ArrowUpOutlined /> {change}
-      </Text>
-    </div>
-    <Text type="secondary" style={{ fontSize: '12px' }}>from {period}</Text>
-  </Card>
+    <Card
+        hoverable
+        style={{
+          borderRadius: 12,
+          boxShadow: colors.shadowLight,
+          background: colors.cardGradient1,
+          transition: 'all 0.3s ease',
+          border: '1px solid #f0f0f0',
+          overflow: 'hidden',
+        }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+        <Text style={{ color: '#888', fontSize: '15px' }}>{title}</Text>
+        {icon || <MoreOutlined style={{ color: '#bbb' }} />}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 8 }}>
+        <AntTitle level={3} style={{ margin: 0 }}>{value}</AntTitle>
+        <Text style={{ color: colors.green, fontSize: '14px', display: 'flex', alignItems: 'center' }}>
+          <ArrowUpOutlined /> {change}
+        </Text>
+      </div>
+      <Text type="secondary" style={{ fontSize: '12px' }}>from {period}</Text>
+    </Card>
 );
 
 const soldItems = [
@@ -77,6 +78,11 @@ const topSellers = [
   { name: 'William', imgSrc: 'https://via.placeholder.com/40' },
   { name: 'Thomas Selby', imgSrc: 'https://via.placeholder.com/40' },
 ];
+
+const getInitials = (name: string) => {
+  const initials = name.split(' ').map(word => word[0]).join('');
+  return initials.toUpperCase();
+};
 
 const Home: React.FC = () => {
   const [filter, setFilter] = useState('All');
@@ -120,8 +126,8 @@ const Home: React.FC = () => {
       {
         label: 'Sales',
         data: [12, 19, 13, 15, 22, 27],
-        borderColor: colors.secondary,
-        backgroundColor: 'rgba(74, 111, 165, 0.1)',
+        borderColor: colors.primary,
+        backgroundColor: colors.primaryLight,
         tension: 0.4,
         fill: true,
         borderWidth: 2,
@@ -155,228 +161,233 @@ const Home: React.FC = () => {
   };
 
   return (
-    <DashboardNavigation>
-      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-        <Col span={6}>
-          <StatCard title="Net Income" value="$498,000" change="24%" period="last month" />
-        </Col>
-        <Col span={6}>
-          <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
-        </Col>
-        <Col span={6}>
-          <StatCard title="Customer Satisfaction" value="4.8/5" change="16%" period="last month" />
-        </Col>
-        <Col span={6}>
-          <StatCard 
-            title="Top Performance" 
-            value="Premium" 
-            change="12%" 
-            period="last month"
-            icon={<CrownOutlined style={{ color: '#FFD700', fontSize: 18 }} />}
-          />
-        </Col>
-      </Row>
+      <DashboardNavigation>
+        <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+          <Col span={6}>
+            <StatCard title="Net Income" value="$498,000" change="24%" period="last month" />
+          </Col>
+          <Col span={6}>
+            <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
+          </Col>
+          <Col span={6}>
+            <StatCard title="Customer Satisfaction" value="4.8/5" change="16%" period="last month" />
+          </Col>
+          <Col span={6}>
+            <StatCard
+                title="Top Performance"
+                value="Premium"
+                change="12%"
+                period="last month"
+                icon={<CrownOutlined style={{ color: '#FFD700', fontSize: 18 }} />}
+            />
+          </Col>
+        </Row>
 
-      <Row gutter={[24, 24]}>
-        <Col span={8}>
-          <Card
-            title={<AntTitle level={5} style={{ margin: 0 }}>Sold Items</AntTitle>}
-            extra={
-              <Select 
-                defaultValue="All" 
-                onChange={value => setFilter(value)}
-                style={{ width: 120 }}
-                size="small"
-                bordered={false}
-              >
-                <Option value="All">All</Option>
-                <Option value="Active">Active</Option>
-                <Option value="Inactive">Inactive</Option>
-              </Select>
-            }
-            hoverable
-            style={{ 
-              borderRadius: 12, 
-              boxShadow: colors.shadowLight,
-              height: '100%' 
-            }}
-            bodyStyle={{ padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' }}
-          >
-            <List
-              itemLayout="horizontal"
-              dataSource={filteredItems}
-              renderItem={item => (
-                <List.Item style={{ padding: '12px 0' }}>
-                  <List.Item.Meta
-                    avatar={<Avatar src={item.imgSrc} />}
-                    title={
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text strong>{item.name}</Text>
-                        <Tag color={item.status === 'Active' ? colors.accent : colors.red} style={{ borderRadius: '10px' }}>
-                          {item.status}
-                        </Tag>
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card 
-            title={<AntTitle level={5} style={{ margin: 0 }}>Sales Report</AntTitle>} 
-            hoverable 
-            style={{ 
-              borderRadius: 12, 
-              boxShadow: colors.shadowLight,
-              height: '100%' 
-            }}
-          >
-            <Statistic 
-              title={<Text type="secondary">Total Sales</Text>} 
-              value={112893} 
-              precision={2} 
-              valueStyle={{ color: colors.secondary, fontSize: '24px' }}
-            />
-            <div style={{ marginTop: 16, height: 250 }}>
-              <Line 
-                data={salesData} 
-                options={{
-                  ...commonChartOptions,
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
-                      }
-                    },
-                    x: {
-                      grid: {
-                        display: false
-                      }
-                    }
-                  }
-                }} 
+        <Row gutter={[24, 24]}>
+          <Col span={8}>
+            <Card
+                title={<AntTitle level={5} style={{ margin: 0 }}>Sold Items</AntTitle>}
+                extra={
+                  <Select
+                      defaultValue="All"
+                      onChange={value => setFilter(value)}
+                      style={{ width: 120 }}
+                      size="small"
+                      bordered={false}
+                  >
+                    <Option value="All">All</Option>
+                    <Option value="Active">Active</Option>
+                    <Option value="Inactive">Inactive</Option>
+                  </Select>
+                }
+                hoverable
+                style={{
+                  borderRadius: 12,
+                  boxShadow: colors.shadowLight,
+                  height: '100%'
+                }}
+                bodyStyle={{ padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' }}
+            >
+              <List
+                  itemLayout="horizontal"
+                  dataSource={filteredItems}
+                  renderItem={item => (
+                      <List.Item style={{ padding: '12px 0' }}>
+                        <List.Item.Meta
+                            avatar={<Avatar src={item.imgSrc} />}
+                            title={
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text strong>{item.name}</Text>
+                                <Tag color={item.status === 'Active' ? colors.accent : colors.red} style={{ borderRadius: '10px' }}>
+                                  {item.status}
+                                </Tag>
+                              </div>
+                            }
+                        />
+                      </List.Item>
+                  )}
               />
-            </div>
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card
-            title={<AntTitle level={5} style={{ margin: 0 }}>Top Sellers</AntTitle>}
-            extra={
-              <Search
-                placeholder="Search"
-                onChange={e => setSearchTerm(e.target.value)}
-                style={{ width: 150 }}
-                size="small"
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card
+                title={<AntTitle level={5} style={{ margin: 0 }}>Sales Report</AntTitle>}
+                hoverable
+                style={{
+                  borderRadius: 12,
+                  boxShadow: colors.shadowLight,
+                  height: '100%'
+                }}
+            >
+              <Statistic
+                  title={<Text type="secondary">Total Sales</Text>}
+                  value={112893}
+                  precision={2}
+                  valueStyle={{ color: colors.secondary, fontSize: '24px' }}
               />
-            }
-            hoverable
-            style={{ 
-              borderRadius: 12, 
-              boxShadow: colors.shadowLight,
-              height: '100%'
-            }}
-            bodyStyle={{ padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' }}
-          >
-            <List
-              itemLayout="horizontal"
-              dataSource={filteredSellers}
-              renderItem={(seller, index) => (
-                <List.Item style={{ padding: '12px 0' }}>
-                  <List.Item.Meta
-                    avatar={<Avatar src={seller.imgSrc} style={{ 
-                      border: index < 3 ? `2px solid ${colors.primary}` : 'none'
-                    }} />}
-                    title={
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Text strong>{seller.name}</Text>
-                        {index === 0 && <CrownOutlined style={{ color: '#FFD700', marginLeft: 8 }} />}
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-      </Row>
-      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
-        <Col span={24}>
-          <Card 
-            title={<AntTitle level={5} style={{ margin: 0 }}>Revenue</AntTitle>} 
-            hoverable 
-            style={{ 
-              borderRadius: 12, 
-              boxShadow: colors.shadowMedium 
-            }}
-          >
-            <Statistic 
-              title={<Text type="secondary">Total Revenue</Text>} 
-              value={256000} 
-              precision={2} 
-              valueStyle={{ 
-                color: colors.accent,
-                fontSize: '24px'
-              }}
-              prefix="$"
-            />
-            <div style={{ marginTop: 20, height: 300 }}>
-              <Line 
-                data={revenueTimeData} 
-                options={{
-                  ...commonChartOptions,
-                  interaction: {
-                    mode: 'index',
-                    intersect: false,
-                  },
-                  plugins: {
-                    ...commonChartOptions.plugins,
-                    tooltip: {
-                      callbacks: {
-                        label: function(context) {
-                          let label = context.dataset.label || '';
-                          if (label) {
-                            label += ': ';
+              <div style={{ marginTop: 16, height: 250 }}>
+                <Line
+                    data={salesData}
+                    options={{
+                      ...commonChartOptions,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
                           }
-                          if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('en-US', {
-                              style: 'currency',
-                              currency: 'USD'
-                            }).format(context.parsed.y);
+                        },
+                        x: {
+                          grid: {
+                            display: false
                           }
-                          return label;
                         }
                       }
-                    }
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: {
-                        callback: function(value) {
-                          return '$' + value.toLocaleString();
+                    }}
+                />
+              </div>
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card
+                title={<AntTitle level={5} style={{ margin: 0 }}>Top Sellers</AntTitle>}
+                extra={
+                  <Search
+                      placeholder="Search"
+                      onChange={e => setSearchTerm(e.target.value)}
+                      style={{ width: 150 }}
+                      size="small"
+                  />
+                }
+                hoverable
+                style={{
+                  borderRadius: 12,
+                  boxShadow: colors.shadowLight,
+                  height: '100%'
+                }}
+                bodyStyle={{ padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' }}
+            >
+              <List
+                  itemLayout="horizontal"
+                  dataSource={filteredSellers}
+                  renderItem={(seller, index) => (
+                      <List.Item style={{ padding: '12px 0' }}>
+                        <List.Item.Meta
+                            avatar={
+                              <Avatar style={{
+                                backgroundColor: colors.primary,
+                                border: index < 3 ? `2px solid ${colors.primary}` : 'none'
+                              }}>
+                                {getInitials(seller.name)}
+                              </Avatar>
+                            }
+                            title={
+                              <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Text strong>{seller.name}</Text>
+                                {index === 0 && <CrownOutlined style={{ color: '#FFD700', marginLeft: 8 }} />}
+                              </div>
+                            }
+                        />
+                      </List.Item>
+                  )}
+              />
+            </Card>
+          </Col>
+        </Row>
+        <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+          <Col span={24}>
+            <Card
+                title={<AntTitle level={5} style={{ margin: 0 }}>Revenue</AntTitle>}
+                hoverable
+                style={{
+                  borderRadius: 12,
+                  boxShadow: colors.shadowMedium
+                }}
+            >
+              <Statistic
+                  title={<Text type="secondary">Total Revenue</Text>}
+                  value={256000}
+                  precision={2}
+                  valueStyle={{
+                    color: colors.accent,
+                    fontSize: '24px'
+                  }}
+                  prefix="$"
+              />
+              <div style={{ marginTop: 20, height: 300 }}>
+                <Line
+                    data={revenueTimeData}
+                    options={{
+                      ...commonChartOptions,
+                      interaction: {
+                        mode: 'index',
+                        intersect: false,
+                      },
+                      plugins: {
+                        ...commonChartOptions.plugins,
+                        tooltip: {
+                          callbacks: {
+                            label: function(context) {
+                              let label = context.dataset.label || '';
+                              if (label) {
+                                label += ': ';
+                              }
+                              if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('en-US', {
+                                  style: 'currency',
+                                  currency: 'USD'
+                                }).format(context.parsed.y);
+                              }
+                              return label;
+                            }
+                          }
                         }
                       },
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            callback: function(value) {
+                              return '$' + value.toLocaleString();
+                            }
+                          },
+                          grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                          }
+                        },
+                        x: {
+                          grid: {
+                            display: false
+                          }
+                        }
                       }
-                    },
-                    x: {
-                      grid: {
-                        display: false
-                      }
-                    }
-                  }
-                }} 
-              />
-            </div>
-          </Card>
-        </Col>
-      </Row>
-    </DashboardNavigation>
+                    }}
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </DashboardNavigation>
   );
 };
 
