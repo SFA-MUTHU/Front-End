@@ -7,12 +7,10 @@ import {
     UserOutlined,
     SettingOutlined,
     HomeOutlined,
-    DownOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme, Typography, Button } from 'antd';
+import { Breadcrumb, Layout, Menu, theme, Typography } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive';
 import CurrentDateTime from "./CurrentDateTime.tsx";
 import HeaderControls from "./HeaderControls";
 
@@ -23,14 +21,14 @@ type MenuItem = Required<MenuProps>['items'][number];
 
 // Color theme constants
 const colors = {
-    primary: '#9C7456',
-    primaryLight: '#DBC1AD',
-    secondary: '#4A6FA5',
-    accent: '#47B881',
-    text: '#333333',
-    background: '#F8F9FA',
-    cardBg: '#FFFFFF',
-    headerBg: '#F0F2F5',
+  primary: '#9C7456',
+  primaryLight: '#DBC1AD',
+  secondary: '#4A6FA5',
+  accent: '#47B881',
+  text: '#333333',
+  background: '#F8F9FA',
+  cardBg: '#FFFFFF',
+  headerBg: '#F0F2F5',
 };
 
 function getItem(
@@ -51,36 +49,25 @@ function getItem(
 
 const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const [collapsed, setCollapsed] = useState(false);
-
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // Initial check
-
     const navigate = useNavigate();
     const location = useLocation();
-    const isMobile = useMediaQuery({ maxWidth: 767 });
     const {
         token: { borderRadiusLG },
     } = theme.useToken();
 
-    useEffect(() => {
-        const handleResize = () => setScreenWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
     // Main navigation items with enhanced styling
     const mainNavItems: MenuItem[] = [
-        getItem(screenWidth > 768 ? <span style={{ fontWeight: 'bold', color: 'white' }}>Overview</span> : null, '/home', <AppstoreOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/home')),
-        getItem(screenWidth > 768 ? <span style={{ fontWeight: 'bold', color: 'white' }}>Employees</span> : null, '/employees', <TeamOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/employees')),
-        getItem(screenWidth > 768 ? <span style={{ fontWeight: 'bold', color: 'white' }}>Customers</span> : null, '/customers', <UserOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/customers')),
-        getItem(screenWidth > 768 ? <span style={{ fontWeight: 'bold', color: 'white' }}>Products</span> : null, '/products', <ShoppingOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/products')),
-        getItem(screenWidth > 768 ? <span style={{ fontWeight: 'bold', color: 'white' }}>Suppliers</span> : null, '/suppliers', <ShopOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/suppliers')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Overview</span>, '/home', <AppstoreOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/home')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Employees</span>, '/employees', <TeamOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/employees')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Customers</span>, '/customers', <UserOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/customers')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Products</span>, '/products', <ShoppingOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/products')),
+        getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Suppliers</span>, '/suppliers', <ShopOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/suppliers')),
     ];
 
     // Bottom navigation items (Settings)
     const bottomNavItems: MenuItem[] = [
-
         getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Settings</span>, '/settings', <SettingOutlined style={{ fontSize: '24px', color: 'white' }} />),
-
     ];
 
     // Combine both for navigation purposes
@@ -148,7 +135,6 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
 
     return (
         <Layout style={{ height: '100vh', overflow: 'hidden' }}>
-
             <Sider 
                 collapsible 
                 collapsed={collapsed} 
@@ -158,14 +144,13 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                     height: '100%', 
                     overflow: 'auto', 
                     display: 'flex', 
-
                     flexDirection: 'column',
                     boxShadow: '2px 0 8px rgba(0,0,0,0.15)'
                 }}
             >
-                <div className="logo" style={{
-                    height: '64px',
-                    background: colors.primary,
+                <div className="logo" style={{ 
+                    height: '64px', 
+                    background: colors.primary, 
                     margin: '16px 0 8px',
                     display: 'flex',
                     justifyContent: 'center',
@@ -178,7 +163,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                         <HomeOutlined style={{ fontSize: '24px', color: 'white' }} />
                     )}
                 </div>
-
+                
                 <Menu
                     theme="dark"
                     mode="inline"
@@ -188,19 +173,19 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                         navigate(key);
                         setSelectedKeys([key]);
                     }}
-                    style={{
-                        backgroundColor: colors.primary,
+                    style={{ 
+                        backgroundColor: colors.primary, 
                         flex: 1,
                         marginTop: '0',
                         padding: '0',
                         borderRight: 'none'
                     }}
                 />
-
-                <div style={{
-                    marginTop: 'auto',
-                    borderTop: '1px solid rgba(255,255,255,0.2)',
-                    paddingTop: '8px'
+                
+                <div style={{ 
+                    marginTop: 'auto', 
+                    borderTop: '1px solid rgba(255,255,255,0.2)', 
+                    paddingTop: '8px' 
                 }}>
                     <Menu
                         theme="dark"
@@ -214,21 +199,6 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                         style={{ backgroundColor: colors.primary, borderRight: 'none' }}
                     />
                 </div>
-                {screenWidth <= 768 && showBottomArrow && (
-                    <Button
-                        type="primary"
-                        icon={<DownOutlined />}
-                        onClick={() => setShowBottomArrow(false)}
-                        style={{
-                            position: 'absolute',
-                            bottom: '10px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            backgroundColor: colors.primary,
-                            borderColor: colors.primary,
-                        }}
-                    />
-                )}
             </Sider>
             <Layout>
                 <Header style={{
@@ -249,7 +219,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                         {getBreadcrumb()}
                     </Title>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                        {!isMobile && <CurrentDateTime />}
+                        <CurrentDateTime />
                         <HeaderControls userName="Admin User" />
                     </div>
                 </Header>
@@ -259,11 +229,11 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                     overflow: 'auto',
                     height: 'calc(100vh - 80px - 69px)'
                 }}>
-                    <Breadcrumb
+                    <Breadcrumb 
                         style={{ margin: '16px 0' }}
                         items={[
-                            { title: 'Overview' },
-                            { title: getBreadcrumb() },
+                          { title: 'Overview' },
+                          { title: getBreadcrumb() },
                         ]}
                     />
                     <div
@@ -279,14 +249,14 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                         {children}
                     </div>
                 </Content>
-                <Footer style={{
+                <Footer style={{ 
                     textAlign: 'center',
                     padding: '12px 20px',
                     position: 'sticky',
                     bottom: 0,
-                    background: colors.primary,
+                    background: colors.cardBg,
                     boxShadow: '0px -2px 10px rgba(0,0,0,0.05)',
-                    color: 'white',
+                    color: '#666'
                 }}>
                     Wrenix ©{new Date().getFullYear()} All Rights Reserved
                 </Footer>
