@@ -7,7 +7,6 @@ import {
     DownOutlined,
     SettingOutlined,
     LogoutOutlined,
-    ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from 'react-responsive';
@@ -27,7 +26,6 @@ interface HeaderControlsProps {
 }
 
 const HeaderControls: React.FC<HeaderControlsProps> = ({
-                                                           userName = 'Admin User',
                                                            userAvatar
                                                        }) => {
     const navigate = useNavigate();
@@ -133,14 +131,16 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
 
     return (
         <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"}>
-            <ReloadOutlined
-                style={{
-                    fontSize: '18px',
-                    cursor: 'pointer',
-                    color: colors.text
-                }}
-                onClick={() => window.location.reload()}
-            />
+            {!isMobile && (
+                <ReloadOutlined
+                    style={{
+                        fontSize: '18px',
+                        cursor: 'pointer',
+                        color: colors.text
+                    }}
+                    onClick={() => window.location.reload()}
+                />
+            )}
 
             <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
                 <Badge count={3} size="small">
@@ -155,15 +155,17 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 </Badge>
             </Dropdown>
 
-            <Dropdown overlay={roleMenu} trigger={['click']}>
-                <Space style={{ cursor: 'pointer' }}>
-                    <Text strong>Sales Admin</Text>
-                    <DownOutlined style={{ fontSize: '12px' }} />
-                </Space>
-            </Dropdown>
+            {!isMobile && (
+                <Dropdown overlay={roleMenu} trigger={['click']}>
+                    <Space style={{ cursor: 'pointer' }}>
+                        <Text strong>Sales Admin</Text>
+                        <DownOutlined style={{ fontSize: '12px' }} />
+                    </Space>
+                </Dropdown>
+            )}
 
             <Dropdown overlay={userMenu} placement="bottomRight" arrow trigger={['click']}>
-                <Space style={{ cursor: 'pointer' }}>
+                <Space style={{ cursor: 'pointer', marginTop: isMobile ? '-10px' : '0' }}>
                     <Avatar
                         src={userAvatar}
                         icon={!userAvatar && <UserOutlined />}

@@ -111,9 +111,13 @@ const Login: React.FC = () => {
             </Form>
             <Divider>Wrenix ©</Divider>
           </Card>
-          {screenWidth > 768 && (
-              <img src={LogCharacter} alt="Log Character" style={{width: '50%', height: 'auto'}}/>
-          )}
+            {screenWidth > 768 && (
+                <img
+                    src={LogCharacter}
+                    alt="Log Character"
+                    style={{width: '50%', height: 'auto'}}
+                />
+            )}
         </div>
       </div>
   );

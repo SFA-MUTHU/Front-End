@@ -124,8 +124,8 @@ const Home: React.FC = () => {
       {
         label: 'Sales',
         data: [12, 19, 13, 15, 22, 27],
-        borderColor: colors.secondary,
-        backgroundColor: 'rgba(74, 111, 165, 0.1)',
+        borderColor: colors.primary,
+        backgroundColor: colors.primaryLight,
         tension: 0.4,
         fill: true,
         borderWidth: 2,
