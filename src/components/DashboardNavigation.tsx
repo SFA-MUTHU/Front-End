@@ -49,6 +49,7 @@ function getItem(
 
 const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const [collapsed, setCollapsed] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768); // Initial check
     const navigate = useNavigate();
     const location = useLocation();
     const {
@@ -64,15 +65,15 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
         getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Suppliers</span>, '/suppliers', <ShopOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/suppliers')),
     ];
 
-    // Bottom navigation items (GENERAL and Settings)
+    // Bottom navigation items (Settings)
     const bottomNavItems: MenuItem[] = [
-      
         getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Settings</span>, '/settings', <SettingOutlined style={{ fontSize: '24px', color: 'white' }} />),
     ];
 
     // Combine both for navigation purposes
     const allNavItems = [...mainNavItems, ...bottomNavItems];
 
+    // Sync selected keys with current route
     useEffect(() => {
         const currentPath = location.pathname;
         const selectedItem = allNavItems.find(item => item?.key === currentPath);
@@ -82,6 +83,36 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
     }, [location.pathname]);
 
     const [selectedKeys, setSelectedKeys] = useState<string[]>([location.pathname]);
+
+    // Handle screen size changes for auto-collapsing
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 768px)'); 
+
+        const handleResize = (e: MediaQueryListEvent) => {
+            setIsMobile(e.matches);
+            if (e.matches) {
+                setCollapsed(true); 
+            } else {
+                setCollapsed(false); 
+            }
+        };
+
+       
+        setIsMobile(mediaQuery.matches);
+        if (mediaQuery.matches) {
+            setCollapsed(true);
+        }
+
+       
+        mediaQuery.addEventListener('change', handleResize);
+
+        return () => mediaQuery.removeEventListener('change', handleResize);
+    }, []);
+
+    
+    const handleCollapse = (value: boolean) => {
+        setCollapsed(value);
+    };
 
     const getBreadcrumb = () => {
         switch (location.pathname) {
@@ -107,7 +138,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
             <Sider 
                 collapsible 
                 collapsed={collapsed} 
-                onCollapse={(value) => setCollapsed(value)} 
+                onCollapse={handleCollapse} 
                 style={{ 
                     background: colors.primary, 
                     height: '100%', 
@@ -162,10 +193,8 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                         items={bottomNavItems}
                         selectedKeys={selectedKeys}
                         onClick={({ key }) => {
-                            if (key !== 'general-header') {
-                                navigate(key);
-                                setSelectedKeys([key]);
-                            }
+                            navigate(key);
+                            setSelectedKeys([key]);
                         }}
                         style={{ backgroundColor: colors.primary, borderRight: 'none' }}
                     />
