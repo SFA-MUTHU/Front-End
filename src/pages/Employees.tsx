@@ -67,7 +67,7 @@ const Employees: React.FC = () => {
     <DashboardNavigation>
       <Row gutter={16} style={{ padding: 24, height: 500 }}>
         {/* Left: Employee List */}
-        <Col span={12} style={{ height: '100%' }}>
+        <Col xs={24} md={12} style={{ height: '100%' }}>
           <Card
             title="Employee List"
             extra={<Search placeholder="Search by name" onChange={e => setSearchTerm(e.target.value)} style={{ width: 180 }} />}
@@ -91,9 +91,10 @@ const Employees: React.FC = () => {
         </Col>
 
         {/* Right: Two Vertical Sections */}
-        <Col span={12} style={{ height: '100%' }}>
-          <Row gutter={16} style={{ height: '50%', marginBottom: '16px' }}>
-            <Col span={24} style={{ height: '100%' }}>
+        <Col xs={24} md={12} style={{ height: '100%' }}>
+          <Row gutter={16} style={{ height: '100%' }}>
+            {/* Task Completion Card */}
+            <Col xs={24} md={24} style={{ height: '70%', marginBottom: '16px',marginTop:'16px' }}>
               <Card
                 title="Task Completion"
                 hoverable
@@ -127,72 +128,79 @@ const Employees: React.FC = () => {
                 </div>
               </Card>
             </Col>
-          </Row>
-          <Row gutter={16} style={{ height: '50%' }}>
-            <Col span={12} style={{ height: '100%' }}>
-              <Card
-                title="Employee Onboarding"
-                hoverable
-                style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-              >
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={showModal}
-                    style={{ backgroundColor: '#DBC1AD', color: '#000' }}
-                >
-                  Add Employee
-                </Button>
-                <Modal title="Add Employee" visible={modalVisible} onOk={handleOk} onCancel={handleCancel}>
-                  <Form form={form} layout="vertical" name="addEmployee">
-                    <Form.Item
-                      name="profileImage"
-                      label="Profile Image"
-                      valuePropName="fileList"
-                      getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
-                      rules={[{ required: true, message: 'Please upload a profile image!' }]}
+
+            {/* Nested Row for Employee Onboarding and Task Completion Rate */}
+            <Col xs={24} md={24} style={{ height: '50%' }}>
+              <Row gutter={16} style={{ height: '100%' }}>
+                {/* Employee Onboarding Card */}
+                <Col xs={24} md={12} style={{ height: '100%', marginBottom: '16px' }}>
+                  <Card
+                    title="Employee Onboarding"
+                    hoverable
+                    style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                  >
+                    <Button
+                      type="primary"
+                      icon={<PlusOutlined />}
+                      onClick={showModal}
+                      style={{ backgroundColor: '#DBC1AD', color: '#000' }}
                     >
-                      <Upload name="profileImage" listType="picture" maxCount={1}>
-                        <Button icon={<UploadOutlined />}>Add Photo</Button>
-                      </Upload>
-                    </Form.Item>
-                    <Form.Item name="employeeId" label="Employee ID" rules={[{ required: true, message: 'Enter employee ID!' }]}>
-                      <Input placeholder="EM0096" />
-                    </Form.Item>
-                    <Form.Item name="employeeName" label="Employee Name" rules={[{ required: true, message: 'Type employee name!' }]}>
-                      <Input placeholder="Type Employee name here" />
-                    </Form.Item>
-                    <Form.Item name="phoneNumber" label="Telephone Number" rules={[{ required: true, message: 'Enter phone number!' }]}>
-                      <Input placeholder="Enter Employee’s Phone Number" />
-                    </Form.Item>
-                    <Form.Item name="birthday" label="Birthday" rules={[{ required: true, message: 'Enter birth date!' }]}>
-                      <Input placeholder="Enter Employee’s Birth of date" />
-                    </Form.Item>
-                    <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter address!' }]}>
-                      <Input placeholder="Enter Employee’s Address" />
-                    </Form.Item>
-                  </Form>
-                </Modal>
-              </Card>
-            </Col>
-            <Col span={12} style={{ height: '100%' }}>
-              <Card
-                title="Task Completion Rate"
-                hoverable
-                style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-              >
-                <div style={{ height: 180 }}>
-                  <Doughnut data={taskStatusData} options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'bottom'
-                      }
-                    }
-                  }} />
-                </div>
-              </Card>
+                      Add Employee
+                    </Button>
+                    <Modal title="Add Employee" visible={modalVisible} onOk={handleOk} onCancel={handleCancel}>
+                      <Form form={form} layout="vertical" name="addEmployee">
+                        <Form.Item
+                          name="profileImage"
+                          label="Profile Image"
+                          valuePropName="fileList"
+                          getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.fileList)}
+                          rules={[{ required: true, message: 'Please upload a profile image!' }]}
+                        >
+                          <Upload name="profileImage" listType="picture" maxCount={1}>
+                            <Button icon={<UploadOutlined />}>Add Photo</Button>
+                          </Upload>
+                        </Form.Item>
+                        <Form.Item name="employeeId" label="Employee ID" rules={[{ required: true, message: 'Enter employee ID!' }]}>
+                          <Input placeholder="EM0096" />
+                        </Form.Item>
+                        <Form.Item name="employeeName" label="Employee Name" rules={[{ required: true, message: 'Type employee name!' }]}>
+                          <Input placeholder="Type Employee name here" />
+                        </Form.Item>
+                        <Form.Item name="phoneNumber" label="Telephone Number" rules={[{ required: true, message: 'Enter phone number!' }]}>
+                          <Input placeholder="Enter Employee’s Phone Number" />
+                        </Form.Item>
+                        <Form.Item name="birthday" label="Birthday" rules={[{ required: true, message: 'Enter birth date!' }]}>
+                          <Input placeholder="Enter Employee’s Birth of date" />
+                        </Form.Item>
+                        <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter address!' }]}>
+                          <Input placeholder="Enter Employee’s Address" />
+                        </Form.Item>
+                      </Form>
+                    </Modal>
+                  </Card>
+                </Col>
+
+                {/* Task Completion Rate Card */}
+                <Col xs={24} md={12} style={{ height: '115%' }}>
+                  <Card
+                    title="Task Completion Rate"
+                    hoverable
+                    style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+                  >
+                    <div style={{ height: 180 }}>
+                      <Doughnut data={taskStatusData} options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'bottom'
+                          }
+                        }
+                      }} />
+                    </div>
+                  </Card>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </Col>
