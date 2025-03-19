@@ -142,7 +142,7 @@ const AddProductPage: React.FC = () => {
     }
   };
 
-  // Modern UI styles
+  // Modern UI styles with brown colors instead of blue
   const colors = {
     primary: '#9C7456',
     primaryLight: '#DBC1AD',

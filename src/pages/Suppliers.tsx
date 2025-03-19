@@ -3,6 +3,7 @@ import { Layout, Row, Col, Button, Table, Tag, Typography, Avatar, Input } from 
 import { SearchOutlined, FilterOutlined, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
+import AddSupplierForm from './Addsupplierpage'; 
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -24,7 +25,8 @@ const Suppliers: React.FC = () => {
   const navigate = useNavigate();
   const [selectedSupplier, setSelectedSupplier] = useState<string>('Nike');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filteredSuppliers, setFilteredSuppliers] = useState<Array<{name: string, logo: string}>>([]); 
+  const [filteredSuppliers, setFilteredSuppliers] = useState<Array<{ name: string; logo: string }>>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
 
   // Sample suppliers list with logos
   const suppliersList = [
@@ -42,7 +44,7 @@ const Suppliers: React.FC = () => {
 
   // Filter suppliers based on search term
   useEffect(() => {
-    const filtered = suppliersList.filter(supplier => 
+    const filtered = suppliersList.filter((supplier) =>
       supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredSuppliers(filtered);
@@ -61,7 +63,7 @@ const Suppliers: React.FC = () => {
         { key: '1', billNumber: '#N5267', date: 'Mar 1, 2024', amount: '$100,000', paymentMethod: 'Card', status: 'Success' },
         { key: '2', billNumber: '#N5268', date: 'Mar 2, 2024', amount: '$85,000', paymentMethod: 'Cash', status: 'In Process' },
         { key: '3', billNumber: '#N5269', date: 'Mar 3, 2024', amount: '$120,000', paymentMethod: 'Cheque', status: 'Rejected' },
-      ]
+      ],
     },
     Adidas: {
       name: 'Adidas',
@@ -69,71 +71,71 @@ const Suppliers: React.FC = () => {
         { key: '1', billNumber: '#A8721', date: 'Feb 28, 2024', amount: '$95,000', paymentMethod: 'Card', status: 'Success' },
         { key: '2', billNumber: '#A8722', date: 'Mar 5, 2024', amount: '$78,000', paymentMethod: 'Cash', status: 'Success' },
         { key: '3', billNumber: '#A8723', date: 'Mar 10, 2024', amount: '$110,000', paymentMethod: 'Cheque', status: 'In Process' },
-      ]
+      ],
     },
     Zara: {
       name: 'Zara',
       data: [
         { key: '1', billNumber: '#Z3421', date: 'Mar 7, 2024', amount: '$65,000', paymentMethod: 'Card', status: 'Success' },
         { key: '2', billNumber: '#Z3422', date: 'Mar 12, 2024', amount: '$72,000', paymentMethod: 'Cash', status: 'In Process' },
-      ]
+      ],
     },
-    // Add sample data for other suppliers with the same structure
   };
 
-  // Provide default data for suppliers without explicit data
-  suppliersList.forEach(supplier => {
+  suppliersList.forEach((supplier) => {
     if (!suppliersData[supplier.name]) {
       suppliersData[supplier.name] = {
         name: supplier.name,
         data: [
-          { 
-            key: '1', 
-            billNumber: `#${supplier.logo}1234`, 
-            date: 'Mar 15, 2024', 
-            amount: '$80,000', 
-            paymentMethod: 'Card', 
-            status: 'Success' 
+          {
+            key: '1',
+            billNumber: `#${supplier.logo}1234`,
+            date: 'Mar 15, 2024',
+            amount: '$80,000',
+            paymentMethod: 'Card',
+            status: 'Success',
           },
-          { 
-            key: '2', 
-            billNumber: `#${supplier.logo}1235`, 
-            date: 'Mar 16, 2024', 
-            amount: '$92,000', 
-            paymentMethod: 'Cash', 
-            status: 'In Process' 
+          {
+            key: '2',
+            billNumber: `#${supplier.logo}1235`,
+            date: 'Mar 16, 2024',
+            amount: '$92,000',
+            paymentMethod: 'Cash',
+            status: 'In Process',
           },
-        ]
+        ],
       };
     }
   });
 
-  // Handler for when a supplier is clicked
   const handleSupplierClick = (supplier: string) => {
     setSelectedSupplier(supplier);
   };
 
-  // Columns for the table
   const columns = [
     { title: 'Bill Number', dataIndex: 'billNumber', key: 'billNumber' },
     { title: 'Date', dataIndex: 'date', key: 'date' },
     { title: 'Amount', dataIndex: 'amount', key: 'amount' },
     { title: 'Payment Method', dataIndex: 'paymentMethod', key: 'paymentMethod' },
-    { 
-      title: 'Status', 
-      dataIndex: 'status', 
-      key: 'status', 
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
       render: (status: string) => {
         const color = status === 'Success' ? 'green' : status === 'In Process' ? 'orange' : 'red';
         return <Tag color={color}>{status}</Tag>;
-      }
+      },
     },
   ];
 
-  // Get the current supplier's data
   const currentSupplierData = suppliersData[selectedSupplier] || suppliersData['Nike'];
 
-  // Custom scrollbar styles
+  const handleAddSupplier = (data) => {
+    console.log('New Supplier Data:', data);
+    // Here you could update suppliersList and suppliersData with the new supplier
+    setIsModalVisible(false);
+  };
+
   const scrollbarStyle = `
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
@@ -159,7 +161,6 @@ const Suppliers: React.FC = () => {
     <DashboardNavigation>
       <style>{scrollbarStyle}</style>
       <Layout>
-        {/* Modern Suppliers Profile Sidebar with Search */}
         <Sider
           width={240}
           style={{
@@ -169,21 +170,16 @@ const Suppliers: React.FC = () => {
             margin: '20px 10px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
           }}
         >
-          <div
-            style={{
-              textAlign: 'center',
-              marginBottom: '16px',
-              color: '#333',
-            }}
-          >
-            <Title level={4} style={{ marginBottom: '5px' }}>Suppliers Profile</Title>
+          <div style={{ textAlign: 'center', marginBottom: '16px', color: '#333' }}>
+            <Title level={4} style={{ marginBottom: '5px' }}>
+              Suppliers Profile
+            </Title>
             <Text type="secondary">Select a supplier</Text>
           </div>
 
-          {/* Search input for suppliers */}
           <Search
             placeholder="Search suppliers"
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -192,21 +188,15 @@ const Suppliers: React.FC = () => {
             size="middle"
           />
 
-          {/* Suppliers list with custom scrollbar */}
-          <div 
+          <div
             className="custom-scrollbar"
-            style={{ 
-              maxHeight: '500px', 
-              overflowY: 'auto',
-              paddingRight: '4px',
-              flex: 1
-            }}
+            style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '4px', flex: 1 }}
           >
             {filteredSuppliers.map((supplier, index) => (
-              <div 
+              <div
                 key={index}
                 onClick={() => handleSupplierClick(supplier.name)}
-                style={{ 
+                style={{
                   display: 'flex',
                   alignItems: 'center',
                   padding: '10px 15px',
@@ -217,30 +207,16 @@ const Suppliers: React.FC = () => {
                   transition: 'all 0.3s ease',
                   border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
                   boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
-                  opacity: 1,
-                  animation: 'fadeIn 0.3s ease-in-out'
                 }}
               >
-                <Avatar 
-                  size="small"
-                  style={{
-                    backgroundColor: '#9C7456',
-                    marginRight: '10px'
-                  }}
-                >
+                <Avatar size="small" style={{ backgroundColor: '#9C7456', marginRight: '10px' }}>
                   {supplier.logo}
                 </Avatar>
-                <Text 
-                  strong={selectedSupplier === supplier.name}
-                  style={{ 
-                    color: selectedSupplier === supplier.name ? '#9C7456' : '#333',
-                  }}
-                >
+                <Text strong={selectedSupplier === supplier.name} style={{ color: selectedSupplier === supplier.name ? '#9C7456' : '#333' }}>
                   {supplier.name}
                 </Text>
               </div>
             ))}
-            
             {filteredSuppliers.length === 0 && (
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <Text type="secondary">No suppliers found</Text>
@@ -249,18 +225,16 @@ const Suppliers: React.FC = () => {
           </div>
         </Sider>
 
-        {/* Main Content Area */}
         <Content style={{ padding: '20px' }}>
-          {/* Header */}
-          <Row 
-            justify="space-between" 
-            align="middle" 
-            style={{ 
-              marginBottom: '20px', 
+          <Row
+            justify="space-between"
+            align="middle"
+            style={{
+              marginBottom: '20px',
               padding: '15px 20px',
               backgroundColor: 'white',
               borderRadius: '12px',
-              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
             }}
           >
             <Col>
@@ -272,46 +246,35 @@ const Suppliers: React.FC = () => {
               </div>
             </Col>
             <Col>
-              <Button 
-                icon={<FilterOutlined />} 
-                style={{ marginRight: 8 }}
-              >
+              <Button icon={<FilterOutlined />} style={{ marginRight: 8 }}>
                 Filter
               </Button>
-              <Button 
-                icon={<SearchOutlined />} 
-                style={{ marginRight: 8 }}
-              >
+              <Button icon={<SearchOutlined />} style={{ marginRight: 8 }}>
                 Search
               </Button>
-              <Button 
-                icon={<PlusOutlined />} 
+              <Button
+                icon={<PlusOutlined />}
                 type="primary"
                 style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}
-                onClick={() => navigate('/addsupplier')}
+                onClick={() => setIsModalVisible(true)} // Open modal instead of navigating
               >
                 Add Supplier
               </Button>
             </Col>
           </Row>
 
-          {/* Table with supplier-specific data */}
-          <div 
-            style={{ 
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '20px',
-              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
-            }}
-          >
-            <Table 
-              columns={columns} 
-              dataSource={currentSupplierData.data} 
-              pagination={{ pageSize: 5 }} 
-            />
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)' }}>
+            <Table columns={columns} dataSource={currentSupplierData.data} pagination={{ pageSize: 5 }} />
           </div>
         </Content>
       </Layout>
+
+      {/* Add Supplier Modal */}
+      <AddSupplierForm
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSubmit={handleAddSupplier}
+      />
     </DashboardNavigation>
   );
 };
