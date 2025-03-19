@@ -19,16 +19,14 @@ const { Title } = Typography;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-// Color theme constants
+// Updated color theme constants based on your requirements
 const colors = {
-  primary: '#9C7456',
-  primaryLight: '#DBC1AD',
-  secondary: '#4A6FA5',
-  accent: '#47B881',
-  text: '#333333',
-  background: '#F8F9FA',
-  cardBg: '#FFFFFF',
-  headerBg: '#F0F2F5',
+  primary: '#A67B5B',      
+  primaryLight: '#DBC1AD',   
+  background: '#F6F4F1',     
+  text: '#333333',         
+  cardBg: '#FFFFFF',         
+  headerBg: '#F6F4F1',       
 };
 
 function getItem(
@@ -56,7 +54,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
         token: { borderRadiusLG },
     } = theme.useToken();
 
-    // Main navigation items with enhanced styling
+    // Main navigation items with updated styling
     const mainNavItems: MenuItem[] = [
         getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Overview</span>, '/home', <AppstoreOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/home')),
         getItem(<span style={{ fontWeight: 'bold', color: 'white' }}>Employees</span>, '/employees', <TeamOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/employees')),
@@ -134,7 +132,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
     };
 
     return (
-        <Layout style={{ height: '100vh', overflow: 'hidden' }}>
+        <Layout style={{ height: '100vh', overflow: 'hidden', background: colors.background }}>
             <Sider 
                 collapsible 
                 collapsed={collapsed} 
@@ -215,7 +213,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                     transition: 'left 0.2s',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                 }}>
-                    <Title level={4} style={{ margin: 0, color: colors.text }}>
+                    <Title level={4} style={{ margin: 0, color: 'black' }}>
                         {getBreadcrumb()}
                     </Title>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
@@ -227,7 +225,8 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                     margin: '0 16px',
                     marginTop: 80,
                     overflow: 'auto',
-                    height: 'calc(100vh - 80px - 69px)'
+                    height: 'calc(100vh - 80px - 69px)',
+                    background: colors.background
                 }}>
                     <Breadcrumb 
                         style={{ margin: '16px 0' }}
