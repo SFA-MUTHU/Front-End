@@ -253,9 +253,9 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                     padding: '12px 20px',
                     position: 'sticky',
                     bottom: 0,
-                    background: colors.cardBg,
+                    background: '#A67B5B',
                     boxShadow: '0px -2px 10px rgba(0,0,0,0.05)',
-                    color: '#666'
+                    color: '#fff'
                 }}>
                     Wrenix ©{new Date().getFullYear()} All Rights Reserved
                 </Footer>

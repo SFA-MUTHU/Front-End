@@ -40,7 +40,8 @@ export const theme = {
 
   // Typography (unchanged)
   typography: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+   
+    fontfamily: 'Roboto, sans-serif',
     fontSizes: {
       xs: '12px',
       sm: '14px',
