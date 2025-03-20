@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from 'react-responsive';
 import '../style/HeaderControls.css'; // Import the CSS file for animations
+import CurrentDateTime from './CurrentDateTime'; // Import the CurrentDateTime component
 
 const { Text } = Typography;
 
@@ -132,36 +133,39 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
     return (
         <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"}>
             {!isMobile && (
-                <ReloadOutlined
-                    style={{
-                        fontSize: '18px',
-                        cursor: 'pointer',
-                        color: colors.text
-                    }}
-                    onClick={() => window.location.reload()}
-                />
-            )}
-
-            <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
-                <Badge count={3} size="small">
-                    <BellOutlined
-                        className={blink ? 'blink' : ''}
+                <>
+                    <ReloadOutlined
                         style={{
                             fontSize: '18px',
                             cursor: 'pointer',
                             color: colors.text
                         }}
+                        onClick={() => window.location.reload()}
                     />
-                </Badge>
-            </Dropdown>
 
-            {!isMobile && (
-                <Dropdown overlay={roleMenu} trigger={['click']}>
-                    <Space style={{ cursor: 'pointer' }}>
-                        <Text strong>Sales Admin</Text>
-                        <DownOutlined style={{ fontSize: '12px' }} />
-                    </Space>
-                </Dropdown>
+                    <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
+                        <Badge count={3} size="small">
+                            <BellOutlined
+                                className={blink ? 'blink' : ''}
+                                style={{
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    color: colors.text
+                                }}
+                            />
+                        </Badge>
+                    </Dropdown>
+
+                    <Dropdown overlay={roleMenu} trigger={['click']}>
+                        <Space style={{ cursor: 'pointer' }}>
+                            <Text strong>Sales Admin</Text>
+                            <DownOutlined style={{ fontSize: '12px' }} />
+                        </Space>
+                    </Dropdown>
+
+                    {/* Date and Time */}
+                    <CurrentDateTime />
+                </>
             )}
 
             <Dropdown overlay={userMenu} placement="bottomRight" arrow trigger={['click']}>
