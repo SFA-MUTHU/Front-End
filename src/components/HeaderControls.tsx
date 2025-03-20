@@ -25,9 +25,7 @@ interface HeaderControlsProps {
     userAvatar?: string;
 }
 
-const HeaderControls: React.FC<HeaderControlsProps> = ({
-                                                           userAvatar
-                                                       }) => {
+const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
     const navigate = useNavigate();
     const isMobile = useMediaQuery({ maxWidth: 767 });
     const [blink, setBlink] = useState(false);
@@ -46,13 +44,13 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 {
                     key: '1',
                     icon: <UserOutlined />,
-                    label: 'Profile',
+                    label: <span style={{ fontFamily: 'Roboto' }}>Profile</span>,
                     onClick: () => navigate('/profile'),
                 },
                 {
                     key: '2',
                     icon: <SettingOutlined />,
-                    label: 'Settings',
+                    label: <span style={{ fontFamily: 'Roboto' }}>Settings</span>,
                 },
                 {
                     type: 'divider',
@@ -60,7 +58,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 {
                     key: '3',
                     icon: <LogoutOutlined />,
-                    label: 'Sign Out',
+                    label: <span style={{ fontFamily: 'Roboto' }}>Sign Out</span>,
                 },
             ]}
         />
@@ -72,7 +70,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 {
                     key: '1',
                     label: (
-                        <div>
+                        <div style={{ fontFamily: 'Roboto' }}>
                             <Text strong>New Order</Text>
                             <div>Order #12345 received</div>
                             <Text type="secondary" style={{ fontSize: '12px' }}>5 minutes ago</Text>
@@ -82,7 +80,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 {
                     key: '2',
                     label: (
-                        <div>
+                        <div style={{ fontFamily: 'Roboto' }}>
                             <Text strong>Stock Alert</Text>
                             <div>Item "T-Shirt XL" low on stock</div>
                             <Text type="secondary" style={{ fontSize: '12px' }}>1 hour ago</Text>
@@ -92,7 +90,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 {
                     key: '3',
                     label: (
-                        <div>
+                        <div style={{ fontFamily: 'Roboto' }}>
                             <Text strong>New Employee</Text>
                             <div>John Doe joined the team</div>
                             <Text type="secondary" style={{ fontSize: '12px' }}>2 days ago</Text>
@@ -104,7 +102,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 },
                 {
                     key: '4',
-                    label: <Text style={{ color: colors.primary }}>View all notifications</Text>,
+                    label: <Text style={{ color: colors.primary, fontFamily: 'Roboto' }}>View all notifications</Text>,
                 },
             ]}
         />
@@ -115,28 +113,29 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
             items={[
                 {
                     key: '1',
-                    label: 'Sales Admin',
+                    label: <span style={{ fontFamily: 'Roboto' }}>Sales Admin</span>,
                 },
                 {
                     key: '2',
-                    label: 'Inventory Manager',
+                    label: <span style={{ fontFamily: 'Roboto' }}>Inventory Manager</span>,
                 },
                 {
                     key: '3',
-                    label: 'Customer Support',
+                    label: <span style={{ fontFamily: 'Roboto' }}>Customer Support</span>,
                 },
             ]}
         />
     );
 
     return (
-        <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"}>
+        <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"} style={{ fontFamily: 'Roboto' }}>
             {!isMobile && (
                 <ReloadOutlined
                     style={{
                         fontSize: '18px',
                         cursor: 'pointer',
-                        color: colors.text
+                        color: colors.text,
+                        fontFamily: 'Roboto',
                     }}
                     onClick={() => window.location.reload()}
                 />
@@ -149,7 +148,8 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                         style={{
                             fontSize: '18px',
                             cursor: 'pointer',
-                            color: colors.text
+                            color: colors.text,
+                            fontFamily: 'Roboto',
                         }}
                     />
                 </Badge>
@@ -157,21 +157,21 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
 
             {!isMobile && (
                 <Dropdown overlay={roleMenu} trigger={['click']}>
-                    <Space style={{ cursor: 'pointer' }}>
-                        <Text strong>Sales Admin</Text>
-                        <DownOutlined style={{ fontSize: '12px' }} />
+                    <Space style={{ cursor: 'pointer', fontFamily: 'Roboto' }}>
+                        <Text strong style={{ fontFamily: 'Roboto' }}>Sales Admin</Text>
+                        <DownOutlined style={{ fontSize: '12px', fontFamily: 'Roboto' }} />
                     </Space>
                 </Dropdown>
             )}
 
             <Dropdown overlay={userMenu} placement="bottomRight" arrow trigger={['click']}>
-                <Space style={{ cursor: 'pointer', marginTop: isMobile ? '-10px' : '0' }}>
+                <Space style={{ cursor: 'pointer', marginTop: isMobile ? '-10px' : '0', fontFamily: 'Roboto' }}>
                     <Avatar
                         src={userAvatar}
                         icon={!userAvatar && <UserOutlined />}
                         style={{
                             backgroundColor: !userAvatar ? colors.primary : undefined,
-                            cursor: 'pointer'
+                            cursor: 'pointer',
                         }}
                     />
                 </Space>

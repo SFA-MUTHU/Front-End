@@ -4,6 +4,7 @@ import { PlusOutlined, UploadOutlined, UserOutlined, CheckCircleOutlined, CloseC
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import "../style/status.css";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, ChartTitle, Tooltip, Legend);
@@ -30,12 +31,12 @@ const Employees: React.FC = () => {
   const [fileList, setFileList] = useState([]); // Manage fileList state for Upload
 
   const employees = [
-    { id: 'EM0096', name: 'John Doe', phone: '123-456-7890', birthday: '1990-01-01', address: '123 Main St', imgSrc: 'https://via.placeholder.com/40' },
-    { id: 'EM0097', name: 'Jane Smith', phone: '987-654-3210', birthday: '1992-02-02', address: '456 Elm St', imgSrc: 'https://via.placeholder.com/40' },
-    { id: 'EM0098', name: 'Alice Johnson', phone: '555-555-5555', birthday: '1988-05-05', address: '789 Oak Ave', imgSrc: 'https://via.placeholder.com/40' },
-    { id: 'EM0099', name: 'Bob Brown', phone: '444-444-4444', birthday: '1985-10-10', address: '321 Pine Rd', imgSrc: 'https://via.placeholder.com/40' },
-    { id: 'EM0100', name: 'Charlie Davis', phone: '333-333-3333', birthday: '1995-07-07', address: '654 Maple St', imgSrc: 'https://via.placeholder.com/40' },
-    { id: 'EM0101', name: 'Diana Ross', phone: '222-222-2222', birthday: '1993-12-12', address: '987 Birch Blvd', imgSrc: 'https://via.placeholder.com/40' },
+    { id: 'EM0096', name: 'John Doe', phone: '123-456-7890', birthday: '1990-01-01', address: '123 Main St', imgSrc: 'https://via.placeholder.com/40', status: 'online' },
+    { id: 'EM0097', name: 'Jane Smith', phone: '987-654-3210', birthday: '1992-02-02', address: '456 Elm St', imgSrc: 'https://via.placeholder.com/40', status: 'offline' },
+    { id: 'EM0098', name: 'Alice Johnson', phone: '555-555-5555', birthday: '1988-05-05', address: '789 Oak Ave', imgSrc: 'https://via.placeholder.com/40', status: 'online' },
+    { id: 'EM0099', name: 'Bob Brown', phone: '444-444-4444', birthday: '1985-10-10', address: '321 Pine Rd', imgSrc: 'https://via.placeholder.com/40', status: 'offline' },
+    { id: 'EM0100', name: 'Charlie Davis', phone: '333-333-3333', birthday: '1995-07-07', address: '654 Maple St', imgSrc: 'https://via.placeholder.com/40', status: 'online' },
+    { id: 'EM0101', name: 'Diana Ross', phone: '222-222-2222', birthday: '1993-12-12', address: '987 Birch Blvd', imgSrc: 'https://via.placeholder.com/40', status: 'offline' },
   ];
 
   const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -240,11 +241,13 @@ const Employees: React.FC = () => {
       overflow: hidden;
     }
     .ant-modal-header {
-      background: linear-gradient(135deg, ${colors.primaryLight} 0%, ${colors.primary} 100%) !important;
       border-radius: 12px 12px 0 0 !important;
+      color: black !important;
     }
+  
+      
     .ant-modal-title {
-      color: #fff !important;
+      color: black!important;
       font-weight: bold !important;
     }
     @media (max-width: 576px) {
@@ -289,22 +292,27 @@ const Employees: React.FC = () => {
               style={{ ...cardStyle, height: '100%', maxHeight: '500px', overflowY: 'auto' }}
             >
               <List
-                itemLayout="horizontal"
-                dataSource={filteredEmployees}
-                renderItem={employee => (
-                  <List.Item className="employee-card">
-                    <List.Item.Meta
-                      avatar={<Avatar src={employee.imgSrc} size={48} />}
-                      title={<Text strong style={{ color: colors.primary }}>{employee.name}</Text>}
-                      description={
-                        <div>
-                          <Text type="secondary">ID: {employee.id}</Text><br />
-                          <Text type="secondary">Phone: {employee.phone}</Text>
-                        </div>
-                      }
-                    />
-                  </List.Item>
-                )}
+                  itemLayout="horizontal"
+                  dataSource={filteredEmployees}
+                  renderItem={employee => (
+                      <List.Item className="employee-card">
+                        <List.Item.Meta
+                            avatar={<Avatar src={employee.imgSrc} size={48} />}
+                            title={
+                              <div className="flex justify-between items-center">
+                                <Text strong style={{ color: colors.primary }}>{employee.name}</Text>
+                                <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>
+                              </div>
+                            }
+                            description={
+                              <div>
+                                <Text type="secondary">ID: {employee.id}</Text><br />
+                                <Text type="secondary">Phone: {employee.phone}</Text>
+                              </div>
+                            }
+                        />
+                      </List.Item>
+                  )}
               />
             </Card>
           </Col>
@@ -362,7 +370,9 @@ const Employees: React.FC = () => {
                         footer={null}
                         width="90%"
                         style={{ maxWidth: '800px' }}
-                        bodyStyle={{ padding: '24px' }}
+                        bodyStyle={{ padding: '24px' }} 
+                        
+                        
                       >
                         <Form form={form} layout="vertical" name="addEmployee">
                           {/* Photo Upload Area */}
