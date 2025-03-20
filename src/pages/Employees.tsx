@@ -240,11 +240,13 @@ const Employees: React.FC = () => {
       overflow: hidden;
     }
     .ant-modal-header {
-      background: linear-gradient(135deg, ${colors.primaryLight} 0%, ${colors.primary} 100%) !important;
       border-radius: 12px 12px 0 0 !important;
+      color: black !important;
     }
+  
+      
     .ant-modal-title {
-      color: #fff !important;
+      color: black!important;
       font-weight: bold !important;
     }
     @media (max-width: 576px) {
@@ -362,7 +364,9 @@ const Employees: React.FC = () => {
                         footer={null}
                         width="90%"
                         style={{ maxWidth: '800px' }}
-                        bodyStyle={{ padding: '24px' }}
+                        bodyStyle={{ padding: '24px' }} 
+                        
+                        
                       >
                         <Form form={form} layout="vertical" name="addEmployee">
                           {/* Photo Upload Area */}
