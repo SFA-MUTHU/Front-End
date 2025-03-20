@@ -1,11 +1,8 @@
-// @ts-ignore
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
-// @ts-ignore
-// @ts-ignore
 import {
-  Layout,  Button, Input, Table, Row, Col, Dropdown, Menu, Tag, Card,
+  Layout, Button, Input, Table, Row, Col, Dropdown, Menu, Tag, Card,
   Statistic, Avatar, Space, Badge, message, DatePicker, Select
 } from 'antd';
 import { 
@@ -14,6 +11,7 @@ import {
   DeleteOutlined, CheckCircleOutlined, CalculatorOutlined, HomeOutlined 
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
+import '../style/Customers.css';
 
 const { Content } = Layout;
 
@@ -32,6 +30,28 @@ interface CustomerData {
   status?: 'active' | 'inactive';
 }
 
+// Custom component for responsive text
+const ResponsiveText: React.FC<{ text: string | number; color: string; className?: string }> = ({ text, color, className }) => {
+  const textString = text.toString();
+  return (
+    <div className={className} style={{ display: 'inline-block' }}>
+      {textString.split('').map((char, index) => (
+        <span
+          key={index}
+          className="responsive-letter"
+          style={{
+            color,
+            display: 'inline-block',
+            transition: 'all 0.3s ease',
+          }}
+        >
+          {char}
+        </span>
+      ))}
+    </div>
+  );
+};
+
 const Customers: React.FC = () => {
   const [activeTab, setActiveTab] = useState('1');
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,7 +60,7 @@ const Customers: React.FC = () => {
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  // Complete customer data with all membership tiers
+  // Customer data
   const allCustomersData: CustomerData[] = [
     { 
       key: '1', 
@@ -148,21 +168,18 @@ const Customers: React.FC = () => {
     },
   ];
 
-  // Filter data based on active tab and search term
   const getFilteredData = () => {
-    // Filter by membership tier based on active tab
     let filteredByPackage: CustomerData[] = allCustomersData;
     
-    if (activeTab === '2') { // Basic Members
+    if (activeTab === '2') {
       filteredByPackage = allCustomersData.filter(customer => customer.package === 'Basic');
-    } else if (activeTab === '3') { // Platinum Members
+    } else if (activeTab === '3') {
       filteredByPackage = allCustomersData.filter(customer => customer.package === 'Platinum');
-    } else if (activeTab === '4') { // Premium (Gold + Silver) Members
+    } else if (activeTab === '4') {
       filteredByPackage = allCustomersData.filter(customer => 
         customer.package === 'Gold' || customer.package === 'Silver');
     }
     
-    // Then filter by search term if it exists
     if (searchTerm) {
       return filteredByPackage.filter(customer =>
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -174,26 +191,21 @@ const Customers: React.FC = () => {
     return filteredByPackage;
   };
 
-  // Get filtered data
   const filteredData = getFilteredData();
   
-  // Calculate metrics based on filtered data
   const totalCustomers = filteredData.length;
   const totalSpent = filteredData.reduce((sum, customer) => sum + customer.buy, 0);
   const activeCustomers = filteredData.filter(customer => customer.status === 'active').length;
   const averageSpend = totalCustomers > 0 ? totalSpent / totalCustomers : 0;
 
-  // Simulate loading when changing tabs
   const handleTabChange = (key: string) => {
     setLoading(true);
     setActiveTab(key);
-    
     setTimeout(() => {
       setLoading(false);
     }, 600);
   };
 
-  // Define menu for the Action column
   const getActionMenu = (record: CustomerData) => (
     <Menu
       onClick={({ key }) => {
@@ -215,19 +227,16 @@ const Customers: React.FC = () => {
     </Menu>
   );
 
-  // Update the messaging handler to always navigate
   const handleMessageClick = () => {
     if (selectedCustomers.length === 0) {
       message.info('Navigating to message all customers. Select specific customers first if you want to message only certain customers.');
-      navigate('/messaging'); // Navigate without selected customers
+      navigate('/messaging');
     } else {
       message.success(`Messaging ${selectedCustomers.length} selected customers`);
-      // Navigate with selected customers as state
       navigate('/messaging', { state: { selectedCustomers } });
     }
   };
 
-  // Update columns with Dropdown in Action column and enhanced styling
   const columns = [
     { 
       title: 'Customer',
@@ -259,56 +268,7 @@ const Customers: React.FC = () => {
         </Space>
       ),
     },
-    { 
-      title: 'Membership', 
-      dataIndex: 'package', 
-      key: 'package',
-      render: (text: string) => {
-        let color = '';
-        let bgColor = '';
-        
-        switch(text.toLowerCase()) {
-          case 'gold':
-            color = '#A67C00';
-            bgColor = '#FFF7E6';
-            break;
-          case 'silver':
-            color = '#6B6B6B';
-            bgColor = '#F8F8F8';
-            break;
-          case 'platinum':
-            color = '#666666';
-            bgColor = '#F0F0F0';
-            break;
-          default:
-            color = '#1890FF';
-            bgColor = '#E6F7FF';
-        }
-        
-        return (
-          <Tag 
-            color={bgColor}
-            style={{
-              color,
-              border: `1px solid ${color}`,
-              fontWeight: 'bold',
-              borderRadius: '16px',
-              padding: '2px 12px'
-            }}
-          >
-            {text === 'Platinum' && <StarOutlined style={{ marginRight: 4 }} />}
-            {text}
-          </Tag>
-        );
-      },
-      filters: [
-        { text: 'Gold', value: 'Gold' },
-        { text: 'Silver', value: 'Silver' },
-        { text: 'Platinum', value: 'Platinum' },
-        { text: 'Basic', value: 'Basic' },
-      ],
-      onFilter: (value: string | number | boolean, record: CustomerData) => record.package === value.toString(),
-    },
+   
     { 
       title: 'Joined', 
       dataIndex: 'joinDate', 
@@ -360,11 +320,9 @@ const Customers: React.FC = () => {
     },
   ];
 
-  // @ts-ignore
-  // @ts-ignore
   return (
     <DashboardNavigation>
-      <Content style={{ padding: '20px' }}>
+      <Content style={{ padding: '20px', overflowX: 'hidden' }}>
         {/* Summary Stats */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -374,47 +332,59 @@ const Customers: React.FC = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
           >
-            <Row gutter={16} style={{ marginBottom: 24 }}>
-              <Col span={6}>
-                <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.09)' }}>
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }} className="responsive-row">
+              <Col xs={24} sm={12} md={6}>
+                <Card bordered={false} className="responsive-card">
                   <Statistic
-                    title={<span style={{ fontSize: 16, color: '#555' }}>Total Customers</span>}
+                    title={<span className="responsive-title">Total Customers</span>}
                     value={totalCustomers}
-                    valueStyle={{ color: '#9C7456', fontSize: 24 }}
+                    valueStyle={{ fontSize: 24 }}
                     prefix={<UserOutlined />}
+                    valueRender={() => (
+                      <ResponsiveText text={totalCustomers} color="#9C7456" />
+                    )}
                   />
                 </Card>
               </Col>
-              <Col span={6}>
-                <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.09)' }}>
+              <Col xs={24} sm={12} md={6}>
+                <Card bordered={false} className="responsive-card">
                   <Statistic
-                    title={<span style={{ fontSize: 16, color: '#555' }}>Active Customers</span>}
+                    title={<span className="responsive-title">Active Customers</span>}
                     value={activeCustomers}
-                    valueStyle={{ color: '#52c41a', fontSize: 24 }}
+                    valueStyle={{ fontSize: 24 }}
                     prefix={<CheckCircleOutlined />}
                     suffix={`/ ${totalCustomers}`}
+                    valueRender={() => (
+                      <ResponsiveText text={`${activeCustomers} / ${totalCustomers}`} color="#52c41a" />
+                    )}
                   />
                 </Card>
               </Col>
-              <Col span={6}>
-                <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.09)' }}>
+              <Col xs={24} sm={12} md={6}>
+                <Card bordered={false} className="responsive-card">
                   <Statistic
-                    title={<span style={{ fontSize: 16, color: '#555' }}>Total Revenue</span>}
+                    title={<span className="responsive-title">Total Revenue</span>}
                     value={totalSpent}
                     precision={2}
-                    valueStyle={{ color: '#3f8600', fontSize: 24 }}
+                    valueStyle={{ fontSize: 24 }}
                     prefix={<DollarOutlined />}
+                    valueRender={() => (
+                      <ResponsiveText text={totalSpent.toFixed(2)} color="#3f8600" />
+                    )}
                   />
                 </Card>
               </Col>
-              <Col span={6}>
-                <Card bordered={false} style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.09)' }}>
+              <Col xs={24} sm={12} md={6}>
+                <Card bordered={false} className="responsive-card">
                   <Statistic
-                    title={<span style={{ fontSize: 16, color: '#555' }}>Average Spend</span>}
+                    title={<span className="responsive-title">Average Spend</span>}
                     value={averageSpend}
                     precision={2}
-                    valueStyle={{ color: '#1890ff', fontSize: 24 }}
+                    valueStyle={{ fontSize: 24 }}
                     prefix={<CalculatorOutlined />}
+                    valueRender={() => (
+                      <ResponsiveText text={averageSpend.toFixed(2)} color="#1890ff" />
+                    )}
                   />
                 </Card>
               </Col>
@@ -428,88 +398,61 @@ const Customers: React.FC = () => {
           style={{ 
             borderRadius: 12, 
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            marginBottom: 24
+            marginBottom: 24,
+            overflow: 'visible'
           }}
         >
-          {/* Custom Tab Navigation */}
-          <div style={{ borderBottom: '1px solid #f0f0f0', marginBottom: 20 }}>
-            <Row align="middle" justify="space-between" style={{ marginBottom: 16 }}>
-              <Col>
-                <Space size="large">
-                  <div 
-                    onClick={() => handleTabChange('1')}
-                    style={{ 
-                      cursor: 'pointer',
-                      padding: '8px 16px',
-                      fontWeight: activeTab === '1' ? 'bold' : 'normal',
-                      color: activeTab === '1' ? '#9C7456' : '#666',
-                      borderBottom: activeTab === '1' ? '2px solid #9C7456' : 'none',
-                    }}
-                  >
-                    All Customers
-                  </div>
-                  <div 
-                    onClick={() => handleTabChange('2')}
-                    style={{ 
-                      cursor: 'pointer',
-                      padding: '8px 16px',
-                      fontWeight: activeTab === '2' ? 'bold' : 'normal',
-                      color: activeTab === '2' ? '#9C7456' : '#666',
-                      borderBottom: activeTab === '2' ? '2px solid #9C7456' : 'none',
-                    }}
-                  >
-                    Basic Members
-                  </div>
-                  <div 
-                    onClick={() => handleTabChange('3')}
-                    style={{ 
-                      cursor: 'pointer',
-                      padding: '8px 16px',
-                      fontWeight: activeTab === '3' ? 'bold' : 'normal',
-                      color: activeTab === '3' ? '#9C7456' : '#666',
-                      borderBottom: activeTab === '3' ? '2px solid #9C7456' : 'none',
-                    }}
-                  >
-                    <StarOutlined style={{ marginRight: 4 }} />
-                    Platinum Members
-                  </div>
-                  <div 
-                    onClick={() => handleTabChange('4')}
-                    style={{ 
-                      cursor: 'pointer',
-                      padding: '8px 16px',
-                      fontWeight: activeTab === '4' ? 'bold' : 'normal',
-                      color: activeTab === '4' ? '#9C7456' : '#666',
-                      borderBottom: activeTab === '4' ? '2px solid #9C7456' : 'none',
-                    }}
-                  >
-                    Premium Members
-                  </div>
-                </Space>
-              </Col>
-            </Row>
-          </div>
-
-          {/* Action Toolbar - Updated Message button */}
-          <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }}>
-            <Col>
-              <Space>
+         <div className="tab-section">
+  <Row align="middle" justify="start" className="tab-row">
+    <Col xs={24}>
+      <Space size="middle" className="tab-space">
+        <div
+          onClick={() => handleTabChange('1')}
+          className={`tab-item ${activeTab === '1' ? 'active' : ''}`}
+        >
+          All Customers
+        </div>
+        <div
+          onClick={() => handleTabChange('2')}
+          className={`tab-item ${activeTab === '2' ? 'active' : ''}`}
+        >
+          Basic Members
+        </div>
+        <div
+          onClick={() => handleTabChange('3')}
+          className={`tab-item ${activeTab === '3' ? 'active' : ''}`}
+        >
+          <StarOutlined className="tab-icon" />
+          Platinum Members
+        </div>
+        <div
+          onClick={() => handleTabChange('4')}
+          className={`tab-item ${activeTab === '4' ? 'active' : ''}`}
+        >
+          Premium Members
+        </div>
+      </Space>
+    </Col>
+  </Row>
+</div>
+          {/* Action Toolbar */}
+          <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }} gutter={[8, 8]}>
+            <Col xs={24} sm={12} md={12}>
+              <Space size="small" wrap className="responsive-actions">
                 <Button 
                   type="primary" 
-                  style={{ backgroundColor:'#9C7456', borderColor: '#9C7456' }}
+                  style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}
                   onClick={handleMessageClick}
                   icon={<MailOutlined />}
                 >
                   Message {selectedCustomers.length > 0 ? `(${selectedCustomers.length})` : ''}
                 </Button>
-                
                 <Button
                   onClick={() => setExpandedFilters(!expandedFilters)}
                   icon={expandedFilters ? <UpOutlined /> : <DownOutlined />}
                 >
                   {expandedFilters ? 'Hide Filters' : 'Show Filters'}
                 </Button>
-                
                 <Button
                   type="dashed" 
                   icon={<PlusOutlined />}
@@ -519,10 +462,10 @@ const Customers: React.FC = () => {
                 </Button>
               </Space>
             </Col>
-            <Col>
+            <Col xs={24} sm={12} md={12} style={{ textAlign: 'right' }}>
               <Input.Search 
                 placeholder="Search customers..." 
-                style={{ width: '280px' }}
+                className="responsive-search"
                 allowClear
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -542,8 +485,8 @@ const Customers: React.FC = () => {
                   size="small" 
                   style={{ marginBottom: 16, background: '#f9f9f9', borderRadius: 8 }}
                 >
-                  <Row gutter={16}>
-                    <Col span={6}>
+                  <Row gutter={[16, 16]} className="responsive-filters">
+                    <Col xs={24} sm={12} md={6}>
                       <Select 
                         placeholder="Membership" 
                         style={{ width: '100%' }}
@@ -555,7 +498,7 @@ const Customers: React.FC = () => {
                         <Select.Option value="basic">Basic</Select.Option>
                       </Select>
                     </Col>
-                    <Col span={6}>
+                    <Col xs={24} sm={12} md={6}>
                       <Select 
                         placeholder="Status" 
                         style={{ width: '100%' }}
@@ -565,15 +508,15 @@ const Customers: React.FC = () => {
                         <Select.Option value="inactive">Inactive</Select.Option>
                       </Select>
                     </Col>
-                    <Col span={6}>
+                    <Col xs={24} sm={12} md={6}>
                       <DatePicker.RangePicker 
                         style={{ width: '100%' }}
                         placeholder={['Join Start', 'Join End']}
                       />
                     </Col>
-                    <Col span={6}>
-                      <Space>
-                        <Button type="primary" style={{ backgroundColor:'#9C7456', borderColor: '#9C7456' }}>
+                    <Col xs={24} sm={12} md={6}>
+                      <Space wrap>
+                        <Button type="primary" style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}>
                           Apply Filters
                         </Button>
                         <Button>Clear</Button>
@@ -595,7 +538,6 @@ const Customers: React.FC = () => {
               transition={{ duration: 0.2 }}
             >
               <Table
-                  // @ts-ignore
                 columns={columns} 
                 dataSource={filteredData} 
                 loading={loading}
@@ -611,7 +553,9 @@ const Customers: React.FC = () => {
                   }
                 }}
                 rowKey="key"
-                style={{ marginTop: 16 }}></Table>
+                style={{ marginTop: 16 }}
+                scroll={{ x: 'max-content' }}
+              />
             </motion.div>
           </AnimatePresence>
         </Card>
