@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Col, Row, List, Avatar, Input, Button, Radio, Modal, Form, Upload, Typography } from 'antd';
-import { PlusOutlined, UploadOutlined, UserOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, UploadOutlined, UserOutlined} from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -60,7 +60,7 @@ const Employees: React.FC = () => {
   const cardStyle = {
     borderRadius: 12,
     boxShadow: colors.shadowLight,
-    background: '#fff',
+    background: '#ffffff',
     transition: 'all 0.3s ease',
     marginBottom: '16px',
     ':hover': {
@@ -192,6 +192,7 @@ const Employees: React.FC = () => {
   );
 
   // Handle file upload changes
+  // @ts-ignore
   const handleUploadChange = ({ fileList }) => {
     setFileList(fileList);
   };
@@ -268,6 +269,7 @@ const Employees: React.FC = () => {
       
   `;
 
+  // @ts-ignore
   return (
     <DashboardNavigation>
       <style>{customStyles}</style>
@@ -370,9 +372,9 @@ const Employees: React.FC = () => {
                         footer={null}
                         width="90%"
                         style={{ maxWidth: '800px' }}
-                        bodyStyle={{ padding: '24px' }} 
-                        
-                        
+                        bodyStyle={{ padding: '24px' }}
+
+
                       >
                         <Form form={form} layout="vertical" name="addEmployee">
                           {/* Photo Upload Area */}
@@ -502,9 +504,9 @@ const Employees: React.FC = () => {
                       style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
                     >
                       <div style={{ height: '200px', width: '100%', maxWidth: '270px' }}>
-                        <Doughnut data={taskStatusData} options={taskStatusOptions} />
+                        <Doughnut data={taskStatusData}  />
                       </div>
-                   
+
                     </Card>
                   </Col>
                 </Row>

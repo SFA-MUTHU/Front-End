@@ -30,7 +30,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
     const navigate = useNavigate();
     const isMobile = useMediaQuery({ maxWidth: 767 });
     const [blink, setBlink] = useState(false);
-    const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -40,13 +40,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentDateTime(new Date());
-        }, 1000); // Update every second
 
-        return () => clearInterval(timer);
-    }, []);
 
     const userMenu = (
         <Menu
@@ -167,9 +161,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                     </Dropdown>
 
                     {/* Date and Time */}
-                    <Text type="secondary" style={{ fontSize: '14px' }}>
-                        {currentDateTime.toLocaleDateString()} {currentDateTime.toLocaleTimeString()}
-                    </Text>
+
                 </>
             )}
 

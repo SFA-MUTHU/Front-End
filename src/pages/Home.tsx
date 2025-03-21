@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Col, Row, List, Avatar, Tag, Select, Input, Statistic, Typography, Badge } from 'antd';
-import { MoreOutlined, ArrowUpOutlined, CrownOutlined, TrophyOutlined, DollarOutlined, RollbackOutlined, StarOutlined } from '@ant-design/icons';
+import { MoreOutlined, ArrowUpOutlined, CrownOutlined, TrophyOutlined, WalletOutlined, RollbackOutlined, SmileOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import { Line } from 'react-chartjs-2';
@@ -40,7 +40,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
     switch (title) {
       case 'Net Income':
         return {
-          icon: <DollarOutlined style={{ color: colors.primary, fontSize: 28 }} />,
+          icon: <WalletOutlined style={{ color: colors.primary, fontSize: 28 }} />,
           valueColor: colors.primary,
         };
       case 'Total Return':
@@ -50,7 +50,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
         };
       case 'Customer Satisfaction':
         return {
-          icon: <StarOutlined style={{ color: colors.secondary, fontSize: 28 }} />,
+          icon: <SmileOutlined style={{ color: colors.secondary, fontSize: 28 }} />,
           valueColor: colors.secondary,
         };
       case 'Top Performance':
@@ -73,7 +73,9 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
 
   const { icon: cardIcon, valueColor } = getCardStyles();
 
-  return (
+  // @ts-ignore
+    // @ts-ignore
+    return (
     <Card
       hoverable
       style={{
@@ -85,10 +87,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
         overflow: 'hidden',
         padding: '8px',
         transform: 'translateY(0)',
-        ':hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: colors.shadowMedium,
-        },
+
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -324,7 +323,7 @@ const Home: React.FC = () => {
               title={<Text type="secondary">Total Sales</Text>}
               value={112893}
               precision={2}
-              valueStyle={{ color: colors.secondary, fontSize: '24px' }}
+              valueStyle={{ color: colors.primary, fontSize: '24px' ,fontWeight: 'bold'}}
             />
             <div style={{ marginTop: 16, height: 250 }}>
               <Line
@@ -410,16 +409,17 @@ const Home: React.FC = () => {
               boxShadow: colors.shadowMedium,
             }}
           >
-            <Statistic
-              title={<Text type="secondary">Total Revenue</Text>}
-              value={256000}
-              precision={2}
-              valueStyle={{
-                color: colors.accent,
-                fontSize: '24px',
-              }}
-              prefix="$"
-            />
+              <Statistic
+                  title={<Text type="secondary">Total Revenue</Text>}
+                  value={256000}
+                  precision={2}
+                  valueStyle={{
+                      color: colors.primary,
+                      fontSize: '24px',
+                      fontWeight: 'bold'
+                  }}
+                  prefix="RS"
+              />
             <div style={{ marginTop: 20, height: 300 }}>
               <Line
                 data={revenueTimeData}

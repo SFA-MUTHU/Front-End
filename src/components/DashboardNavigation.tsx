@@ -20,12 +20,12 @@ const { Title } = Typography;
 type MenuItem = Required<MenuProps>['items'][number];
 
 const colors = {
-    primary: '#A67B5B',      
-    primaryLight: '#DBC1AD',  
-    background: '#F6F4F1',    
-    text: '#333333',         
-    cardBg: '#FFFFFF',        
-    headerBg: '#F6F4F1',     
+    primary: '#A67B5B',
+    primaryLight: '#DBC1AD',
+    background: '#F6F4F1',
+    text: '#333333',
+    cardBg: '#FFFFFF',
+    headerBg: '#F6F4F1',
 };
 
 function getItem(
@@ -46,6 +46,7 @@ function getItem(
 
 const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const [collapsed, setCollapsed] = useState(false);
+    // @ts-ignore
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const navigate = useNavigate();
     const location = useLocation();
@@ -78,7 +79,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
     const [selectedKeys, setSelectedKeys] = useState<string[]>([location.pathname]);
 
     useEffect(() => {
-        const mediaQuery = window.matchMedia('(max-width: 768px)'); 
+        const mediaQuery = window.matchMedia('(max-width: 768px)');
 
         const handleResize = (e: MediaQueryListEvent) => {
             setIsMobile(e.matches);
@@ -87,7 +88,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
 
         setIsMobile(mediaQuery.matches);
         setCollapsed(mediaQuery.matches);
-        
+
         mediaQuery.addEventListener('change', handleResize);
         return () => mediaQuery.removeEventListener('change', handleResize);
     }, []);
@@ -100,6 +101,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
             case '/products': return 'Products';
             case '/suppliers': return 'Suppliers';
             case '/profile': return 'Profile';
+            case '/settings': return 'Settings';
             default: return 'Overview';
         }
     };
