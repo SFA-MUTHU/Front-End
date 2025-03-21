@@ -339,7 +339,7 @@ const Products: React.FC = () => {
       tooltip: {
         mode: 'index' as const,
         intersect: false,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: 'rgba(255, 255, 250, 0.9)',
         titleColor: colors.text,
         bodyColor: colors.textSecondary,
         borderColor: colors.border,
@@ -610,7 +610,7 @@ const Products: React.FC = () => {
       <div style={{ padding: '20px' }}>
         {/* Enhanced Top Bar */}
         <Row justify="space-between" align="middle" style={topBarStyle}>
-          <Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Space size="large">
               <div>
                 <Text type="secondary" style={{ fontSize: '14px' }}>Products Overview</Text>
@@ -629,30 +629,32 @@ const Products: React.FC = () => {
               </div>
             </Space>
           </Col>
-          <Col>
-            <Space size="middle">
+          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Space size="middle" direction="vertical" style={{ width: 'auto', textAlign: 'right' }}>
               <Input.Search
                 placeholder="Quick search..."
-                style={{ width: 200 }}
+                style={{ width: '260px' }}
                 allowClear
                 onChange={(e) => setSearchQuery(e.target.value)}
                 value={searchQuery}
               />
-              <Button 
-                icon={<FilterOutlined />} 
-                style={{ marginRight: 8 }}
-                onClick={() => setIsFilterVisible(true)}
-              >
-                Filters
-              </Button>
-              <Button 
-                type="primary"
-                icon={<PlusOutlined />} 
-                style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
-                onClick={() => navigate('/addproductpage')}
-              >
-                Add New Item
-              </Button>
+              <Space size="middle">
+                <Button 
+                  icon={<FilterOutlined />} 
+                  style={{ marginRight: 8 }}
+                  onClick={() => setIsFilterVisible(true)}
+                >
+                  Filters
+                </Button>
+                <Button 
+                  type="primary"
+                  icon={<PlusOutlined />} 
+                  style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
+                  onClick={() => navigate('/addproductpage')}
+                >
+                  Add New Item
+                </Button>
+              </Space>
             </Space>
           </Col>
         </Row>
@@ -691,7 +693,7 @@ const Products: React.FC = () => {
         {/* Summary Cards with Charts */}
         <Row gutter={16} style={{ marginBottom: '24px' }}>
           {summaryData.map((item, index) => (
-            <Col span={8} key={index}>
+            <Col xs={24} sm={24} md={8} key={index}>
               <Card 
                 style={cardStyle}
                 hoverable
@@ -740,18 +742,21 @@ const Products: React.FC = () => {
             </Text>
           }
         >
-          <Table 
-            columns={columns} 
-            dataSource={filteredProducts}
-            pagination={{ 
-              pageSize: 6,
-              showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} products`,
-              showSizeChanger: true,
-              pageSizeOptions: ['6', '10', '20'],
-            }}
-            rowKey="key"
-            rowClassName={() => 'product-table-row'}
-          />
+          <div className="table-responsive-wrapper">
+            <Table 
+              columns={columns} 
+              dataSource={filteredProducts}
+              pagination={{ 
+                pageSize: 6,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} products`,
+                showSizeChanger: true,
+                pageSizeOptions: ['6', '10', '20'],
+              }}
+              rowKey="key"
+              rowClassName={() => 'product-table-row'}
+              scroll={{ x: 'max-content' }} // Enable horizontal scrolling for the table
+            />
+          </div>
         </Card>
       </div>
 
@@ -871,7 +876,7 @@ const Products: React.FC = () => {
         </Form>
       </Modal>
 
-      {/* Add the necessary styles for table rows */}
+      {/* Add the necessary styles for table rows and responsive layout */}
       <style>{`
         .product-table-row:hover {
           background-color: ${colors.background};
@@ -888,6 +893,79 @@ const Products: React.FC = () => {
         
         .ant-tag {
           margin-right: 0;
+        }
+
+        /* Responsive layout for mobile and tablet */
+        @media (max-width: 768px) {
+          .ant-row[style*="${topBarStyle.background}"] {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .ant-col[style*="${topBarStyle.padding}"]:nth-child(1) {
+            margin-bottom: 10px;
+          }
+
+          .ant-col[style*="${topBarStyle.padding}"]:nth-child(2) > .ant-space-vertical {
+            width: 100%;
+          }
+
+          .ant-col[style*="${topBarStyle.padding}"]:nth-child(2) > .ant-space-vertical > .ant-space {
+            justify-content: space-between;
+            width: 100%;
+          }
+
+          .ant-col[style*="${topBarStyle.padding}"]:nth-child(2) > .ant-space-vertical > .ant-input-search {
+            margin-bottom: 10px;
+          }
+
+          .ant-col[style*="${topBarStyle.padding}"]:nth-child(2) > .ant-space-vertical > .ant-space > .ant-btn {
+            width: 48%;
+          }
+
+          /* Stack summary cards vertically on mobile */
+          .ant-col[style*="span: 8"] {
+            span: 24 !important;
+            margin-bottom: 16px;
+          }
+
+          /* Make the table scrollable in all directions on mobile */
+          .table-responsive-wrapper {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+          }
+
+          .ant-table {
+            min-width: 800px; /* Ensure the table has enough width to display all columns */
+          }
+
+          .ant-table-thead > tr > th,
+          .ant-table-tbody > tr > td {
+            white-space: nowrap; /* Prevent text wrapping to maintain column integrity */
+          }
+        }
+
+        @media (min-width: 769px) and (max-width: 991px) {
+          /* Two-column layout for tablets */
+          .ant-col[style*="span: 8"] {
+            span: 12 !important;
+            margin-bottom: 16px;
+          }
+
+          /* Horizontal scrolling for tablet */
+          .table-responsive-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+
+          .ant-table {
+            min-width: 800px;
+          }
+
+          .ant-table-thead > tr > th,
+          .ant-table-tbody > tr > td {
+            white-space: nowrap;
+          }
         }
       `}</style>
     </DashboardNavigation>

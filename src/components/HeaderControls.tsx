@@ -5,7 +5,6 @@ import {
     BellOutlined,
     ReloadOutlined,
     DownOutlined,
-    SettingOutlined,
     LogoutOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
@@ -32,6 +31,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
     const isMobile = useMediaQuery({ maxWidth: 767 });
     const [blink, setBlink] = useState(false);
 
+
     useEffect(() => {
         const interval = setInterval(() => {
             setBlink(prev => !prev);
@@ -39,6 +39,8 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
 
         return () => clearInterval(interval);
     }, []);
+
+
 
     const userMenu = (
         <Menu
@@ -49,11 +51,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                     label: 'Profile',
                     onClick: () => navigate('/profile'),
                 },
-                {
-                    key: '2',
-                    icon: <SettingOutlined />,
-                    label: 'Settings',
-                },
+
                 {
                     type: 'divider',
                 },
@@ -132,36 +130,39 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
     return (
         <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"}>
             {!isMobile && (
-                <ReloadOutlined
-                    style={{
-                        fontSize: '18px',
-                        cursor: 'pointer',
-                        color: colors.text
-                    }}
-                    onClick={() => window.location.reload()}
-                />
-            )}
-
-            <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
-                <Badge count={3} size="small">
-                    <BellOutlined
-                        className={blink ? 'blink' : ''}
+                <>
+                    <ReloadOutlined
                         style={{
                             fontSize: '18px',
                             cursor: 'pointer',
                             color: colors.text
                         }}
+                        onClick={() => window.location.reload()}
                     />
-                </Badge>
-            </Dropdown>
 
-            {!isMobile && (
-                <Dropdown overlay={roleMenu} trigger={['click']}>
-                    <Space style={{ cursor: 'pointer' }}>
-                        <Text strong>Sales Admin</Text>
-                        <DownOutlined style={{ fontSize: '12px' }} />
-                    </Space>
-                </Dropdown>
+                    <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
+                        <Badge count={3} size="small">
+                            <BellOutlined
+                                className={blink ? 'blink' : ''}
+                                style={{
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    color: colors.text
+                                }}
+                            />
+                        </Badge>
+                    </Dropdown>
+
+                    <Dropdown overlay={roleMenu} trigger={['click']}>
+                        <Space style={{ cursor: 'pointer' }}>
+                            <Text strong>Sales Admin</Text>
+                            <DownOutlined style={{ fontSize: '12px' }} />
+                        </Space>
+                    </Dropdown>
+
+                    {/* Date and Time */}
+
+                </>
             )}
 
             <Dropdown overlay={userMenu} placement="bottomRight" arrow trigger={['click']}>

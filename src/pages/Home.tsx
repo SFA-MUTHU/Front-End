@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, List, Avatar, Tag, Select, Input, Statistic, Typography } from 'antd';
-import { MoreOutlined, ArrowUpOutlined, CrownOutlined } from '@ant-design/icons';
+import { Card, Col, Row, List, Avatar, Tag, Select, Input, Statistic, Typography, Badge } from 'antd';
+import { MoreOutlined, ArrowUpOutlined, CrownOutlined, TrophyOutlined, WalletOutlined, RollbackOutlined, SmileOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import { Line } from 'react-chartjs-2';
@@ -22,8 +22,6 @@ const colors = {
   accent: '#47B881',
   green: '#2ECC71',
   red: '#E74C3C',
-  cardGradient1: 'linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%)',
-  cardGradient2: 'linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%)',
   shadowLight: '0 4px 12px rgba(0,0,0,0.06)',
   shadowMedium: '0 6px 16px rgba(0,0,0,0.1)',
 };
@@ -36,31 +34,119 @@ interface StatCardProps {
   icon?: React.ReactNode;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon }) => (
-  <Card
-    hoverable
-    style={{
-      borderRadius: 12,
-      boxShadow: colors.shadowLight,
-      background: colors.cardGradient1,
-      transition: 'all 0.3s ease',
-      border: '1px solid #f0f0f0',
-      overflow: 'hidden',
-    }}
-  >
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-      <Text style={{ color: '#888', fontSize: '15px' }}>{title}</Text>
-      {icon || <MoreOutlined style={{ color: '#bbb' }} />}
-    </div>
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 8 }}>
-      <AntTitle level={3} style={{ margin: 0 }}>{value}</AntTitle>
-      <Text style={{ color: colors.green, fontSize: '14px', display: 'flex', alignItems: 'center' }}>
-        <ArrowUpOutlined /> {change}
-      </Text>
-    </div>
-    <Text type="secondary" style={{ fontSize: '12px' }}>from {period}</Text>
-  </Card>
-);
+const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon }) => {
+  // Determine card-specific styles based on the title
+  const getCardStyles = () => {
+    switch (title) {
+      case 'Net Income':
+        return {
+          icon: <WalletOutlined style={{ color: colors.primary, fontSize: 28 }} />,
+          valueColor: colors.primary,
+        };
+      case 'Total Return':
+        return {
+          icon: <RollbackOutlined style={{ color: colors.accent, fontSize: 28 }} />,
+          valueColor: colors.accent,
+        };
+      case 'Customer Satisfaction':
+        return {
+          icon: <SmileOutlined style={{ color: colors.secondary, fontSize: 28 }} />,
+          valueColor: colors.secondary,
+        };
+      case 'Top Performance':
+        return {
+          icon: (
+            <>
+              <CrownOutlined style={{ color: '#FFD700', fontSize: 28, marginRight: 8 }} />
+              <TrophyOutlined style={{ color: colors.accent, fontSize: 28 }} />
+            </>
+          ),
+          valueColor: colors.secondary,
+        };
+      default:
+        return {
+          icon: <MoreOutlined style={{ color: '#bbb' }} />,
+          valueColor: '#000',
+        };
+    }
+  };
+
+  const { icon: cardIcon, valueColor } = getCardStyles();
+
+  // @ts-ignore
+    // @ts-ignore
+    return (
+    <Card
+      hoverable
+      style={{
+        borderRadius: 12,
+        boxShadow: colors.shadowLight,
+        background: '#FFFFFF', // White background for all cards
+        transition: 'all 0.3s ease',
+        border: '1px solid #f0f0f0',
+        overflow: 'hidden',
+        padding: '8px',
+        transform: 'translateY(0)',
+
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+        <Text
+          style={{
+            color: '#888',
+            fontSize: '16px',
+            fontWeight: 'bold',
+          }}
+        >
+          {title}
+        </Text>
+        {icon || <MoreOutlined style={{ color: '#bbb' }} />}
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          marginBottom: 12,
+        }}
+      >
+        {cardIcon}
+        <AntTitle
+          level={title === 'Top Performance' ? 2 : 3}
+          style={{
+            margin: 0,
+            color: valueColor,
+          }}
+        >
+          {value}
+        </AntTitle>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Badge
+          count={
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                background: colors.green,
+                color: 'white',
+                padding: '2px 8px',
+                borderRadius: 12,
+                fontSize: '12px',
+              }}
+            >
+              <ArrowUpOutlined style={{ fontSize: '10px' }} /> {change}
+            </div>
+          }
+        />
+        <Text type="secondary" style={{ fontSize: '12px' }}>
+          from {period}
+        </Text>
+      </div>
+    </Card>
+  );
+};
 
 const soldItems = [
   { name: 'Mr. T-Shirt', status: 'Active', imgSrc: 'https://via.placeholder.com/40' },
@@ -170,13 +256,7 @@ const Home: React.FC = () => {
           <StatCard title="Customer Satisfaction" value="4.8/5" change="16%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard
-            title="Top Performance"
-            value="Premium"
-            change="12%"
-            period="last month"
-            icon={<CrownOutlined style={{ color: '#FFD700', fontSize: 18 }} />}
-          />
+          <StatCard title="Top Performance" value="Premium" change="12%" period="last month" />
         </Col>
       </Row>
 
@@ -243,7 +323,7 @@ const Home: React.FC = () => {
               title={<Text type="secondary">Total Sales</Text>}
               value={112893}
               precision={2}
-              valueStyle={{ color: colors.secondary, fontSize: '24px' }}
+              valueStyle={{ color: colors.primary, fontSize: '24px' ,fontWeight: 'bold'}}
             />
             <div style={{ marginTop: 16, height: 250 }}>
               <Line
@@ -329,16 +409,17 @@ const Home: React.FC = () => {
               boxShadow: colors.shadowMedium,
             }}
           >
-            <Statistic
-              title={<Text type="secondary">Total Revenue</Text>}
-              value={256000}
-              precision={2}
-              valueStyle={{
-                color: colors.accent,
-                fontSize: '24px',
-              }}
-              prefix="$"
-            />
+              <Statistic
+                  title={<Text type="secondary">Total Revenue</Text>}
+                  value={256000}
+                  precision={2}
+                  valueStyle={{
+                      color: colors.primary,
+                      fontSize: '24px',
+                      fontWeight: 'bold'
+                  }}
+                  prefix="RS"
+              />
             <div style={{ marginTop: 20, height: 300 }}>
               <Line
                 data={revenueTimeData}
