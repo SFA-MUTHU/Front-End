@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Space } from 'antd';
 import { ClockCircleOutlined, CalendarOutlined } from '@ant-design/icons';
+import { useMediaQuery } from 'react-responsive';
 
 const { Text } = Typography;
 
 const CurrentDateTime: React.FC = () => {
     const [dateTime, setDateTime] = useState<Date>(new Date());
+    const isMobile = useMediaQuery({ maxWidth: 767 });
 
     useEffect(() => {
         // Update time every second
@@ -37,14 +39,18 @@ const CurrentDateTime: React.FC = () => {
 
     return (
         <Space size="middle">
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <CalendarOutlined style={{ marginRight: 8, color: '#9C7456' }} />
-                <Text strong>{formatDate(dateTime)}</Text>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <ClockCircleOutlined style={{ marginRight: 8, color: '#9C7456' }} />
-                <Text strong>{formatTime(dateTime)}</Text>
-            </div>
+            {!isMobile && (
+                <>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <CalendarOutlined style={{ marginRight: 8, color: '#9C7456' }} />
+                        <Text strong style={{ fontSize: '16px' }}>{formatDate(dateTime)}</Text>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <ClockCircleOutlined style={{ marginRight: 8, color: '#9C7456' }} />
+                        <Text strong style={{ fontSize: '16px' }}>{formatTime(dateTime)}</Text>
+                    </div>
+                </>
+            )}
         </Space>
     );
 };

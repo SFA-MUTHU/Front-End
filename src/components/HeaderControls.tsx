@@ -5,7 +5,6 @@ import {
     BellOutlined,
     ReloadOutlined,
     DownOutlined,
-    SettingOutlined,
     LogoutOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
@@ -25,10 +24,13 @@ interface HeaderControlsProps {
     userAvatar?: string;
 }
 
-const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
+const HeaderControls: React.FC<HeaderControlsProps> = ({
+                                                           userAvatar
+                                                       }) => {
     const navigate = useNavigate();
     const isMobile = useMediaQuery({ maxWidth: 767 });
     const [blink, setBlink] = useState(false);
+    const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -38,27 +40,31 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentDateTime(new Date());
+        }, 1000); // Update every second
+
+        return () => clearInterval(timer);
+    }, []);
+
     const userMenu = (
         <Menu
             items={[
                 {
                     key: '1',
                     icon: <UserOutlined />,
-                    label: <span style={{ fontFamily: 'Roboto' }}>Profile</span>,
+                    label: 'Profile',
                     onClick: () => navigate('/profile'),
                 },
-                {
-                    key: '2',
-                    icon: <SettingOutlined />,
-                    label: <span style={{ fontFamily: 'Roboto' }}>Settings</span>,
-                },
+
                 {
                     type: 'divider',
                 },
                 {
                     key: '3',
                     icon: <LogoutOutlined />,
-                    label: <span style={{ fontFamily: 'Roboto' }}>Sign Out</span>,
+                    label: 'Sign Out',
                 },
             ]}
         />
@@ -70,7 +76,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
                 {
                     key: '1',
                     label: (
-                        <div style={{ fontFamily: 'Roboto' }}>
+                        <div>
                             <Text strong>New Order</Text>
                             <div>Order #12345 received</div>
                             <Text type="secondary" style={{ fontSize: '12px' }}>5 minutes ago</Text>
@@ -80,7 +86,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
                 {
                     key: '2',
                     label: (
-                        <div style={{ fontFamily: 'Roboto' }}>
+                        <div>
                             <Text strong>Stock Alert</Text>
                             <div>Item "T-Shirt XL" low on stock</div>
                             <Text type="secondary" style={{ fontSize: '12px' }}>1 hour ago</Text>
@@ -90,7 +96,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
                 {
                     key: '3',
                     label: (
-                        <div style={{ fontFamily: 'Roboto' }}>
+                        <div>
                             <Text strong>New Employee</Text>
                             <div>John Doe joined the team</div>
                             <Text type="secondary" style={{ fontSize: '12px' }}>2 days ago</Text>
@@ -102,7 +108,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
                 },
                 {
                     key: '4',
-                    label: <Text style={{ color: colors.primary, fontFamily: 'Roboto' }}>View all notifications</Text>,
+                    label: <Text style={{ color: colors.primary }}>View all notifications</Text>,
                 },
             ]}
         />
@@ -113,65 +119,68 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({ userAvatar }) => {
             items={[
                 {
                     key: '1',
-                    label: <span style={{ fontFamily: 'Roboto' }}>Sales Admin</span>,
+                    label: 'Sales Admin',
                 },
                 {
                     key: '2',
-                    label: <span style={{ fontFamily: 'Roboto' }}>Inventory Manager</span>,
+                    label: 'Inventory Manager',
                 },
                 {
                     key: '3',
-                    label: <span style={{ fontFamily: 'Roboto' }}>Customer Support</span>,
+                    label: 'Customer Support',
                 },
             ]}
         />
     );
 
     return (
-        <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"} style={{ fontFamily: 'Roboto' }}>
+        <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"}>
             {!isMobile && (
-                <ReloadOutlined
-                    style={{
-                        fontSize: '18px',
-                        cursor: 'pointer',
-                        color: colors.text,
-                        fontFamily: 'Roboto',
-                    }}
-                    onClick={() => window.location.reload()}
-                />
-            )}
-
-            <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
-                <Badge count={3} size="small">
-                    <BellOutlined
-                        className={blink ? 'blink' : ''}
+                <>
+                    <ReloadOutlined
                         style={{
                             fontSize: '18px',
                             cursor: 'pointer',
-                            color: colors.text,
-                            fontFamily: 'Roboto',
+                            color: colors.text
                         }}
+                        onClick={() => window.location.reload()}
                     />
-                </Badge>
-            </Dropdown>
 
-            {!isMobile && (
-                <Dropdown overlay={roleMenu} trigger={['click']}>
-                    <Space style={{ cursor: 'pointer', fontFamily: 'Roboto' }}>
-                        <Text strong style={{ fontFamily: 'Roboto' }}>Sales Admin</Text>
-                        <DownOutlined style={{ fontSize: '12px', fontFamily: 'Roboto' }} />
-                    </Space>
-                </Dropdown>
+                    <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
+                        <Badge count={3} size="small">
+                            <BellOutlined
+                                className={blink ? 'blink' : ''}
+                                style={{
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    color: colors.text
+                                }}
+                            />
+                        </Badge>
+                    </Dropdown>
+
+                    <Dropdown overlay={roleMenu} trigger={['click']}>
+                        <Space style={{ cursor: 'pointer' }}>
+                            <Text strong>Sales Admin</Text>
+                            <DownOutlined style={{ fontSize: '12px' }} />
+                        </Space>
+                    </Dropdown>
+
+                    {/* Date and Time */}
+                    <Text type="secondary" style={{ fontSize: '14px' }}>
+                        {currentDateTime.toLocaleDateString()} {currentDateTime.toLocaleTimeString()}
+                    </Text>
+                </>
             )}
 
             <Dropdown overlay={userMenu} placement="bottomRight" arrow trigger={['click']}>
-                <Space style={{ cursor: 'pointer', marginTop: isMobile ? '-10px' : '0', fontFamily: 'Roboto' }}>
+                <Space style={{ cursor: 'pointer', marginTop: isMobile ? '-10px' : '0' }}>
                     <Avatar
                         src={userAvatar}
                         icon={!userAvatar && <UserOutlined />}
                         style={{
                             backgroundColor: !userAvatar ? colors.primary : undefined,
-                            cursor: 'pointer',
+                            cursor: 'pointer'
                         }}
                     />
                 </Space>
