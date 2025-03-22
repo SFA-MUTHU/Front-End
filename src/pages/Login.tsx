@@ -109,7 +109,7 @@ const Login: React.FC = () => {
               </Form.Item>
 
             </Form>
-            <Divider>Wrenix ©</Divider>
+            <Divider>Muthu Textile ©</Divider>
           </Card>
             {screenWidth > 768 && (
                 <img
