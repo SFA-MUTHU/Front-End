@@ -1,0 +1,108 @@
+@use './variables' as vars;
+
+.customers-container {
+  padding: vars.$spacing-lg;
+}
+
+.stats-card {
+  border-radius: vars.$border-radius-lg;
+  box-shadow: vars.$shadow-sm;
+}
+
+.main-card {
+  border-radius: vars.$border-radius-lg;
+  box-shadow: vars.$shadow-md;
+  margin-bottom: vars.$spacing-lg;
+}
+
+.tab-navigation {
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: vars.$spacing-lg;
+  
+  &__tab {
+    cursor: pointer;
+    padding: 8px 16px;
+    
+    &--active {
+      font-weight: bold;
+      color: vars.$primary;
+      border-bottom: 2px solid vars.$primary;
+    }
+    
+    &--inactive {
+      color: #666;
+    }
+  }
+}
+
+.action-toolbar {
+  margin-bottom: vars.$spacing-md;
+}
+
+.message-btn {
+  background-color: vars.$primary;
+  border-color: vars.$primary;
+}
+
+.filters-card {
+  margin-bottom: vars.$spacing-md;
+  background: #f9f9f9;
+  border-radius: vars.$border-radius-md;
+}
+
+.customer-table {
+  margin-top: vars.$spacing-md;
+}
+
+.membership-tag {
+  font-weight: bold;
+  border-radius: 16px;
+  padding: 2px 12px;
+  
+  &--gold {
+    color: vars.$gold;
+    background-color: #FFF7E6;
+    border: 1px solid vars.$gold;
+  }
+  
+  &--silver {
+    color: vars.$silver;
+    background-color: #F8F8F8;
+    border: 1px solid vars.$silver;
+  }
+  
+  &--platinum {
+    color: vars.$platinum;
+    background-color: #F0F0F0;
+    border: 1px solid vars.$platinum;
+  }
+  
+  &--basic {
+    color: vars.$basic;
+    background-color: #E6F7FF;
+    border: 1px solid vars.$basic;
+  }
+}
+
+.customer-name {
+  font-weight: bold;
+}
+
+.customer-email {
+  font-size: 12px;
+  color: #888;
+}
+
+.customer-address {
+  font-size: 12px;
+  color: #888;
+}
+
+.high-spend {
+  font-weight: bold;
+  color: #3f8600;
+}
+
+.normal-spend {
+  font-weight: bold;
+}

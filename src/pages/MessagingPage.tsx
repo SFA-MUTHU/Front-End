@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Select, Input, Button, Row, Col, Card, message as antdMessage } from 'antd';
 import { BoldOutlined, ItalicOutlined, UnderlineOutlined, UnorderedListOutlined, OrderedListOutlined } from '@ant-design/icons';
+import '../styles/messagingPage.scss'; // Make sure this points to the correct file
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -57,27 +58,22 @@ const MessagingPage: React.FC = () => {
   };
 
   return (
-    <div style={{ 
-      background: 'linear-gradient(135deg, #f9fafc, #e9eff5)', 
-      minHeight: '100vh', 
-      padding: 40, 
-      fontFamily: 'sans-serif' 
-    }}>
+    <div className="messaging-container">
       <Row gutter={[24, 24]}>
         {/* Left Column: Message Composer */}
         <Col xs={24} md={12}>
           <Card 
             title="Compose Message" 
-            style={{ borderRadius: 12, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
+            className="messaging-card"
             headStyle={{ color: '#1890ff', fontSize: 20, fontWeight: 600, borderBottom: '1px solid #eaeaea' }}
           >
             <Form layout="vertical">
-              <Form.Item label={<span style={{ fontWeight: 500 }}>Package</span>}>
+              <Form.Item label={<span className="form-label">Package</span>}>
                 <Select 
                   placeholder="Select the package"
                   value={selectedPackage}
                   onChange={(value) => setSelectedPackage(value)}
-                  style={{ borderRadius: 4 }}
+                  className="package-select"
                 >
                   <Option value="all">All</Option>
                   <Option value="basic">Basic Members</Option>
@@ -85,43 +81,43 @@ const MessagingPage: React.FC = () => {
                   <Option value="premium">Premium Members</Option>
                 </Select>
               </Form.Item>
-              <Form.Item label={<span style={{ fontWeight: 500 }}>Formatting</span>}>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <Button icon={<BoldOutlined />} style={{ borderRadius: 4 }} />
-                  <Button icon={<ItalicOutlined />} style={{ borderRadius: 4 }} />
-                  <Button icon={<UnderlineOutlined />} style={{ borderRadius: 4 }} />
-                  <Button icon={<UnorderedListOutlined />} style={{ borderRadius: 4 }} />
-                  <Button icon={<OrderedListOutlined />} style={{ borderRadius: 4 }} />
+              <Form.Item label={<span className="form-label">Formatting</span>}>
+                <div className="formatting-buttons">
+                  <Button icon={<BoldOutlined />} className="format-button" />
+                  <Button icon={<ItalicOutlined />} className="format-button" />
+                  <Button icon={<UnderlineOutlined />} className="format-button" />
+                  <Button icon={<UnorderedListOutlined />} className="format-button" />
+                  <Button icon={<OrderedListOutlined />} className="format-button" />
                 </div>
               </Form.Item>
-              <Form.Item label={<span style={{ fontWeight: 500 }}>Title</span>}>
+              <Form.Item label={<span className="form-label">Title</span>}>
                 <Input 
                   placeholder="Type the Title" 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  style={{ borderRadius: 4, padding: '8px 12px' }}
+                  className="title-input"
                 />
               </Form.Item>
-              <Form.Item label={<span style={{ fontWeight: 500 }}>Message</span>}>
+              <Form.Item label={<span className="form-label">Message</span>}>
                 <TextArea 
                   rows={6} 
                   placeholder="Type your message" 
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  style={{ borderRadius: 4, padding: '8px 12px' }}
+                  className="message-input"
                 />
               </Form.Item>
               <Form.Item>
                 <Button 
                   type="primary" 
                   onClick={sendMessage} 
-                  style={{ marginRight: 12, borderRadius: 4, padding: '8px 20px' }}
+                  className="send-button"
                 >
                   Send Message
                 </Button>
                 <Button 
                   onClick={resetForm} 
-                  style={{ borderRadius: 4, padding: '8px 20px' }}
+                  className="reset-button"
                 >
                   Reset
                 </Button>
@@ -134,30 +130,22 @@ const MessagingPage: React.FC = () => {
         <Col xs={24} md={12}>
           <Card 
             title="Inbox" 
-            style={{ background: '#fff', padding: 24, borderRadius: 12, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
+            className="inbox-card"
             headStyle={{ fontSize: 20, fontWeight: 600, color: '#1890ff', borderBottom: '1px solid #eaeaea' }}
           >
-            <div style={{ maxHeight: 400, overflowY: 'auto', paddingRight: 12 }}>
+            <div className="message-list">
               {inboxMessages.map((msg, index) => (
                 <Card 
                   key={index} 
                   type="inner" 
-                  style={{ 
-                    marginBottom: 16, 
-                    borderRadius: 8, 
-                    border: '2px solid #e0e0e0', 
-                    boxShadow: '0 6px 12px rgba(0,0,0,0.15)', 
-                    transition: 'transform 0.2s' 
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                  className="message-item"
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: 16 }}>{msg.title}</span>
-                    <span style={{ color: 'gray', fontSize: 12 }}>{msg.time}</span>
+                  <div className="message-header">
+                    <span className="message-title">{msg.title}</span>
+                    <span className="message-time">{msg.time}</span>
                   </div>
-                  <div style={{ fontSize: 12, marginBottom: 8, color: '#555' }}>{msg.membership}</div>
-                  <div style={{ fontSize: 14, color: '#333', whiteSpace: 'pre-wrap' }}>
+                  <div className="message-membership">{msg.membership}</div>
+                  <div className="message-text">
                     {msg.text}
                   </div>
                 </Card>
