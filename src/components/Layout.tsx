@@ -28,10 +28,10 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem('Overview ', '1', <AppstoreOutlined style={{ fontSize: '24px' }}  />),
-    getItem('Employees', '2', <TeamOutlined style={{ fontSize: '24px' }}  />),
-    getItem('Customers ', '3', <UserOutlined style={{ fontSize: '24px' }}  />),
-    getItem('Products ', '4', <ShoppingOutlined style={{ fontSize: '24px' }}  />),
+    getItem('Overview ', '1', <AppstoreOutlined style={{ fontSize: '24px' }} />),
+    getItem('Employees', '2', <TeamOutlined style={{ fontSize: '24px' }} />),
+    getItem('Customers ', '3', <UserOutlined style={{ fontSize: '24px' }} />),
+    getItem('Products ', '4', <ShoppingOutlined style={{ fontSize: '24px' }} />),
     getItem('Suppliers ', '5', <ShopOutlined style={{ fontSize: '24px' }} />),
 ];
 
@@ -42,15 +42,14 @@ const App: React.FC = () => {
     } = theme.useToken();
 
     return (
-        <Layout style={{ minHeight: '100vh' ,backgroundColor:"red" }}>
+        <Layout style={{ minHeight: '100vh', backgroundColor: 'red' }}>
             <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                <div className="demo-logo-vertical"  />
-                <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items}  />
+                <div className="demo-logo-vertical" />
+                <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
             </Sider>
             <Layout>
                 <Header style={{ padding: 0, background: '#B8B8B8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div />
-
                 </Header>
                 <Content style={{ margin: '0 16px' }}>
                     <Breadcrumb style={{ margin: '16px 0' }}>
@@ -68,8 +67,14 @@ const App: React.FC = () => {
                         Bill is a cat.
                     </div>
                 </Content>
-                <Footer style={{ textAlign: 'center' }}>
-                    Wrenix ©{new Date().getFullYear()} All Right Reserved by Wrenix
+                <Footer
+                    style={{
+                        textAlign: 'center',
+                        background: '#9C7456', 
+                        color: '#FFFFFF', 
+                    }}
+                >
+                    Wrenix ©{new Date().getFullYear()} All Rights Reserved by Wrenix
                 </Footer>
             </Layout>
         </Layout>
