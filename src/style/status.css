@@ -8,9 +8,9 @@
 }
 
 .status-online {
-    background-color: #efb58a; /* Green color for online status */
+    background-color: #00FF00; /* Green color for online status */
 }
 
 .status-offline {
-    background-color: #de3c09; /* Red color for offline status */
+    background-color: #FF0000; /* Red color for offline status */
 }
