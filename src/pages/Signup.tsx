@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Card, Form, Input, Button, Checkbox,  Typography, message, Steps, Select } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined} from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Form, Input, Button, Checkbox, Typography, message, Steps, Select } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
+import BagroundImag from "../assets/img/background .webp";
+import LogCharacter from "../assets/img/log.webp";
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -11,16 +13,20 @@ const Signup: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const [form] = Form.useForm();
 
-    // Step process handlers
+    useEffect(() => {
+        const handleResize = () => setScreenWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const nextStep = async () => {
         try {
             if (currentStep === 0) {
-                // Validate first step fields
                 await form.validateFields(['firstName', 'lastName', 'mobile']);
             } else if (currentStep === 1) {
-                // Validate second step fields
                 await form.validateFields(['email', 'role']);
             }
             setCurrentStep(currentStep + 1);
@@ -33,10 +39,8 @@ const Signup: React.FC = () => {
         setCurrentStep(currentStep - 1);
     };
 
-    // Final submission
     const onFinish = async () => {
         setLoading(true);
-        // Simulate API call
         setTimeout(() => {
             setLoading(false);
             message.success('Account created successfully!');
@@ -156,69 +160,84 @@ const Signup: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center',
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+            backgroundImage: `url(${BagroundImag})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             padding: '20px'
         }}>
-            <Card
-                style={{
-                    width: '100%',
-                    maxWidth: '480px',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                    borderRadius: '12px',
-                    overflow: 'hidden'
-                }}
-                bodyStyle={{ padding: '30px' }}
-            >
-                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                    <Title level={2} style={{ color: '#9C7456', margin: 0 }}>Create Account</Title>
-                    <Text type="secondary">Join our community today</Text>
-                </div>
-
-                <Steps current={currentStep} style={{ marginBottom: '24px' }}>
-                    {steps.map(item => (
-                        <Step key={item.title} title={item.title} />
-                    ))}
-                </Steps>
-
-                <Form
-                    form={form}
-                    name="signup_form"
-                    layout="vertical"
-                    onFinish={onFinish}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                maxWidth: '800px',
+                flexDirection: screenWidth <= 768 ? 'column' : 'row'
+            }}>
+                <Card
+                    style={{
+                        width: screenWidth <= 768 ? '100%' : '50%',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                        borderRadius: '12px',
+                        overflow: 'hidden'
+                    }}
+                    bodyStyle={{ padding: '30px' }}
                 >
-                    {steps[currentStep].content}
-
-                    <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
-                        {currentStep > 0 && (
-                            <Button onClick={prevStep}>
-                                Back
-                            </Button>
-                        )}
-
-                        {currentStep < steps.length - 1 && (
-                            <Button type="primary" onClick={nextStep} style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}>
-                                Next
-                            </Button>
-                        )}
-
-                        {currentStep === steps.length - 1 && (
-                            <Button
-                                type="primary"
-                                htmlType="submit"
-                                loading={loading}
-                                style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}
-                            >
-                                Create Account
-                            </Button>
-                        )}
+                    <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                        <Title level={2} style={{ color: '#9C7456', margin: 0 }}>Create Account</Title>
+                        <Text type="secondary">Join our community today</Text>
                     </div>
-                </Form>
 
+                    <Steps current={currentStep} style={{ marginBottom: '24px' }}>
+                        {steps.map(item => (
+                            <Step key={item.title} title={item.title} />
+                        ))}
+                    </Steps>
 
-                <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                    Already have an account? <Link to="/login">Login</Link>
-                </div>
-            </Card>
+                    <Form
+                        form={form}
+                        name="signup_form"
+                        layout="vertical"
+                        onFinish={onFinish}
+                    >
+                        {steps[currentStep].content}
+
+                        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
+                            {currentStep > 0 && (
+                                <Button onClick={prevStep}>
+                                    Back
+                                </Button>
+                            )}
+
+                            {currentStep < steps.length - 1 && (
+                                <Button type="primary" onClick={nextStep} style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}>
+                                    Next
+                                </Button>
+                            )}
+
+                            {currentStep === steps.length - 1 && (
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    loading={loading}
+                                    style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}
+                                >
+                                    Create Account
+                                </Button>
+                            )}
+                        </div>
+                    </Form>
+
+                    <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                        Already have an account? <Link to="/login">Login</Link>
+                    </div>
+                </Card>
+                {screenWidth > 768 && (
+                    <img
+                        src={LogCharacter}
+                        alt="Log Character"
+                        style={{ width: '50%', height: 'auto' }}
+                    />
+                )}
+            </div>
         </div>
     );
 };
