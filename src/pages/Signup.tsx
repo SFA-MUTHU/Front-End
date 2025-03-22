@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Checkbox, Typography, message, Steps, Select } from 'antd';
+import { Card, Form, Input, Button, Checkbox, Typography, Steps, Select } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import BagroundImag from "../assets/img/background .webp";
 import LogCharacter from "../assets/img/log.webp";
 
@@ -43,8 +45,16 @@ const Signup: React.FC = () => {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            message.success('Account created successfully!');
-            navigate('/login');
+            toast.success('Account created successfully!', {
+                position: "top-left",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                onClose: () => navigate('/login')
+            });
         }, 1500);
     };
 
@@ -165,6 +175,7 @@ const Signup: React.FC = () => {
             backgroundPosition: 'center',
             padding: '20px'
         }}>
+            <ToastContainer />
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
