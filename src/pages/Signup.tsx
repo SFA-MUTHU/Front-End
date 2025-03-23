@@ -164,6 +164,7 @@ const Signup: React.FC = () => {
         }
     ];
 
+    // @ts-ignore
     return (
         <div style={{
             display: 'flex',
@@ -194,7 +195,7 @@ const Signup: React.FC = () => {
                 >
                     <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                         <Title level={2} style={{ color: '#9C7456', margin: 0 }}>Create Account</Title>
-                        <Text type="secondary">Join our community today</Text>
+                        <Text type="secondary">Create New Employee For Muthu Textile</Text>
                     </div>
 
                     <Steps current={currentStep} style={{ marginBottom: '24px' }}>
@@ -238,7 +239,7 @@ const Signup: React.FC = () => {
                     </Form>
 
                     <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                        Already have an account? <Link to="/login">Login</Link>
+                        Already have an account? <Link to="/login" style={{color: '#9C7456'}}>Login</Link>
                     </div>
                 </Card>
                 {screenWidth > 768 && (
