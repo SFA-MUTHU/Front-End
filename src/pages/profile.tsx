@@ -36,6 +36,9 @@ const UserProfile: React.FC = () => {
                         <Descriptions.Item label="NIC">
                             <Text>{user.nic}</Text>
                         </Descriptions.Item>
+                        <Descriptions.Item label="Role">
+                            <Text>Super Admin</Text>
+                        </Descriptions.Item>
                     </Descriptions>
                 </Card>
             </Col>

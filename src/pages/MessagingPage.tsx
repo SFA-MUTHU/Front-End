@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Select, Input, Button, Row, Col, Card, message as antdMessage } from 'antd';
 import { BoldOutlined, ItalicOutlined, UnderlineOutlined, UnorderedListOutlined, OrderedListOutlined } from '@ant-design/icons';
-import '../styles/messagingPage.scss'; // Make sure this points to the correct file
+import '../styles/messagingPage.scss';
+import DashboardNavigation from "../components/DashboardNavigation.tsx"; // Make sure this points to the correct file
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -58,6 +59,7 @@ const MessagingPage: React.FC = () => {
   };
 
   return (
+      <DashboardNavigation>
     <div className="messaging-container">
       <Row gutter={[24, 24]}>
         {/* Left Column: Message Composer */}
@@ -65,7 +67,7 @@ const MessagingPage: React.FC = () => {
           <Card 
             title="Compose Message" 
             className="messaging-card"
-            headStyle={{ color: '#1890ff', fontSize: 20, fontWeight: 600, borderBottom: '1px solid #eaeaea' }}
+            headStyle={{ color: '#9C7456', fontSize: 20, fontWeight: 600, borderBottom: '1px solid #eaeaea' }}
           >
             <Form layout="vertical">
               <Form.Item label={<span className="form-label">Package</span>}>
@@ -112,6 +114,7 @@ const MessagingPage: React.FC = () => {
                   type="primary" 
                   onClick={sendMessage} 
                   className="send-button"
+                  style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}
                 >
                   Send Message
                 </Button>
@@ -131,7 +134,7 @@ const MessagingPage: React.FC = () => {
           <Card 
             title="Inbox" 
             className="inbox-card"
-            headStyle={{ fontSize: 20, fontWeight: 600, color: '#1890ff', borderBottom: '1px solid #eaeaea' }}
+            headStyle={{ fontSize: 20, fontWeight: 600, color: '#9c7456', borderBottom: '1px solid #eaeaea' }}
           >
             <div className="message-list">
               {inboxMessages.map((msg, index) => (
@@ -155,6 +158,7 @@ const MessagingPage: React.FC = () => {
         </Col>
       </Row>
     </div>
+      </DashboardNavigation>
   );
 };
 

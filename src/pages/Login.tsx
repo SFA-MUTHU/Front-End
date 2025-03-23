@@ -113,8 +113,8 @@ const Login: React.FC = () => {
                         </Form.Item>
 
                         <Form.Item>
-                            <Checkbox>Remember me</Checkbox>
-                            <Link to="/forgot-password" style={{ float: 'right' }}>Forgot password?</Link>
+                            <Checkbox style={{ color: '#9C7456' }}>Remember me</Checkbox>
+                            <Link to="/signup" style={{ float: 'right', color: '#9C7456' }}>Create New User</Link>
                         </Form.Item>
                     </Form>
                     <Divider>Muthu Textile ©</Divider>

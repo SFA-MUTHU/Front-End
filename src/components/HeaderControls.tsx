@@ -59,6 +59,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                     key: '3',
                     icon: <LogoutOutlined />,
                     label: 'Sign Out',
+                    onClick: () => navigate('/login'),
                 },
             ]}
         />
