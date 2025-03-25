@@ -1,235 +1,257 @@
-import React, { useState } from 'react';
-import { Card, Form, Input, Button, Checkbox, Divider, Typography, Row, Col, message, Steps } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, GoogleOutlined, FacebookOutlined, AppleOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Form, Input, Button, Checkbox, Typography, Steps, Select } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import BagroundImag from "../assets/img/background .webp";
+import LogCharacter from "../assets/img/log.webp";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 const { Step } = Steps;
+const { Option } = Select;
 
 const Signup: React.FC = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [form] = Form.useForm();
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+    const [form] = Form.useForm();
 
-  // Step process handlers
-  const nextStep = async () => {
-    try {
-      if (currentStep === 0) {
-        // Validate first step fields
-        await form.validateFields(['email', 'password', 'confirm']);
-      } else if (currentStep === 1) {
-        // Validate second step fields  
-        await form.validateFields(['fullName', 'phone']);
-      }
-      setCurrentStep(currentStep + 1);
-    } catch (error) {
-      console.error('Validation failed:', error);
-    }
-  };
+    useEffect(() => {
+        const handleResize = () => setScreenWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-  const prevStep = () => {
-    setCurrentStep(currentStep - 1);
-  };
+    const nextStep = async () => {
+        try {
+            if (currentStep === 0) {
+                await form.validateFields(['firstName', 'lastName', 'mobile']);
+            } else if (currentStep === 1) {
+                await form.validateFields(['email', 'role']);
+            }
+            setCurrentStep(currentStep + 1);
+        } catch (error) {
+            console.error('Validation failed:', error);
+        }
+    };
 
-  // Final submission
-  const onFinish = async (values: any) => {
-    setLoading(true);
-    // This would normally be an API call
-    setTimeout(() => {
-      setLoading(false);
-      message.success('Account created successfully!');
-      navigate('/login');
-    }, 1500);
-  };
+    const prevStep = () => {
+        setCurrentStep(currentStep - 1);
+    };
 
-  const steps = [
-    {
-      title: 'Account',
-      content: (
-        <>
-          <Form.Item
-            name="email"
-            rules={[
-              { required: true, message: 'Please enter your email!' },
-              { type: 'email', message: 'Please enter a valid email!' }
-            ]}
-          >
-            <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
-          </Form.Item>
+    const onFinish = async () => {
+        setLoading(true);
+        setTimeout(() => {
+            setLoading(false);
+            toast.success('Account created successfully!', {
+                position: "top-left",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                onClose: () => navigate('/login')
+            });
+        }, 1500);
+    };
 
-          <Form.Item
-            name="password"
-            rules={[
-              { required: true, message: 'Please enter your password!' },
-              { min: 8, message: 'Password must be at least 8 characters!' }
-            ]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
-          </Form.Item>
+    const steps = [
+        {
+            title: 'Personal',
+            content: (
+                <>
+                    <Form.Item
+                        name="firstName"
+                        rules={[{ required: true, message: 'Please enter your first name!' }]}
+                    >
+                        <Input prefix={<UserOutlined />} placeholder="First Name" size="large" />
+                    </Form.Item>
 
-          <Form.Item
-            name="confirm"
-            dependencies={['password']}
-            rules={[
-              { required: true, message: 'Please confirm your password!' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error('The two passwords do not match!'));
-                },
-              }),
-            ]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="Confirm Password" size="large" />
-          </Form.Item>
-        </>
-      )
-    },
-    {
-      title: 'Personal',
-      content: (
-        <>
-          <Form.Item
-            name="fullName"
-            rules={[{ required: true, message: 'Please enter your full name!' }]}
-          >
-            <Input prefix={<UserOutlined />} placeholder="Full Name" size="large" />
-          </Form.Item>
+                    <Form.Item
+                        name="lastName"
+                        rules={[{ required: true, message: 'Please enter your last name!' }]}
+                    >
+                        <Input prefix={<UserOutlined />} placeholder="Last Name" size="large" />
+                    </Form.Item>
 
-          <Form.Item
-            name="phone"
-            rules={[{ required: true, message: 'Please enter your phone number!' }]}
-          >
-            <Input prefix={<PhoneOutlined />} placeholder="Phone Number" size="large" />
-          </Form.Item>
+                    <Form.Item
+                        name="mobile"
+                        rules={[{ required: true, message: 'Please enter your mobile number!' }]}
+                    >
+                        <Input prefix={<PhoneOutlined />} placeholder="Mobile Number" size="large" />
+                    </Form.Item>
+                </>
+            )
+        },
+        {
+            title: 'Account',
+            content: (
+                <>
+                    <Form.Item
+                        name="email"
+                        rules={[
+                            { required: true, message: 'Please enter your email!' },
+                            { type: 'email', message: 'Please enter a valid email!' }
+                        ]}
+                    >
+                        <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
+                    </Form.Item>
 
-          <Form.Item name="company">
-            <Input placeholder="Company (Optional)" size="large" />
-          </Form.Item>
-        </>
-      )
-    },
-    {
-      title: 'Complete',
-      content: (
-        <>
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <Title level={4} style={{ color: '#9C7456' }}>Ready to Go!</Title>
-            <Paragraph>
-              Please review your information before completing your registration.
-            </Paragraph>
-          </div>
+                    <Form.Item
+                        name="role"
+                        rules={[{ required: true, message: 'Please select your role!' }]}
+                    >
+                        <Select placeholder="Select Role" size="large">
+                            <Option value="user">User</Option>
+                            <Option value="admin">Admin</Option>
+                            <Option value="manager">Manager</Option>
+                        </Select>
+                    </Form.Item>
+                </>
+            )
+        },
+        {
+            title: 'Security',
+            content: (
+                <>
+                    <Form.Item
+                        name="password"
+                        rules={[
+                            { required: true, message: 'Please enter your password!' },
+                            { min: 8, message: 'Password must be at least 8 characters!' }
+                        ]}
+                    >
+                        <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
+                    </Form.Item>
 
-          <Form.Item
-            name="agreement"
-            valuePropName="checked"
-            rules={[
-              {
-                validator: (_, value) =>
-                  value ? Promise.resolve() : Promise.reject(new Error('You must accept the terms and conditions')),
-              },
-            ]}
-          >
-            <Checkbox>
-              I have read and agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-            </Checkbox>
-          </Form.Item>
-        </>
-      )
-    }
-  ];
+                    <Form.Item
+                        name="confirm"
+                        dependencies={['password']}
+                        rules={[
+                            { required: true, message: 'Please confirm your password!' },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('The two passwords do not match!'));
+                                },
+                            }),
+                        ]}
+                    >
+                        <Input.Password prefix={<LockOutlined />} placeholder="Confirm Password" size="large" />
+                    </Form.Item>
 
-  return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-      padding: '20px'
-    }}>
-      <Card
-        style={{
-          width: '100%',
-          maxWidth: '480px',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-          borderRadius: '12px',
-          overflow: 'hidden'
-        }}
-        bodyStyle={{ padding: '30px' }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <Title level={2} style={{ color: '#9C7456', margin: 0 }}>Create Account</Title>
-          <Text type="secondary">Join our community today</Text>
+                    <Form.Item
+                        name="agreement"
+                        valuePropName="checked"
+                        rules={[
+                            {
+                                validator: (_, value) =>
+                                    value ? Promise.resolve() : Promise.reject(new Error('You must accept the terms and conditions')),
+                            },
+                        ]}
+                    >
+                        <Checkbox>
+                            I have read and agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        </Checkbox>
+                    </Form.Item>
+                </>
+            )
+        }
+    ];
+
+    // @ts-ignore
+    return (
+        <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100vh',
+            backgroundImage: `url(${BagroundImag})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            padding: '20px'
+        }}>
+            <ToastContainer />
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                maxWidth: '800px',
+                flexDirection: screenWidth <= 768 ? 'column' : 'row'
+            }}>
+                <Card
+                    style={{
+                        width: screenWidth <= 768 ? '100%' : '50%',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                        borderRadius: '12px',
+                        overflow: 'hidden'
+                    }}
+                    bodyStyle={{ padding: '30px' }}
+                >
+                    <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                        <Title level={2} style={{ color: '#9C7456', margin: 0 }}>Create Account</Title>
+                        <Text type="secondary">Create New Employee For Muthu Textile</Text>
+                    </div>
+
+                    <Steps current={currentStep} style={{ marginBottom: '24px' }}>
+                        {steps.map(item => (
+                            <Step key={item.title} title={item.title} />
+                        ))}
+                    </Steps>
+
+                    <Form
+                        form={form}
+                        name="signup_form"
+                        layout="vertical"
+                        onFinish={onFinish}
+                    >
+                        {steps[currentStep].content}
+
+                        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
+                            {currentStep > 0 && (
+                                <Button onClick={prevStep}>
+                                    Back
+                                </Button>
+                            )}
+
+                            {currentStep < steps.length - 1 && (
+                                <Button type="primary" onClick={nextStep} style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}>
+                                    Next
+                                </Button>
+                            )}
+
+                            {currentStep === steps.length - 1 && (
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    loading={loading}
+                                    style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}
+                                >
+                                    Create Account
+                                </Button>
+                            )}
+                        </div>
+                    </Form>
+
+                    <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                        Already have an account? <Link to="/login" style={{color: '#9C7456'}}>Login</Link>
+                    </div>
+                </Card>
+                {screenWidth > 768 && (
+                    <img
+                        src={LogCharacter}
+                        alt="Log Character"
+                        style={{ width: '50%', height: 'auto' }}
+                    />
+                )}
+            </div>
         </div>
-
-        <Steps current={currentStep} style={{ marginBottom: '24px' }}>
-          {steps.map(item => (
-            <Step key={item.title} title={item.title} />
-          ))}
-        </Steps>
-
-        <Form
-          form={form}
-          name="signup_form"
-          layout="vertical"
-          onFinish={onFinish}
-        >
-          {steps[currentStep].content}
-
-          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
-            {currentStep > 0 && (
-              <Button onClick={prevStep}>
-                Back
-              </Button>
-            )}
-            
-            {currentStep < steps.length - 1 && (
-              <Button type="primary" onClick={nextStep} style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}>
-                Next
-              </Button>
-            )}
-            
-            {currentStep === steps.length - 1 && (
-              <Button 
-                type="primary" 
-                htmlType="submit" 
-                loading={loading}
-                style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}
-              >
-                Create Account
-              </Button>
-            )}
-          </div>
-        </Form>
-
-        {currentStep === 0 && (
-          <>
-            <Divider>Or</Divider>
-
-            <Row gutter={16} style={{ marginBottom: '24px' }}>
-              <Col xs={24} sm={8}>
-                <Button icon={<GoogleOutlined />} block>Google</Button>
-              </Col>
-              <Col xs={24} sm={8} style={{ marginTop: window.innerWidth < 576 ? '8px' : 0 }}>
-                <Button icon={<FacebookOutlined />} block>Facebook</Button>
-              </Col>
-              <Col xs={24} sm={8} style={{ marginTop: window.innerWidth < 576 ? '8px' : 0 }}>
-                <Button icon={<AppleOutlined />} block>Apple</Button>
-              </Col>
-            </Row>
-          </>
-        )}
-
-        <div style={{ textAlign: 'center', marginTop: '16px' }}>
-          Already have an account? <Link to="/login">Login</Link>
-        </div>
-      </Card>
-    </div>
-  );
+    );
 };
 
 export default Signup;

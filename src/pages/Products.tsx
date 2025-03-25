@@ -609,55 +609,56 @@ const Products: React.FC = () => {
     <DashboardNavigation>
       <div style={{ padding: '20px' }}>
         {/* Enhanced Top Bar */}
-        <Row justify="space-between" align="middle" style={topBarStyle}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <Space size="large">
-              <div>
-                <Text type="secondary" style={{ fontSize: '14px' }}>Products Overview</Text>
-                <div>
-                  <Text strong style={{ fontSize: '16px' }}>
-                    Showing {filteredProducts.length} of {productData.length} products
-                  </Text>
-                </div>
-              </div>
-              <Divider type="vertical" style={{ height: '36px' }} />
-              <div>
-                <Text type="secondary" style={{ fontSize: '14px' }}>Last updated</Text>
-                <div>
-                  <Text style={{ fontSize: '16px' }}>Feb 20, 2025</Text>
-                </div>
-              </div>
-            </Space>
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Space size="middle" direction="vertical" style={{ width: 'auto', textAlign: 'right' }}>
-              <Input.Search
-                placeholder="Quick search..."
-                style={{ width: '260px' }}
-                allowClear
-                onChange={(e) => setSearchQuery(e.target.value)}
-                value={searchQuery}
-              />
-              <Space size="middle">
-                <Button 
-                  icon={<FilterOutlined />} 
-                  style={{ marginRight: 8 }}
-                  onClick={() => setIsFilterVisible(true)}
-                >
-                  Filters
-                </Button>
-                <Button 
-                  type="primary"
-                  icon={<PlusOutlined />} 
-                  style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
-                  onClick={() => navigate('/addproductpage')}
-                >
-                  Add New Item
-                </Button>
-              </Space>
-            </Space>
-          </Col>
-        </Row>
+
+        <Row justify="space-between" align="middle" style={topBarStyle} className="top-bar">
+  <Col xs={24} sm={24} md={12} lg={12} xl={12} className="top-bar-info">
+    <Space size="large">
+      <div>
+        <Text type="secondary" style={{ fontSize: '14px' }}>Products Overview</Text>
+        <div>
+          <Text strong style={{ fontSize: '16px' }}>
+            Showing {filteredProducts.length} of {productData.length} products
+          </Text>
+        </div>
+      </div>
+      <Divider type="vertical" style={{ height: '36px' }} />
+      <div>
+        <Text type="secondary" style={{ fontSize: '14px' }}>Last updated</Text>
+        <div>
+          <Text style={{ fontSize: '16px' }}>Feb 20, 2025</Text>
+        </div>
+      </div>
+    </Space>
+  </Col>
+  <Col xs={24} sm={24} md={12} lg={12} xl={12} className="top-bar-actions">
+    <Space size="middle" direction="horizontal" wrap className="action-space">
+      <Input.Search
+        placeholder="Quick search..."
+        className="responsive-search"
+        allowClear
+        onChange={(e) => setSearchQuery(e.target.value)}
+        value={searchQuery}
+      />
+      <Button
+        icon={<FilterOutlined />}
+        onClick={() => setIsFilterVisible(true)}
+        className="filter-button"
+      >
+        Filters
+      </Button>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
+        onClick={() => navigate('/addproductpage')}
+        className="add-button"
+      >
+        Add New Item
+      </Button>
+    </Space>
+  </Col>
+</Row>
+
 
         {/* Category Filter Pills */}
         <div style={{ margin: '0 0 20px' }}>
