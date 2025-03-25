@@ -110,6 +110,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
 
     return (
         <Layout style={{ height: '100vh', overflow: 'hidden', background: colors.background, fontFamily: 'Roboto, sans-serif' }}>
+
             <Sider 
                 collapsible 
                 collapsed={collapsed} 
@@ -128,6 +129,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                 }
                 style={{ background: colors.primary, height: '100%', boxShadow: '2px 0 8px rgba(0,0,0,0.15)' }}
             >
+
                 <div className="logo" style={{ height: '64px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     {!collapsed ? (
                         <Title level={4} style={{ margin: 0, fontFamily: 'Roboto', color: 'white' }}>WRENIX</Title>

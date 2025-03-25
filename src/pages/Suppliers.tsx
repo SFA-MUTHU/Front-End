@@ -3,6 +3,7 @@ import { Layout, Row, Col, Button, Table, Tag, Typography, Avatar, Input } from 
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 
 import DashboardNavigation from '../components/DashboardNavigation';
+
 import AddSupplierForm from './Addsupplierpage';
 
 const { Sider, Content } = Layout;
@@ -44,7 +45,9 @@ const Suppliers: React.FC = () => {
   // Filter suppliers based on search term
   useEffect(() => {
     const filtered = suppliersList.filter((supplier) =>
+
         supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
+
     );
     setFilteredSuppliers(filtered);
   }, [searchTerm]);
@@ -129,7 +132,9 @@ const Suppliers: React.FC = () => {
 
   const currentSupplierData = suppliersData[selectedSupplier] || suppliersData['Nike'];
 
+
   const handleAddSupplier = (data: any) => {
+
     console.log('New Supplier Data:', data);
     // Here you could update suppliersList and suppliersData with the new supplier
     setIsModalVisible(false);
@@ -157,6 +162,7 @@ const Suppliers: React.FC = () => {
   `;
 
   return (
+
       <DashboardNavigation>
         <style>{scrollbarStyle}</style>
         <Layout>
@@ -272,6 +278,7 @@ const Suppliers: React.FC = () => {
             onSubmit={handleAddSupplier}
         />
       </DashboardNavigation>
+
   );
 };
 
