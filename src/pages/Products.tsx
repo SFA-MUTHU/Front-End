@@ -609,6 +609,7 @@ const Products: React.FC = () => {
     <DashboardNavigation>
       <div style={{ padding: '20px' }}>
         {/* Enhanced Top Bar */}
+
         <Row justify="space-between" align="middle" style={topBarStyle} className="top-bar">
   <Col xs={24} sm={24} md={12} lg={12} xl={12} className="top-bar-info">
     <Space size="large">
@@ -657,6 +658,7 @@ const Products: React.FC = () => {
     </Space>
   </Col>
 </Row>
+
 
         {/* Category Filter Pills */}
         <div style={{ margin: '0 0 20px' }}>

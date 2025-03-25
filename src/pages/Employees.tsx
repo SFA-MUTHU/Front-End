@@ -93,7 +93,9 @@ const Employees: React.FC = () => {
         text: 'Task Completion Rate',
         font: {
           size: 18,
+
           weight: 'bold' as 'bold', // Correcting the type of weight
+
           family: "'Inter', sans-serif",
         },
         color: colors.primary,
@@ -158,8 +160,7 @@ const Employees: React.FC = () => {
   };
 
   // Task status chart options
-  //ts-ignore
-// Custom upload button
+
   const uploadButton = (
     <div className="flex flex-col items-center justify-center">
       <UploadOutlined style={{ fontSize: 24, color: colors.primary }} />
@@ -316,8 +317,10 @@ const Employees: React.FC = () => {
                     <Radio.Button value="monthly">Monthly</Radio.Button>
                   </Radio.Group>
                   <div className="chart-container-mobile" style={{ height: '300px', width: '100%', maxWidth: '500px' }}>
+
                     <Bar data={taskCompletionData} //ts-ignore
                      options={taskCompletionOptions} />
+
                   </div>
                 </Card>
               </Col>
@@ -331,6 +334,7 @@ const Employees: React.FC = () => {
                       title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Employee Onboarding</Title>}
                       hoverable
                       style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+
                     >
                       <Button
                         type="primary"
@@ -480,6 +484,7 @@ const Employees: React.FC = () => {
                       hoverable
                       style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
                     >
+
                       <div style={{ height: '200px', width: '100%', maxWidth: '270px' }}>
                         <Doughnut data={taskStatusData}  />
                       </div>
