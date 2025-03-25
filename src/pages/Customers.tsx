@@ -462,7 +462,7 @@ const Customers: React.FC = () => {
                 </Button>
               </Space>
             </Col>
-            <Col xs={24} sm={12} md={12} style={{ textAlign: 'right' }}>
+            <Col xs={24} sm={12} md={12} style={{ textAlign: 'right', maxWidth:'350px' }}>
               <Input.Search 
                 placeholder="Search customers..." 
                 className="responsive-search"

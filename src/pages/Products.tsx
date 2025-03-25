@@ -607,7 +607,7 @@ const Products: React.FC = () => {
 
   return (
     <DashboardNavigation>
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '5px' }}>
         {/* Enhanced Top Bar */}
 
         <Row justify="space-between" align="middle" style={topBarStyle} className="top-bar">
@@ -623,7 +623,7 @@ const Products: React.FC = () => {
       </div>
       <Divider type="vertical" style={{ height: '36px' }} />
       <div>
-        <Text type="secondary" style={{ fontSize: '14px' }}>Last updated</Text>
+        <Text type="secondary" style={{ fontSize: '12px' }}>Last updated</Text>
         <div>
           <Text style={{ fontSize: '16px' }}>Feb 20, 2025</Text>
         </div>
@@ -933,7 +933,7 @@ const Products: React.FC = () => {
           /* Make the table scrollable in all directions on mobile */
           .table-responsive-wrapper {
             overflow: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch; 
           }
 
           .ant-table {
