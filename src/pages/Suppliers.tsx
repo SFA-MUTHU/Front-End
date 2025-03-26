@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Row, Col, Button, Table, Tag, Typography, Avatar, Input } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-
 import DashboardNavigation from '../components/DashboardNavigation';
-
 import AddSupplierForm from './Addsupplierpage';
 
 const { Sider, Content } = Layout;
@@ -26,7 +24,18 @@ const Suppliers: React.FC = () => {
   const [selectedSupplier, setSelectedSupplier] = useState<string>('Nike');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredSuppliers, setFilteredSuppliers] = useState<Array<{ name: string; logo: string }>>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on resize and initial load
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
 
   // Sample suppliers list with logos
   const suppliersList = [
@@ -45,9 +54,7 @@ const Suppliers: React.FC = () => {
   // Filter suppliers based on search term
   useEffect(() => {
     const filtered = suppliersList.filter((supplier) =>
-
-        supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
-
+      supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredSuppliers(filtered);
   }, [searchTerm]);
@@ -115,10 +122,30 @@ const Suppliers: React.FC = () => {
   };
 
   const columns = [
-    { title: 'Bill Number', dataIndex: 'billNumber', key: 'billNumber' },
-    { title: 'Date', dataIndex: 'date', key: 'date' },
-    { title: 'Amount', dataIndex: 'amount', key: 'amount' },
-    { title: 'Payment Method', dataIndex: 'paymentMethod', key: 'paymentMethod' },
+    { 
+      title: 'Bill Number', 
+      dataIndex: 'billNumber', 
+      key: 'billNumber',
+      responsive: ['md'] as any,
+    },
+    { 
+      title: 'Date', 
+      dataIndex: 'date', 
+      key: 'date',
+      responsive: ['md'] as any,
+    },
+    { 
+      title: 'Amount', 
+      dataIndex: 'amount', 
+      key: 'amount',
+      responsive: ['md'] as any,
+    },
+    { 
+      title: 'Payment Method', 
+      dataIndex: 'paymentMethod', 
+      key: 'paymentMethod',
+      responsive: ['md'] as any,
+    },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -130,13 +157,30 @@ const Suppliers: React.FC = () => {
     },
   ];
 
+  const mobileColumns = [
+    {
+      title: 'Transaction',
+      key: 'transaction',
+      render: (_: any, record: any) => (
+        <div>
+          <div><strong>Bill:</strong> {record.billNumber}</div>
+          <div><strong>Date:</strong> {record.date}</div>
+          <div><strong>Amount:</strong> {record.amount}</div>
+          <div><strong>Method:</strong> {record.paymentMethod}</div>
+          <div><strong>Status:</strong> 
+            <Tag color={record.status === 'Success' ? 'green' : record.status === 'In Process' ? 'orange' : 'red'}>
+              {record.status}
+            </Tag>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
   const currentSupplierData = suppliersData[selectedSupplier] || suppliersData['Nike'];
 
-
   const handleAddSupplier = (data: any) => {
-
     console.log('New Supplier Data:', data);
-    // Here you could update suppliersList and suppliersData with the new supplier
     setIsModalVisible(false);
   };
 
@@ -162,11 +206,123 @@ const Suppliers: React.FC = () => {
   `;
 
   return (
+    <DashboardNavigation>
+      <style>{scrollbarStyle}</style>
+      <Layout style={{ flexDirection: isMobile ? 'column' : 'row' }}>
+        {isMobile ? (
+          <>
+            {/* Mobile: Suppliers list first */}
+            <div
+              style={{
+                background: 'white',
+                padding: '20px',
+                borderRadius: '12px',
+                margin: '20px 10px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+              }}
+            >
+              <div style={{ textAlign: 'center', marginBottom: '16px', color: '#333' }}>
+                <Title level={4} style={{ marginBottom: '5px' }}>
+                  Suppliers Profile
+                </Title>
+                <Text type="secondary">Select a supplier</Text>
+              </div>
 
-      <DashboardNavigation>
-        <style>{scrollbarStyle}</style>
-        <Layout>
-          <Sider
+              <Search
+                placeholder="Search suppliers"
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ marginBottom: '16px' }}
+                allowClear
+                size="middle"
+              />
+
+              <div
+                className="custom-scrollbar"
+                style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}
+              >
+                {filteredSuppliers.map((supplier, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSupplierClick(supplier.name)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '10px 15px',
+                      marginBottom: '8px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: selectedSupplier === supplier.name ? '#f0f0f0' : 'transparent',
+                      transition: 'all 0.3s ease',
+                      border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
+                      boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
+                    }}
+                  >
+                    <Avatar size="small" style={{ backgroundColor: '#9C7456', marginRight: '10px' }}>
+                      {supplier.logo}
+                    </Avatar>
+                    <Text strong={selectedSupplier === supplier.name} style={{ color: selectedSupplier === supplier.name ? '#9C7456' : '#333' }}>
+                      {supplier.name}
+                    </Text>
+                  </div>
+                ))}
+                {filteredSuppliers.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                    <Text type="secondary">No suppliers found</Text>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile: Content below */}
+            <div style={{ padding: '0 10px', marginBottom: '20px' }}>
+              <div
+                style={{
+                  marginBottom: '20px',
+                  padding: '15px 20px',
+                  backgroundColor: 'white',
+                  borderRadius: '12px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+                }}
+              >
+                <div style={{ marginBottom: '16px' }}>
+                  <Title level={3} style={{ margin: 0, color: '#9C7456' }}>
+                    {selectedSupplier}'s Product Purchase
+                  </Title>
+                  <Text type="secondary">Effortless and Precise Purchase Management</Text>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Button icon={<SearchOutlined />} style={{ flex: 1 }}>
+                    Search
+                  </Button>
+                  <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    style={{ 
+                      backgroundColor: '#9C7456', 
+                      borderColor: '#9C7456',
+                      flex: 1
+                    }}
+                    onClick={() => setIsModalVisible(true)}
+                  >
+                    Add Supplier
+                  </Button>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)' }}>
+                <Table 
+                  columns={mobileColumns} 
+                  dataSource={currentSupplierData.data} 
+                  pagination={{ pageSize: 5 }}
+                  scroll={{ x: true }}
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Desktop layout */}
+            <Sider
               width={240}
               style={{
                 background: 'white',
@@ -177,42 +333,42 @@ const Suppliers: React.FC = () => {
                 display: 'flex',
                 flexDirection: 'column',
               }}
-          >
-            <div style={{ textAlign: 'center', marginBottom: '16px', color: '#333' }}>
-              <Title level={4} style={{ marginBottom: '5px' }}>
-                Suppliers Profile
-              </Title>
-              <Text type="secondary">Select a supplier</Text>
-            </div>
+            >
+              <div style={{ textAlign: 'center', marginBottom: '16px', color: '#333' }}>
+                <Title level={4} style={{ marginBottom: '5px' }}>
+                  Suppliers Profile
+                </Title>
+                <Text type="secondary">Select a supplier</Text>
+              </div>
 
-            <Search
+              <Search
                 placeholder="Search suppliers"
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ marginBottom: '16px' }}
                 allowClear
                 size="middle"
-            />
+              />
 
-            <div
+              <div
                 className="custom-scrollbar"
                 style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '4px', flex: 1 }}
-            >
-              {filteredSuppliers.map((supplier, index) => (
+              >
+                {filteredSuppliers.map((supplier, index) => (
                   <div
-                      key={index}
-                      onClick={() => handleSupplierClick(supplier.name)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '10px 15px',
-                        marginBottom: '8px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        backgroundColor: selectedSupplier === supplier.name ? '#f0f0f0' : 'transparent',
-                        transition: 'all 0.3s ease',
-                        border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
-                        boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
-                      }}
+                    key={index}
+                    onClick={() => handleSupplierClick(supplier.name)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '10px 15px',
+                      marginBottom: '8px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: selectedSupplier === supplier.name ? '#f0f0f0' : 'transparent',
+                      transition: 'all 0.3s ease',
+                      border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
+                      boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
+                    }}
                   >
                     <Avatar size="small" style={{ backgroundColor: '#9C7456', marginRight: '10px' }}>
                       {supplier.logo}
@@ -221,17 +377,17 @@ const Suppliers: React.FC = () => {
                       {supplier.name}
                     </Text>
                   </div>
-              ))}
-              {filteredSuppliers.length === 0 && (
+                ))}
+                {filteredSuppliers.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '20px 0' }}>
                     <Text type="secondary">No suppliers found</Text>
                   </div>
-              )}
-            </div>
-          </Sider>
+                )}
+              </div>
+            </Sider>
 
-          <Content style={{ padding: '20px' }}>
-            <Row
+            <Content style={{ padding: '20px' }}>
+              <Row
                 justify="space-between"
                 align="middle"
                 style={{
@@ -241,44 +397,49 @@ const Suppliers: React.FC = () => {
                   borderRadius: '12px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
                 }}
-            >
-              <Col>
-                <div>
-                  <Title level={3} style={{ margin: 0, color: '#9C7456' }}>
-                    {selectedSupplier}'s Product Purchase
-                  </Title>
-                  <Text type="secondary">Effortless and Precise Purchase Management</Text>
-                </div>
-              </Col>
-              <Col>
-                <Button icon={<SearchOutlined />} style={{ marginRight: 8 }}>
-                  Search
-                </Button>
-                <Button
+              >
+                <Col>
+                  <div>
+                    <Title level={3} style={{ margin: 0, color: '#9C7456' }}>
+                      {selectedSupplier}'s Product Purchase
+                    </Title>
+                    <Text type="secondary">Effortless and Precise Purchase Management</Text>
+                  </div>
+                </Col>
+                <Col>
+                  <Button icon={<SearchOutlined />} style={{ marginRight: 8 }}>
+                    Search
+                  </Button>
+                  <Button
                     icon={<PlusOutlined />}
                     type="primary"
                     style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}
-                    onClick={() => setIsModalVisible(true)} // Open modal instead of navigating
-                >
-                  Add Supplier
-                </Button>
-              </Col>
-            </Row>
+                    onClick={() => setIsModalVisible(true)}
+                  >
+                    Add Supplier
+                  </Button>
+                </Col>
+              </Row>
 
-            <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)' }}>
-              <Table columns={columns} dataSource={currentSupplierData.data} pagination={{ pageSize: 5 }} />
-            </div>
-          </Content>
-        </Layout>
+              <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)' }}>
+                <Table 
+                  columns={columns} 
+                  dataSource={currentSupplierData.data} 
+                  pagination={{ pageSize: 5 }} 
+                />
+              </div>
+            </Content>
+          </>
+        )}
+      </Layout>
 
-        {/* Add Supplier Modal */}
-        <AddSupplierForm
-            visible={isModalVisible}
-            onCancel={() => setIsModalVisible(false)}
-            onSubmit={handleAddSupplier}
-        />
-      </DashboardNavigation>
-
+      {/* Add Supplier Modal */}
+      <AddSupplierForm
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSubmit={handleAddSupplier}
+      />
+    </DashboardNavigation>
   );
 };
 
