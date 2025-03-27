@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Col, Row, List, Avatar, Input, Button, Radio, Modal, Form, Upload, Typography } from 'antd';
-import { PlusOutlined, UploadOutlined, UserOutlined} from '@ant-design/icons';
+import { PlusOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -12,7 +12,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, ChartTitle,
 const { Search } = Input;
 const { Text, Title } = Typography;
 
-// Color theme (consistent with previous code)
+// Color theme
 const colors = {
   primary: '#9C7456',
   primaryLight: '#DBC1AD',
@@ -24,19 +24,20 @@ const colors = {
   shadowMedium: '0 6px 16px rgba(0,0,0,0.1)',
 };
 
+
 const Employees: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]); // Manage fileList state for Upload
+  const [fileList, setFileList] = useState<any[]>([]);
 
   const employees = [
-    { id: 'EM0096', name: 'John Doe', phone: '123-456-7890', birthday: '1990-01-01', address: '123 Main St', imgSrc: 'https://via.placeholder.com/40', status: 'online' },
-    { id: 'EM0097', name: 'Jane Smith', phone: '987-654-3210', birthday: '1992-02-02', address: '456 Elm St', imgSrc: 'https://via.placeholder.com/40', status: 'offline' },
-    { id: 'EM0098', name: 'Alice Johnson', phone: '555-555-5555', birthday: '1988-05-05', address: '789 Oak Ave', imgSrc: 'https://via.placeholder.com/40', status: 'online' },
-    { id: 'EM0099', name: 'Bob Brown', phone: '444-444-4444', birthday: '1985-10-10', address: '321 Pine Rd', imgSrc: 'https://via.placeholder.com/40', status: 'offline' },
-    { id: 'EM0100', name: 'Charlie Davis', phone: '333-333-3333', birthday: '1995-07-07', address: '654 Maple St', imgSrc: 'https://via.placeholder.com/40', status: 'online' },
-    { id: 'EM0101', name: 'Diana Ross', phone: '222-222-2222', birthday: '1993-12-12', address: '987 Birch Blvd', imgSrc: 'https://via.placeholder.com/40', status: 'offline' },
+    { id: 'EM0096', name: 'John Doe', phone: '123-456-7890', birthday: '1990-01-01', address: '123 Main St', status: 'online' },
+    { id: 'EM0097', name: 'Jane Smith', phone: '987-654-3210', birthday: '1992-02-02', address: '456 Elm St', status: 'offline' },
+    { id: 'EM0098', name: 'Alice Johnson', phone: '555-555-5555', birthday: '1988-05-05', address: '789 Oak Ave', status: 'online' },
+    { id: 'EM0099', name: 'Bob Brown', phone: '444-444-4444', birthday: '1985-10-10', address: '321 Pine Rd', status: 'offline' },
+    { id: 'EM0100', name: 'Charlie Davis', phone: '333-333-3333', birthday: '1995-07-07', address: '654 Maple St', status: 'online' },
+    { id: 'EM0101', name: 'Diana Ross', phone: '222-222-2222', birthday: '1993-12-12', address: '987 Birch Blvd', status: 'offline' },
   ];
 
   const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -46,17 +47,16 @@ const Employees: React.FC = () => {
     form.validateFields().then(values => {
       console.log('Success:', values);
       setModalVisible(false);
-      setFileList([]); // Reset fileList on success
+      setFileList([]);
       form.resetFields();
     }).catch(info => console.log('Validate Failed:', info));
   };
   const handleCancel = () => {
     setModalVisible(false);
-    setFileList([]); // Reset fileList on cancel
+    setFileList([]);
     form.resetFields();
   };
 
-  // Modern card style with hover effects
   const cardStyle = {
     borderRadius: 12,
     boxShadow: colors.shadowLight,
@@ -69,7 +69,6 @@ const Employees: React.FC = () => {
     },
   };
 
-  // Task completion chart data
   const taskCompletionData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     datasets: [
@@ -83,7 +82,6 @@ const Employees: React.FC = () => {
     ],
   };
 
-  // Task completion chart options
   const taskCompletionOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -93,9 +91,7 @@ const Employees: React.FC = () => {
         text: 'Task Completion Rate',
         font: {
           size: 18,
-
-          weight: 'bold' as 'bold', // Correcting the type of weight
-
+          weight: 'bold',
           family: "'Inter', sans-serif",
         },
         color: colors.primary,
@@ -117,14 +113,9 @@ const Employees: React.FC = () => {
     },
     scales: {
       x: {
-        grid: {
-          display: false,
-        },
+        grid: { display: false },
         ticks: {
-          font: {
-            size: 12,
-            family: "'Inter', sans-serif",
-          },
+          font: { size: 12, family: "'Inter', sans-serif" },
           color: '#666',
         },
       },
@@ -133,20 +124,14 @@ const Employees: React.FC = () => {
         max: 100,
         ticks: {
           stepSize: 20,
-          font: {
-            size: 12,
-            family: "'Inter', sans-serif",
-          },
+          font: { size: 12, family: "'Inter', sans-serif" },
           color: '#666',
         },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.05)',
-        },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' },
       },
     },
   };
 
-  // Task status chart data
   const taskStatusData = {
     labels: ['Complete', 'Not Finished'],
     datasets: [
@@ -159,8 +144,6 @@ const Employees: React.FC = () => {
     ],
   };
 
-  // Task status chart options
-
   const uploadButton = (
     <div className="flex flex-col items-center justify-center">
       <UploadOutlined style={{ fontSize: 24, color: colors.primary }} />
@@ -168,13 +151,10 @@ const Employees: React.FC = () => {
     </div>
   );
 
-  // Handle file upload changes
-  // @ts-ignore
-  const handleUploadChange = ({ fileList }) => {
+  const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
     setFileList(fileList);
   };
 
-  // CSS for additional styling
   const customStyles = `
     .employee-card {
       transition: all 0.3s ease;
@@ -222,8 +202,6 @@ const Employees: React.FC = () => {
       border-radius: 12px 12px 0 0 !important;
       color: black !important;
     }
-  
-      
     .ant-modal-title {
       color: black!important;
       font-weight: bold !important;
@@ -243,19 +221,16 @@ const Employees: React.FC = () => {
         max-width: 200px !important;
       }
     }
-      
   `;
 
-  // @ts-ignore
   return (
     <DashboardNavigation>
       <style>{customStyles}</style>
-      <div style={{ padding: '24px', background: '#F0F2F5', minHeight: '100vh' }}>
+      <div style={{ padding: '10px', background: '#fff', minHeight: '100vh' }}>
         <Title level={2} style={{ color: colors.primary, marginBottom: '24px' }}>
           Employees Dashboard
         </Title>
         <Row gutter={[24, 24]}>
-          {/* Left: Employee List */}
           <Col xs={24} md={12}>
             <Card
               title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Employee List</Title>}
@@ -271,35 +246,33 @@ const Employees: React.FC = () => {
               style={{ ...cardStyle, height: '100%', maxHeight: '500px', overflowY: 'auto' }}
             >
               <List
-                  itemLayout="horizontal"
-                  dataSource={filteredEmployees}
-                  renderItem={employee => (
-                      <List.Item className="employee-card">
-                        <List.Item.Meta
-                            avatar={<Avatar src={employee.imgSrc} size={48} />}
-                            title={
-                              <div className="flex justify-between items-center">
-                                <Text strong style={{ color: colors.primary }}>{employee.name}</Text>
-                                <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>
-                              </div>
-                            }
-                            description={
-                              <div>
-                                <Text type="secondary">ID: {employee.id}</Text><br />
-                                <Text type="secondary">Phone: {employee.phone}</Text>
-                              </div>
-                            }
-                        />
-                      </List.Item>
-                  )}
+                itemLayout="horizontal"
+                dataSource={filteredEmployees}
+                renderItem={employee => (
+                  <List.Item className="employee-card">
+                    <List.Item.Meta
+                      avatar={<Avatar size={48} icon={<UserOutlined />} />}
+                      title={
+                        <div className="flex justify-between items-center">
+                          <Text strong style={{ color: colors.primary }}>{employee.name}</Text>
+                          <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>
+                        </div>
+                      }
+                      description={
+                        <div>
+                          <Text type="secondary">ID: {employee.id}</Text><br />
+                          <Text type="secondary">Phone: {employee.phone}</Text>
+                        </div>
+                      }
+                    />
+                  </List.Item>
+                )}
               />
             </Card>
           </Col>
 
-          {/* Right: Two Vertical Sections */}
           <Col xs={24} md={12}>
             <Row gutter={[24, 24]}>
-              {/* Task Completion Card */}
               <Col xs={24} md={24}>
                 <Card
                   title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Task Completion</Title>}
@@ -317,24 +290,18 @@ const Employees: React.FC = () => {
                     <Radio.Button value="monthly">Monthly</Radio.Button>
                   </Radio.Group>
                   <div className="chart-container-mobile" style={{ height: '300px', width: '100%', maxWidth: '500px' }}>
-
-                    <Bar data={taskCompletionData} //ts-ignore
-                     options={taskCompletionOptions} />
-
+                    <Bar data={taskCompletionData} options={taskCompletionOptions} />
                   </div>
                 </Card>
               </Col>
 
-              {/* Nested Row for Employee Onboarding and Task Completion Rate */}
               <Col xs={24} md={24}>
                 <Row gutter={[24, 24]}>
-                  {/* Employee Onboarding Card */}
                   <Col xs={24} md={12}>
                     <Card
                       title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Employee Onboarding</Title>}
                       hoverable
                       style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-
                     >
                       <Button
                         type="primary"
@@ -353,12 +320,9 @@ const Employees: React.FC = () => {
                         footer={null}
                         width="90%"
                         style={{ maxWidth: '800px' }}
-                        bodyStyle={{ padding: '24px' }}
-
-
+                        styles={{ body: { padding: '24px' } }}
                       >
                         <Form form={form} layout="vertical" name="addEmployee">
-                          {/* Photo Upload Area */}
                           <Form.Item
                             name="profileImage"
                             label="Profile Image"
@@ -385,7 +349,6 @@ const Employees: React.FC = () => {
                             </Upload>
                           </Form.Item>
 
-                          {/* Photo Buttons */}
                           <div className="flex flex-wrap gap-4 justify-center mb-6">
                             <Button
                               style={{ backgroundColor: colors.primary, color: 'white', borderRadius: 8 }}
@@ -400,7 +363,6 @@ const Employees: React.FC = () => {
                             </Button>
                           </div>
 
-                          {/* Form Fields */}
                           <Form.Item
                             name="employeeId"
                             label="Employee ID"
@@ -477,18 +439,15 @@ const Employees: React.FC = () => {
                     </Card>
                   </Col>
 
-                  {/* Task Completion Rate Card */}
                   <Col xs={24} md={12}>
                     <Card
                       title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Task Completion Rate</Title>}
                       hoverable
                       style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
                     >
-
                       <div style={{ height: '200px', width: '100%', maxWidth: '270px' }}>
-                        <Doughnut data={taskStatusData}  />
+                        <Doughnut data={taskStatusData} />
                       </div>
-
                     </Card>
                   </Col>
                 </Row>
