@@ -215,7 +215,7 @@ const Suppliers: React.FC = () => {
             <div
               style={{
                 background: 'white',
-                padding: '20px',
+                padding: '5px',
                 borderRadius: '12px',
                 margin: '20px 10px',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
@@ -290,23 +290,24 @@ const Suppliers: React.FC = () => {
                   </Title>
                   <Text type="secondary">Effortless and Precise Purchase Management</Text>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <Button icon={<SearchOutlined />} style={{ flex: 1 }}>
-                    Search
-                  </Button>
-                  <Button
-                    icon={<PlusOutlined />}
-                    type="primary"
-                    style={{ 
-                      backgroundColor: '#9C7456', 
-                      borderColor: '#9C7456',
-                      flex: 1
-                    }}
-                    onClick={() => setIsModalVisible(true)}
-                  >
-                    Add Supplier
-                  </Button>
-                </div>
+              
+<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+  <Button icon={<SearchOutlined />} style={{ width: '100%' }}>
+    Search
+  </Button>
+  <Button
+    icon={<PlusOutlined />}
+    type="primary"
+    style={{ 
+      backgroundColor: '#9C7456', 
+      borderColor: '#9C7456',
+      width: '100%'
+    }}
+    onClick={() => setIsModalVisible(true)}
+  >
+    Add Supplier
+  </Button>
+</div>
               </div>
 
               <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)' }}>
