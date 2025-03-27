@@ -3,17 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
 import {
   Layout, Button, Input, Table, Row, Col, Dropdown, Menu, Tag, Card,
-  Statistic, Avatar, Space, Badge, message, DatePicker, Select
+  Statistic, Avatar, Space, Badge, message, DatePicker, Select, Modal, Form, Typography, Upload
 } from 'antd';
 import { 
   EllipsisOutlined, UserOutlined, MailOutlined, PhoneOutlined, DollarOutlined, 
   StarOutlined, DownOutlined, UpOutlined, PlusOutlined, EditOutlined, 
-  DeleteOutlined, CheckCircleOutlined, CalculatorOutlined, HomeOutlined 
+  DeleteOutlined, CheckCircleOutlined, CalculatorOutlined, HomeOutlined,
+  UploadOutlined
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../style/Customers.css';
 
 const { Content } = Layout;
+const { Text } = Typography;
 
 // Define customer data type
 interface CustomerData {
@@ -29,6 +31,18 @@ interface CustomerData {
   lastPurchase?: string;
   status?: 'active' | 'inactive';
 }
+
+// Color theme
+const colors = {
+  primary: '#9C7456',
+  primaryLight: '#DBC1AD',
+  secondary: '#4A6FA5',
+  accent: '#47B881',
+  green: '#2ECC71',
+  red: '#E74C3C',
+  shadowLight: '0 4px 12px rgba(0,0,0,0.06)',
+  shadowMedium: '0 6px 16px rgba(0,0,0,0.1)',
+};
 
 // Custom component for responsive text
 const ResponsiveText: React.FC<{ text: string | number; color: string; className?: string }> = ({ text, color, className }) => {
@@ -52,12 +66,171 @@ const ResponsiveText: React.FC<{ text: string | number; color: string; className
   );
 };
 
+// Add Customer Modal Component
+const AddCustomerModal: React.FC<{
+  visible: boolean;
+  onOk: (values: any) => void;
+  onCancel: () => void;
+}> = ({ visible, onOk, onCancel }) => {
+  const [form] = Form.useForm();
+  const [fileList, setFileList] = useState<any[]>([]);
+
+  const handleOk = () => {
+    form.validateFields().then(values => {
+      onOk({ ...values, profileImage: fileList[0] });
+      form.resetFields();
+      setFileList([]);
+    }).catch(info => console.log('Validate Failed:', info));
+  };
+
+  const handleCancel = () => {
+    form.resetFields();
+    setFileList([]);
+    onCancel();
+  };
+
+  const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
+    setFileList(fileList);
+  };
+
+  const uploadButton = (
+    <div className="flex flex-col items-center justify-center">
+      <UploadOutlined style={{ fontSize: 24, color: colors.primary }} />
+      <p className="text-gray-500 m-0 mt-2">Add Photo</p>
+    </div>
+  );
+
+  return (
+    <Modal
+      title={<Text strong style={{ color: colors.primary }}>Add Customer</Text>}
+      open={visible}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      footer={null}
+      width="90%"
+      style={{ maxWidth: '800px' }}
+      bodyStyle={{ padding: '24px' }}
+    >
+      <Form form={form} layout="vertical" name="addCustomer">
+        {/* Photo Upload Area */}
+        <Form.Item
+          name="profileImage"
+          label="Profile Image"
+          rules={[{ required: true, message: 'Please upload a profile image!' }]}
+        >
+          <Upload
+            name="profileImage"
+            fileList={fileList}
+            onChange={handleUploadChange}
+            maxCount={1}
+            className="w-full flex justify-center"
+            beforeUpload={() => false}
+            accept="image/*"
+            showUploadList={true}
+          >
+            {fileList.length === 0 && (
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 w-full max-w-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-400"
+                style={{ background: '#F9FAFB' }}
+              >
+                {uploadButton}
+              </div>
+            )}
+          </Upload>
+        </Form.Item>
+
+        {/* Photo Buttons */}
+        <div className="flex flex-wrap gap-4 justify-center mb-6">
+          <Button
+            style={{ backgroundColor: colors.primary, color: 'white', borderRadius: 8 }}
+          >
+            Profile Image
+          </Button>
+          <Button
+            style={{ borderRadius: 8 }}
+            onClick={() => setFileList([])}
+          >
+            Remove
+          </Button>
+        </div>
+
+        <Form.Item
+          name="customerName"
+          label="Customer Name"
+          rules={[{ required: true, message: 'Please enter customer name!' }]}
+        >
+          <Input 
+            placeholder="Enter customer name"
+            prefix={<UserOutlined style={{ color: colors.primary }} />}
+            style={{ borderRadius: 8 }}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="email"
+          label="Email"
+          rules={[
+            { required: true, message: 'Please enter email!' },
+            { type: 'email', message: 'Please enter a valid email!' }
+          ]}
+        >
+          <Input 
+            placeholder="Enter customer email"
+            prefix={<MailOutlined style={{ color: colors.primary }} />}
+            style={{ borderRadius: 8 }}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="phoneNumber"
+          label="Phone Number"
+          rules={[{ required: true, message: 'Please enter phone number!' }]}
+        >
+          <Input 
+            placeholder="Enter customer phone number"
+            prefix={<PhoneOutlined style={{ color: colors.primary }} />}
+            style={{ borderRadius: 8 }}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="address"
+          label="Address"
+          rules={[{ required: true, message: 'Please enter address!' }]}
+        >
+          <Input 
+            placeholder="Enter customer address"
+            prefix={<HomeOutlined style={{ color: colors.primary }} />}
+            style={{ borderRadius: 8 }}
+          />
+        </Form.Item>
+
+        <Button
+          type="primary"
+          htmlType="submit"
+          style={{ 
+            width: '100%', 
+            height: 40, 
+            borderRadius: 8, 
+            backgroundColor: colors.primary,
+            borderColor: colors.primary 
+          }}
+          onClick={handleOk}
+        >
+          Add Customer
+        </Button>
+      </Form>
+    </Modal>
+  );
+};
+
 const Customers: React.FC = () => {
   const [activeTab, setActiveTab] = useState('1');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedFilters, setExpandedFilters] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
 
   // Customer data
@@ -237,6 +410,12 @@ const Customers: React.FC = () => {
     }
   };
 
+  const handleAddCustomer = (values: any) => {
+    console.log('New Customer:', values);
+    message.success(`Customer ${values.customerName} added successfully`);
+    setModalVisible(false);
+  };
+
   const columns = [
     { 
       title: 'Customer',
@@ -268,7 +447,6 @@ const Customers: React.FC = () => {
         </Space>
       ),
     },
-   
     { 
       title: 'Joined', 
       dataIndex: 'joinDate', 
@@ -323,7 +501,6 @@ const Customers: React.FC = () => {
   return (
     <DashboardNavigation>
       <Content style={{ padding: '20px', overflowX: 'hidden' }}>
-        {/* Summary Stats */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -392,7 +569,6 @@ const Customers: React.FC = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Main Content Card */}
         <Card 
           bordered={false}
           style={{ 
@@ -402,40 +578,40 @@ const Customers: React.FC = () => {
             overflow: 'visible'
           }}
         >
-         <div className="tab-section">
-  <Row align="middle" justify="start" className="tab-row">
-    <Col xs={24}>
-      <Space size="middle" className="tab-space">
-        <div
-          onClick={() => handleTabChange('1')}
-          className={`tab-item ${activeTab === '1' ? 'active' : ''}`}
-        >
-          All Customers
-        </div>
-        <div
-          onClick={() => handleTabChange('2')}
-          className={`tab-item ${activeTab === '2' ? 'active' : ''}`}
-        >
-          Basic Members
-        </div>
-        <div
-          onClick={() => handleTabChange('3')}
-          className={`tab-item ${activeTab === '3' ? 'active' : ''}`}
-        >
-          <StarOutlined className="tab-icon" />
-          Platinum Members
-        </div>
-        <div
-          onClick={() => handleTabChange('4')}
-          className={`tab-item ${activeTab === '4' ? 'active' : ''}`}
-        >
-          Premium Members
-        </div>
-      </Space>
-    </Col>
-  </Row>
-</div>
-          {/* Action Toolbar */}
+          <div className="tab-section">
+            <Row align="middle" justify="start" className="tab-row">
+              <Col xs={24}>
+                <Space size="middle" className="tab-space">
+                  <div
+                    onClick={() => handleTabChange('1')}
+                    className={`tab-item ${activeTab === '1' ? 'active' : ''}`}
+                  >
+                    All Customers
+                  </div>
+                  <div
+                    onClick={() => handleTabChange('2')}
+                    className={`tab-item ${activeTab === '2' ? 'active' : ''}`}
+                  >
+                    Basic Members
+                  </div>
+                  <div
+                    onClick={() => handleTabChange('3')}
+                    className={`tab-item ${activeTab === '3' ? 'active' : ''}`}
+                  >
+                    <StarOutlined className="tab-icon" />
+                    Platinum Members
+                  </div>
+                  <div
+                    onClick={() => handleTabChange('4')}
+                    className={`tab-item ${activeTab === '4' ? 'active' : ''}`}
+                  >
+                    Premium Members
+                  </div>
+                </Space>
+              </Col>
+            </Row>
+          </div>
+
           <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }} gutter={[8, 8]}>
             <Col xs={24} sm={12} md={12}>
               <Space size="small" wrap className="responsive-actions">
@@ -456,7 +632,8 @@ const Customers: React.FC = () => {
                 <Button
                   type="dashed" 
                   icon={<PlusOutlined />}
-                  onClick={() => message.success('Adding new customer')}
+                  onClick={() => setModalVisible(true)}
+                  style={{ borderRadius: 8 }}
                 >
                   Add Customer
                 </Button>
@@ -471,8 +648,13 @@ const Customers: React.FC = () => {
               />
             </Col>
           </Row>
-          
-          {/* Expanded Filters (Collapsible) */}
+
+          <AddCustomerModal
+            visible={modalVisible}
+            onOk={handleAddCustomer}
+            onCancel={() => setModalVisible(false)}
+          />
+
           <AnimatePresence>
             {expandedFilters && (
               <motion.div
@@ -528,7 +710,6 @@ const Customers: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {/* Data Table */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
