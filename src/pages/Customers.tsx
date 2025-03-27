@@ -340,6 +340,21 @@ const Customers: React.FC = () => {
       status: 'inactive'
     },
   ];
+ 
+const styleElement = document.createElement('style');
+const css = `
+  :where(.css-dev-only-do-not-override-240cud).ant-pagination .ant-pagination-item-active {
+    font-weight: 600;
+    background-color: #ffffff;
+    border-color: #A67B5B;
+}
+    :where(.css-dev-only-do-not-override-240cud).ant-pagination .ant-pagination-item-active a {
+      color:#A67B5B;
+  
+  }
+`;
+styleElement.textContent = css;
+document.head.appendChild(styleElement);
 
   const getFilteredData = () => {
     let filteredByPackage: CustomerData[] = allCustomersData;
@@ -746,3 +761,4 @@ const Customers: React.FC = () => {
 };
 
 export default Customers;
+

@@ -183,6 +183,16 @@ const AddProductPage: React.FC = () => {
     padding: '32px',
     background: colors.cardBg,
   };
+ 
+const styleElement = document.createElement('style');
+const css = `
+  :where(.css-dev-only-do-not-override-240cud).ant-steps .ant-steps-item-process .ant-steps-item-icon {
+    background-color: #A67B5B;
+    border-color: #A67B5B;
+  }
+`;
+styleElement.textContent = css;
+document.head.appendChild(styleElement);
 
   const renderStepContent = () => {
     // Responsive values
