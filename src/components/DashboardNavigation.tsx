@@ -29,6 +29,18 @@ const colors = {
     cardBg: '#FFFFFF',
     headerBg: '#F6F4F1',
 };
+const styleElement = document.createElement('style');
+
+const css = `
+  :where(.css-dev-only-do-not-override-240cud).ant-menu-dark .ant-menu-item-selected,
+  :where(.css-dev-only-do-not-override-240cud).ant-menu-dark > .ant-menu .ant-menu-item-selected {
+    background-color: #DBC1AD;
+  }
+`;
+
+styleElement.textContent = css;
+
+document.head.appendChild(styleElement);
 
 function getItem(
     label: React.ReactNode,
