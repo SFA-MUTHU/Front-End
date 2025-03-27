@@ -4,7 +4,7 @@
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  padding: 20px;
+  padding: 5px;
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.05);
@@ -120,7 +120,7 @@
   .tab-space {
     flex-direction: column !important; 
     align-items: center;
-    padding: 8px 0;
+    padding: 2px 0;
   }
 
   .tab-item {
