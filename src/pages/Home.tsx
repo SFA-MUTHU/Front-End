@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, List, Avatar, Tag, Select, Input, Statistic, Typography, Badge } from 'antd';
 import { MoreOutlined, ArrowUpOutlined, CrownOutlined, TrophyOutlined, WalletOutlined, RollbackOutlined, SmileOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation'; // Check this for Dropdown usage
@@ -6,6 +6,9 @@ import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement,
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import '../style/main.scss';
+import { useAuth0 } from '@auth0/auth0-react';
+import { toast } from 'react-toastify';
+import { logAuthenticationFlow } from '../utils/auth0-utils';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, TimeScale, Title, Tooltip, Legend);
@@ -148,6 +151,18 @@ const getInitials = (name: string) => {
 const Home: React.FC = () => {
   const [filter, setFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+
+  const { isAuthenticated, isLoading, user } = useAuth0();
+
+  useEffect(() => {
+    // Log auth state for debugging
+    logAuthenticationFlow(isLoading, isAuthenticated, user);
+    
+    // Welcome message after successful login
+    if (isAuthenticated && !isLoading && user) {
+      toast.success(`Welcome, ${user.name || user.email}!`);
+    }
+  }, [isAuthenticated, isLoading, user]);
 
   const filteredItems = filter === 'All' ? soldItems : soldItems.filter(item => item.status === filter);
   const filteredSellers = topSellers.filter(seller => seller.name.toLowerCase().includes(searchTerm.toLowerCase()));

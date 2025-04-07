@@ -436,13 +436,10 @@ document.head.appendChild(styleElement);
       title: 'Customer',
       key: 'customer',
       render: (record: CustomerData) => (
-        <Space>
-          <Avatar src={record.avatar} size="large" />
-          <div>
-            <div style={{ fontWeight: 'bold' }}>{record.name}</div>
-            <div style={{ fontSize: '12px', color: '#888' }}>{record.email}</div>
-          </div>
-        </Space>
+        <div>
+          <div style={{ fontWeight: 'bold' }}>{record.name}</div>
+          <div style={{ fontSize: '12px', color: '#888' }}>{record.email}</div>
+        </div>
       ),
       sorter: (a: CustomerData, b: CustomerData) => a.name.localeCompare(b.name),
     },
