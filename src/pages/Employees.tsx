@@ -258,7 +258,7 @@ const Employees: React.FC = () => {
                   backgroundColor: periodFilter === period ? colors.primary : colors.primaryLight,
                   color: periodFilter === period ? 'white' : 'black',
                   borderRadius: '4px',
-                  marginRight: '8px',
+                   marginRight: '8px',
                   marginBottom: '8px'
                 }}
                 onClick={() => setPeriodFilter(period)}
@@ -425,7 +425,7 @@ const Employees: React.FC = () => {
       font-weight: bold !important;
     }
     @media (max-width: 576px) {
-      .period-filters {
+       .period-filters {
         flex-direction: column;
         align-items: stretch;
       }
@@ -460,6 +460,8 @@ const Employees: React.FC = () => {
         {selectedEmployee ? (
           // Employee Details View 
           <Row gutter={[24, 24]}>
+           
+            
             <Col xs={24} lg={8}>
               <EmployeeInfo />
             </Col>
