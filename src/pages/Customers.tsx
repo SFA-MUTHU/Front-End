@@ -385,6 +385,8 @@ document.head.appendChild(styleElement);
   const totalSpent = filteredData.reduce((sum, customer) => sum + customer.buy, 0);
   const activeCustomers = filteredData.filter(customer => customer.status === 'active').length;
   const averageSpend = totalCustomers > 0 ? totalSpent / totalCustomers : 0;
+  const topCustomer = filteredData.length > 0 ? filteredData.reduce((prev, current) => 
+    (prev.buy > current.buy ? prev : current), filteredData[0]) : null;
 
   const handleTabChange = (key: string) => {
     setLoading(true);
@@ -476,28 +478,13 @@ document.head.appendChild(styleElement);
     { 
       title: 'Total Spend', 
       dataIndex: 'buy', 
-      key: 'buy',
+      key: 'buy', 
       render: (value: number) => (
         <div style={{ fontWeight: 'bold', color: value > 1000 ? '#3f8600' : undefined }}>
           ${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </div>
       ),
       sorter: (a: CustomerData, b: CustomerData) => a.buy - b.buy,
-    },
-    { 
-      title: 'Status', 
-      dataIndex: 'status', 
-      key: 'status',
-      render: (status: string) => {
-        const color = status === 'active' ? 'green' : 'volcano';
-        const text = status === 'active' ? 'Active' : 'Inactive';
-        return <Badge status={color as any} text={text} />;
-      },
-      filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Inactive', value: 'inactive' },
-      ],
-      onFilter: (value: string | number | boolean, record: CustomerData) => record.status === value.toString(),
     },
     { 
       title: 'Action', 
@@ -538,13 +525,15 @@ document.head.appendChild(styleElement);
               <Col xs={24} sm={12} md={6}>
                 <Card bordered={false} className="responsive-card">
                   <Statistic
-                    title={<span className="responsive-title">Active Customers</span>}
-                    value={activeCustomers}
+                    title={<span className="responsive-title">Top Customer</span>}
+                    value={topCustomer ? topCustomer.name : "None"}
                     valueStyle={{ fontSize: 24 }}
-                    prefix={<CheckCircleOutlined />}
-                    suffix={`/ ${totalCustomers}`}
+                    prefix={<StarOutlined />}
                     valueRender={() => (
-                      <ResponsiveText text={`${activeCustomers} / ${totalCustomers}`} color="#52c41a" />
+                      <ResponsiveText 
+                        text={topCustomer ? topCustomer.name : "None"} 
+                        color="#9C7456" 
+                      />
                     )}
                   />
                 </Card>
@@ -635,13 +624,13 @@ document.head.appendChild(styleElement);
                 >
                   Message {selectedCustomers.length > 0 ? `(${selectedCustomers.length})` : ''}
                 </Button>
-                <Button
+                <Button 
                   onClick={() => setExpandedFilters(!expandedFilters)}
                   icon={expandedFilters ? <UpOutlined /> : <DownOutlined />}
                 >
                   {expandedFilters ? 'Hide Filters' : 'Show Filters'}
                 </Button>
-                <Button
+                <Button 
                   type="dashed" 
                   icon={<PlusOutlined />}
                   onClick={() => setModalVisible(true)}
@@ -730,7 +719,7 @@ document.head.appendChild(styleElement);
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <Table
+              <Table 
                 columns={columns} 
                 dataSource={filteredData} 
                 loading={loading}

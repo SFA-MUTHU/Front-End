@@ -37,7 +37,7 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon }) => {
   const getCardStyles = () => {
     switch (title) {
-      case 'Net Income':
+      case 'Profit':
         return {
           icon: <WalletOutlined style={{ color: colors.primary, fontSize: 28 }} />,
           valueColor: colors.primary,
@@ -222,7 +222,7 @@ const Home: React.FC = () => {
     <DashboardNavigation>
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Net Income" value="$498,000" change="24%" period="last month" />
+          <StatCard title="Profit" value="$498,000" change="24%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
