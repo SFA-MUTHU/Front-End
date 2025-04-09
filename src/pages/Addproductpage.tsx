@@ -14,7 +14,6 @@ const { Step } = Steps;
 type ProductData = {
   productImage?: UploadFile[];
   category?: string;
-  supplierName?: string;
   productName?: string;
   stock?: number;
   price?: number;
@@ -129,7 +128,7 @@ const AddProductPage: React.FC = () => {
     try {
       // Validate form fields for the current step
       if (currentStep === 0) {
-        const values = await form.validateFields(['category', 'productName', 'supplierName']);
+        const values = await form.validateFields(['category', 'productName']);
         setProductData(prev => ({ ...prev, ...values }));
       } else if (currentStep === 1) {
         const values = await form.validateFields(['price', 'discount', 'stock', 'status']);
@@ -234,28 +233,6 @@ document.head.appendChild(styleElement);
                 <Option value="home">Home</Option>
                 <Option value="beauty">Beauty</Option>
                 <Option value="sports">Sports</Option>
-              </Select>
-            </Form.Item>
-  
-            <Form.Item
-              name="supplierName"
-              label={<Text strong>Supplier</Text>}
-              rules={[{ required: true, message: 'Please select a supplier!' }]}
-            >
-              <Select
-                placeholder="Select a supplier"
-                size={inputSize}
-                showSearch
-                style={{ width: '100%' }}
-                filterOption={(input, option) =>
-                  (option?.children as unknown as string).toLowerCase().indexOf(input.toLowerCase()) >= 0
-                }
-              >
-                <Option value="nike">Nike</Option>
-                <Option value="adidas">Adidas</Option>
-                <Option value="zara">Zara</Option>
-                <Option value="gucci">Gucci</Option>
-                <Option value="louis_vuitton">Louis Vuitton</Option>
               </Select>
             </Form.Item>
   
@@ -474,7 +451,6 @@ document.head.appendChild(styleElement);
                   bodyStyle={{ padding: cardPadding }}
                 >
                   <p><Text strong>Category:</Text> {form.getFieldValue('category')}</p>
-                  <p><Text strong>Supplier:</Text> {form.getFieldValue('supplierName')}</p>
                   <p><Text strong>Name:</Text> {form.getFieldValue('productName')}</p>
                 </Card>
               </Col>

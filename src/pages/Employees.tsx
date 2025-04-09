@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, List, Avatar, Input, Button, Radio, Modal, Form, Upload, Typography } from 'antd';
+import { Card, Col, Row, List, Avatar, Input, Button, Radio, Modal, Form, Upload, Typography, InputNumber, Select } from 'antd';
 import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined, FileTextOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
@@ -46,13 +46,25 @@ interface ExtendedEmployee {
   monthlySales?: MonthlySale[];
 }
 
+interface AttendanceRecord {
+  date: string;
+  checkIn: string;
+  checkOut: string;
+  workHours: string;
+  status: string;
+}
+
 const Employees: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [taskModalVisible, setTaskModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [taskForm] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<ExtendedEmployee | null>(null);
   const [periodFilter, setPeriodFilter] = useState('This Month');
+  const [showAttendanceView, setShowAttendanceView] = useState(false);
+  const [attendanceFilter, setAttendanceFilter] = useState('All');
   
   const periods = ['Today', 'This Week', 'This Month', 'This Year'];
 
@@ -136,6 +148,22 @@ const Employees: React.FC = () => {
     form.resetFields();
   };
 
+  const showTaskModal = () => setTaskModalVisible(true);
+  const handleTaskCancel = () => {
+    setTaskModalVisible(false);
+    taskForm.resetFields();
+  };
+  
+  const handleTaskSubmit = () => {
+    taskForm.validateFields().then(values => {
+      console.log('Task Completion Added:', values);
+      setTaskModalVisible(false);
+      taskForm.resetFields();
+    }).catch(info => {
+      console.log('Task Form Validation Failed:', info);
+    });
+  };
+
   const cardStyle = {
     borderRadius: 12,
     boxShadow: colors.shadowLight,
@@ -149,11 +177,11 @@ const Employees: React.FC = () => {
   };
 
   const taskCompletionData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
     datasets: [
       {
         label: 'Completed Tasks',
-        data: [65, 72, 78, 69, 85],
+        data: [68, 75, 82, 88],
         backgroundColor: colors.accent,
         borderWidth: 0,
         borderRadius: 4,
@@ -167,7 +195,7 @@ const Employees: React.FC = () => {
     plugins: {
       title: {
         display: true,
-        text: 'Task Completion Rate',
+        text: ' Task Completion Rate',
         font: {
           size: 18,
           weight: 'bold',
@@ -364,8 +392,372 @@ const Employees: React.FC = () => {
               border: 'none',
               height: '40px'
             }}
+            onClick={() => setShowAttendanceView(true)}
           >
             View Attendance
+          </Button>
+        </div>
+      </Card>
+    );
+  };
+
+  // Attendance View Component
+  const AttendanceView = () => {
+    if (!selectedEmployee) return null;
+    
+    // Sample attendance data
+    const attendanceData: AttendanceRecord[] = [
+      { 
+        date: '2025-02-17', 
+        checkIn: '09:00', 
+        checkOut: '18:00', 
+        workHours: '10h 2m', 
+        status: 'Work from office' 
+      },
+      { 
+        date: '2025-02-18', 
+        checkIn: '00:00', 
+        checkOut: '00:00', 
+        workHours: '0m', 
+        status: 'Absent' 
+      },
+      { 
+        date: '2025-02-19', 
+        checkIn: '10:30', 
+        checkOut: '18:00', 
+        workHours: '8h 30m', 
+        status: 'Late arrival' 
+      },
+      { 
+        date: '2025-02-20', 
+        checkIn: '09:00', 
+        checkOut: '13.00', 
+        workHours: '5h 5m', 
+        status: 'Half day leave' 
+      },
+      { 
+        date: '2025-02-23', 
+        checkIn: '09:00', 
+        checkOut: '18:00', 
+        workHours: '10h 2m', 
+        status: 'Work from office' 
+      },
+      { 
+        date: '2025-02-24', 
+        checkIn: '09:00', 
+        checkOut: '18:00', 
+        workHours: '10h 12m', 
+        status: 'Work from office' 
+      }
+    ];
+    
+    // Filter records based on selected filter
+    const filteredAttendanceData = attendanceData.filter(record => {
+      if (attendanceFilter === 'All') return true;
+      if (attendanceFilter === 'Present' && record.status === 'Work from office') return true;
+      if (attendanceFilter === 'Half day' && record.status === 'Half day leave') return true;
+      if (attendanceFilter === 'Absent' && record.status === 'Absent') return true;
+      if (attendanceFilter === 'Late' && record.status === 'Late arrival') return true;
+      return false;
+    });
+    
+    // Helper function to get color based on status
+    const getStatusStyle = (status: string) => {
+      switch (status) {
+        case 'Work from office':
+          return { backgroundColor: colors.green + '40', color: colors.green };
+        case 'Absent':
+          return { backgroundColor: colors.red + '40', color: colors.red };
+        case 'Late arrival':
+          return { backgroundColor: '#FEFCE8', color: '#854D0E' };
+        case 'Half day leave':
+          return { backgroundColor: '#F3F4F6', color: '#4B5563' };
+        default:
+          return {};
+      }
+    };
+
+    // Helper function to get text color based on check-in time
+    const getTimeColor = (time: string, status: string) => {
+      if (status === 'Absent') return { color: colors.red };
+      if (status === 'Late arrival') return { color: '#854D0E' };
+      return { color: colors.green };
+    };
+    
+    // Helper function to check if a filter is active
+    const isFilterActive = (filter: string) => {
+      return attendanceFilter === filter;
+    };
+
+    // Mobile card view for attendance records
+    const renderMobileCard = (record: AttendanceRecord, index: number) => {
+      return (
+        <div 
+          key={index} 
+          style={{ 
+            padding: '16px', 
+            marginBottom: '12px', 
+            border: '1px solid #f0f0f0',
+            borderRadius: '8px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+          }}
+        >
+          <div style={{ marginBottom: '12px', fontWeight: 'bold', fontSize: '16px' }}>
+            {record.date}
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            marginBottom: '8px',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Check-in:</span>
+            <span style={{ ...getTimeColor(record.checkIn, record.status) }}>{record.checkIn}</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            marginBottom: '8px',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Check-out:</span>
+            <span style={{ color: colors.green }}>{record.checkOut}</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            marginBottom: '8px',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Work hours:</span>
+            <span style={{ color: '#4B5563' }}>{record.workHours}</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Status:</span>
+            <span style={{ 
+              padding: '4px 12px', 
+              borderRadius: '4px', 
+              fontSize: '14px',
+              ...getStatusStyle(record.status)
+            }}>
+              {record.status}
+            </span>
+          </div>
+        </div>
+      );
+    };
+    
+    return (
+      <Card
+        title={
+          <div className="attendance-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div>
+              <Title level={4} style={{ color: colors.primary, margin: 0 }} className="desktop-title">
+                Attendance Overview: {selectedEmployee.name}
+              </Title>
+              <Title level={4} style={{ color: colors.primary, margin: 0 }} className="mobile-title">
+                Attendance Overview
+              </Title>
+            </div>
+            <Button 
+              onClick={() => setShowAttendanceView(false)}
+              style={{ 
+                backgroundColor: colors.primary, 
+                color: 'white', 
+                border: 'none',
+                borderRadius: '4px'
+              }}
+              className="desktop-back-btn"
+            >
+              Back to Profile
+            </Button>
+          </div>
+        }
+        style={{...cardStyle, height: '100%'}}
+      >
+        <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('All') ? colors.primary : 'transparent',
+            color: isFilterActive('All') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('All')}>
+            <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: isFilterActive('All') ? 'white' : colors.primary, marginRight: '8px' }}></div>
+            <span>All</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Present') ? colors.primary : 'transparent',
+            color: isFilterActive('Present') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Present')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Present') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Present') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Present</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Half day') ? colors.primary : 'transparent',
+            color: isFilterActive('Half day') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Half day')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Half day') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Half day') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Half day</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Absent') ? colors.primary : 'transparent',
+            color: isFilterActive('Absent') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Absent')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Absent') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Absent') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Absent</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Late') ? colors.primary : 'transparent',
+            color: isFilterActive('Late') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Late')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Late') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Late') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Late</span>
+          </div>
+        </div>
+            
+        {/* Desktop Table View (hidden on mobile) */}
+        <div className="desktop-table-view" style={{ borderTop: '1px solid #f0f0f0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>Date</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Check-in
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Check-out
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Work hours
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Status
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAttendanceData.length > 0 ? (
+                filteredAttendanceData.map((record, index) => (
+                  <tr key={index} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '12px', color: '#4B5563' }}>{record.date}</td>
+                    <td style={{ padding: '12px', ...getTimeColor(record.checkIn, record.status) }}>{record.checkIn}</td>
+                    <td style={{ padding: '12px', color: colors.green }}>{record.checkOut}</td>
+                    <td style={{ padding: '12px', color: '#4B5563' }}>{record.workHours}</td>
+                    <td style={{ padding: '12px' }}>
+                      <span style={{ 
+                        padding: '4px 12px', 
+                        borderRadius: '4px', 
+                        fontSize: '14px',
+                        ...getStatusStyle(record.status)
+                      }}>
+                        {record.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#6B7280' }}>
+                    No attendance records match the selected filter.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Mobile Card View (only visible on mobile) */}
+        <div className="mobile-card-view">
+          {filteredAttendanceData.length > 0 ? (
+            filteredAttendanceData.map((record, index) => renderMobileCard(record, index))
+          ) : (
+            <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280' }}>
+              No attendance records match the selected filter.
+            </div>
+          )}
+        </div>
+
+        {/* Mobile back button */}
+        <div className="mobile-back-btn-container">
+          <Button 
+            onClick={() => setShowAttendanceView(false)}
+            style={{ 
+              backgroundColor: colors.primary, 
+              color: 'white', 
+              border: 'none',
+              borderRadius: '4px',
+              width: '100%',
+              marginTop: '20px'
+            }}
+          >
+            Back to Profile
           </Button>
         </div>
       </Card>
@@ -424,8 +816,98 @@ const Employees: React.FC = () => {
       color: black!important;
       font-weight: bold !important;
     }
+    
+    .title-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .desktop-plus-btn {
+      margin-left: 15px;
+    }
+    
+    .mobile-plus-btn {
+      display: none;
+      margin-top: 10px;
+    }
+    
+    .chart-container {
+      width: 100%;
+      min-height: 300px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    /* Responsive table styles */
+    .desktop-table-view {
+      display: block;
+    }
+    
+    .mobile-card-view {
+      display: none;
+    }
+    
+    /* Responsive attendance view styles */
+    .desktop-title {
+      display: block;
+    }
+    
+    .mobile-title {
+      display: none;
+    }
+    
+    .desktop-back-btn {
+      display: block;
+    }
+    
+    .mobile-back-btn-container {
+      display: none;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .desktop-table-view {
+        display: none;
+      }
+      
+      .mobile-card-view {
+        display: block;
+        margin-top: 16px;
+      }
+      
+      /* Filter button styles for mobile */
+      .attendance-filter-container {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .attendance-filter-button {
+        margin-bottom: 8px;
+        width: calc(50% - 8px);
+        text-align: center;
+      }
+      
+      .desktop-title {
+        display: none;
+      }
+      
+      .mobile-title {
+        display: block;
+      }
+      
+      .desktop-back-btn {
+        display: none;
+      }
+      
+      .mobile-back-btn-container {
+        display: block;
+      }
+    }
+    
     @media (max-width: 576px) {
-       .period-filters {
+      .period-filters {
         flex-direction: column;
         align-items: stretch;
       }
@@ -443,8 +925,20 @@ const Employees: React.FC = () => {
         width: 100%;
         text-align: center;
       }
-      .chart-container-mobile {
+      .chart-container {
         max-width: 200px !important;
+      }
+      .desktop-plus-btn {
+        display: none;
+      }
+      .mobile-plus-btn {
+        display: block;
+        margin: 10px auto 0;
+      }
+      .title-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
       }
     }
   `;
@@ -458,32 +952,33 @@ const Employees: React.FC = () => {
         </Title>
         
         {selectedEmployee ? (
-          // Employee Details View 
-          <Row gutter={[24, 24]}>
-           
-            
-            <Col xs={24} lg={8}>
-              <EmployeeInfo />
-            </Col>
-            
-            <Col xs={24} lg={16}>
-              <EmployeeSummary />
-            </Col>
-            
-            <Col span={24} style={{ textAlign: 'right', marginTop: '16px' }}>
-              <Button 
-                onClick={() => setSelectedEmployee(null)}
-                style={{ 
-                  backgroundColor: colors.primary, 
-                  color: 'white', 
-                  border: 'none',
-                  borderRadius: '4px'
-                }}
-              >
-                Back to Dashboard
-              </Button>
-            </Col>
-          </Row>
+          showAttendanceView ? (
+            // Attendance View
+            <AttendanceView />
+          ) : (
+            // Employee Details View 
+            <Row gutter={[24, 24]}>
+              <Col xs={24} lg={8}>
+                <EmployeeInfo />
+              </Col>
+              <Col xs={24} lg={16}>
+                <EmployeeSummary />
+              </Col>
+              <Col span={24} style={{ textAlign: 'right', marginTop: '16px' }}>
+                <Button 
+                  onClick={() => setSelectedEmployee(null)}
+                  style={{ 
+                    backgroundColor: colors.primary, 
+                    color: 'white', 
+                    border: 'none',
+                    borderRadius: '4px'
+                  }}
+                >
+                  Back to Dashboard
+                </Button>
+              </Col>
+            </Row>
+          )
         ) : (
           // Main Dashboard View
           <Row gutter={[24, 24]}>
@@ -491,7 +986,7 @@ const Employees: React.FC = () => {
               <Card
                 title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Employee List</Title>}
                 extra={
-                  <Search
+                  <Search 
                     placeholder="Search by name"
                     onChange={e => setSearchTerm(e.target.value)}
                     style={{ width: 200, borderRadius: 8 }}
@@ -536,31 +1031,39 @@ const Employees: React.FC = () => {
                 />
               </Card>
             </Col>
-
             <Col xs={24} md={12}>
               <Row gutter={[24, 24]}>
                 <Col xs={24} md={24}>
                   <Card
-                    title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Task Completion</Title>}
+                    title={
+                      <div className="title-container">
+                        <Title level={4} style={{ color: colors.primary, margin: 0 }}>Monthly Task Completion</Title>
+                        <Button 
+                          type="primary" 
+                          shape="circle" 
+                          icon={<PlusOutlined />} 
+                          onClick={showTaskModal}
+                          style={{ backgroundColor: colors.primary }}
+                          className="desktop-plus-btn"
+                        />
+                        <Button 
+                          type="primary" 
+                          shape="circle" 
+                          icon={<PlusOutlined />} 
+                          onClick={showTaskModal}
+                          style={{ backgroundColor: colors.primary }}
+                          className="mobile-plus-btn"
+                        />
+                      </div>
+                    }
                     hoverable
                     style={{ ...cardStyle, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
                   >
-                    <Radio.Group
-                      defaultValue="daily"
-                      buttonStyle="solid"
-                      className="radio-group-mobile"
-                      style={{ marginBottom: '16px' }}
-                    >
-                      <Radio.Button value="daily">Daily</Radio.Button>
-                      <Radio.Button value="weekly">Weekly</Radio.Button>
-                      <Radio.Button value="monthly">Monthly</Radio.Button>
-                    </Radio.Group>
-                    <div className="chart-container-mobile" style={{ height: '300px', width: '100%', maxWidth: '500px' }}>
+                    <div className="chart-container" style={{ height: '300px', width: '100%', maxWidth: '500px' }}>
                       <Bar data={taskCompletionData} options={taskCompletionOptions} />
                     </div>
                   </Card>
                 </Col>
-
                 <Col xs={24} md={24}>
                   <Row gutter={[24, 24]}>
                     <Col xs={24} md={12}>
@@ -614,21 +1117,6 @@ const Employees: React.FC = () => {
                                 )}
                               </Upload>
                             </Form.Item>
-
-                            <div className="flex flex-wrap gap-4 justify-center mb-6">
-                              <Button
-                                style={{ backgroundColor: colors.primary, color: 'white', borderRadius: 8 }}
-                              >
-                                Profile Image
-                              </Button>
-                              <Button
-                                style={{ borderRadius: 8 }}
-                                onClick={() => setFileList([])}
-                              >
-                                Remove
-                              </Button>
-                            </div>
-
                             <Form.Item
                               name="employeeId"
                               label="Employee ID"
@@ -641,7 +1129,6 @@ const Employees: React.FC = () => {
                                 style={{ backgroundColor: '#F5F5F5', color: '#888' }}
                               />
                             </Form.Item>
-
                             <Form.Item
                               name="employeeName"
                               label="Employee Name"
@@ -649,7 +1136,6 @@ const Employees: React.FC = () => {
                             >
                               <Input placeholder="Type Employee name here" />
                             </Form.Item>
-
                             <Form.Item
                               name="phoneNumber"
                               label="Telephone Number"
@@ -657,7 +1143,6 @@ const Employees: React.FC = () => {
                             >
                               <Input placeholder="Enter Employee’s Phone Number" />
                             </Form.Item>
-
                             <Form.Item
                               name="birthday"
                               label="Birthday"
@@ -683,7 +1168,6 @@ const Employees: React.FC = () => {
                                 }
                               />
                             </Form.Item>
-
                             <Form.Item
                               name="address"
                               label="Address"
@@ -691,7 +1175,6 @@ const Employees: React.FC = () => {
                             >
                               <Input placeholder="Enter Employee’s Address" />
                             </Form.Item>
-
                             <Button
                               type="primary"
                               htmlType="submit"
@@ -704,7 +1187,6 @@ const Employees: React.FC = () => {
                         </Modal>
                       </Card>
                     </Col>
-
                     <Col xs={24} md={12}>
                       <Card
                         title={<Title level={4} style={{ color: colors.primary, margin: 0 }}>Task Completion Rate</Title>}
@@ -722,6 +1204,55 @@ const Employees: React.FC = () => {
             </Col>
           </Row>
         )}
+
+        {/* Task Completion Rate Modal */}
+        <Modal
+          title="Add Task Completion Rate"
+          open={taskModalVisible}
+          onCancel={handleTaskCancel}
+          footer={[
+            <Button key="cancel" onClick={handleTaskCancel}>
+              Cancel
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              onClick={handleTaskSubmit}
+              style={{ backgroundColor: colors.primary }}
+            >
+              Add
+            </Button>,
+          ]}
+          width={400}
+        >
+          <Form
+            form={taskForm}
+            layout="vertical"
+            name="task_completion_form"
+          >
+            <Form.Item
+              name="taskLevel"
+              label="Task Level ($)"
+              rules={[
+                { required: true, message: 'Please enter task level' },
+                { type: 'number', min: 0, message: 'Value must be positive' }
+              ]}
+            >
+              <InputNumber 
+                min={0}
+                style={{ width: '100%' }} 
+                placeholder="Enter task level in dollars"
+                prefix="$"
+              />
+            </Form.Item>
+            <Form.Item
+              name="notes" 
+              label="Notes"
+            >
+              <Input.TextArea rows={3} placeholder="Any additional notes" />
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
     </DashboardNavigation>
   );

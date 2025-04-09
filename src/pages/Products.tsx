@@ -239,9 +239,26 @@ const Products: React.FC = () => {
     }
   ];
 
+  // Update data array to use new status values
+  const updateProductStatus = () => {
+    return productData.map(product => {
+      let updatedStatus = product.status;
+      if (product.status === 'Active') updatedStatus = 'In Stock';
+      if (product.status === 'Inactive') updatedStatus = 'Out of Stock';
+      // Change Low Stock to Out of Stock or In Stock based on stock level
+      if (product.status === 'Low Stock') {
+        updatedStatus = product.stock <= 10 ? 'Out of Stock' : 'In Stock';
+      }
+      return {...product, status: updatedStatus};
+    });
+  };
+
+  // Use updated product data with new status values
+  const updatedProductData = updateProductStatus();
+
   // Filter products based on active category, status, and search query
   const getFilteredProducts = () => {
-    return productData.filter(product => {
+    return updatedProductData.filter(product => {
       // Filter by category
       const categoryMatch = activeCategory === 'all' || 
         product.category.toLowerCase() === activeCategory.toLowerCase();
@@ -421,6 +438,40 @@ const Products: React.FC = () => {
     </Menu>
   );
 
+  // Helper function for status badge colors
+  function getStatusBadge(status: string): 'success' | 'error' | 'warning' | 'default' {
+    switch(status.toLowerCase()) {
+      case 'in stock':
+        return 'success';
+      case 'out of stock':
+        return 'error';
+      default:
+        return 'default';
+    }
+  }
+
+  // Helper function for category colors
+  function getCategoryColor(category: string): string {
+    switch(category.toLowerCase()) {
+      case 'clothing':
+        return 'cyan';
+      case 'electronics':
+        return 'blue';
+      case 'furniture':
+        return 'orange';
+      case 'beauty':
+        return 'pink';
+      case 'home':
+        return 'green';
+      case 'sports':
+        return 'volcano';
+      case 'accessories':
+        return 'purple';
+      default:
+        return 'default';
+    }
+  }
+
   // Enhanced table columns with better styling
   const columns = [
     { 
@@ -472,17 +523,13 @@ const Products: React.FC = () => {
       key: 'status', 
       render: (status: string) => {
         let color;
-        let icon;
         
         switch(status.toLowerCase()) {
-          case 'active':
+          case 'in stock':
             color = colors.success;
             break;
-          case 'inactive':
+          case 'out of stock':
             color = colors.danger;
-            break;
-          case 'low stock':
-            color = colors.warning;
             break;
           default:
             color = colors.info;
@@ -503,9 +550,8 @@ const Products: React.FC = () => {
         );
       },
       filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Inactive', value: 'inactive' },
-        { text: 'Low Stock', value: 'low stock' }
+        { text: 'In Stock', value: 'in stock' },
+        { text: 'Out of Stock', value: 'out of stock' }
       ],
       onFilter: (value: string, record: any) => record.status.toLowerCase() === value.toLowerCase(),
     },
@@ -547,18 +593,6 @@ const Products: React.FC = () => {
       sorter: (a: any, b: any) => parseFloat(a.price.substring(1)) - parseFloat(b.price.substring(1)),
     },
     { 
-      title: 'Rating', 
-      dataIndex: 'rating', 
-      key: 'rating',
-      render: (rating: number) => (
-        <div>
-          <Rate disabled defaultValue={Math.round(rating)} style={{ fontSize: '14px' }} />
-          <Text style={{ marginLeft: '8px' }}>{rating}</Text>
-        </div>
-      ),
-      sorter: (a: any, b: any) => a.rating - b.rating,
-    },
-    { 
       title: 'Action', 
       key: 'action',
       render: (record: any) => (
@@ -568,42 +602,6 @@ const Products: React.FC = () => {
       ),
     },
   ];
-
-  // Helper function for status badge colors
-  function getStatusBadge(status: string): 'success' | 'error' | 'warning' | 'default' {
-    switch(status.toLowerCase()) {
-      case 'active':
-        return 'success';
-      case 'inactive':
-        return 'error';
-      case 'low stock':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  }
-
-  // Helper function for category colors
-  function getCategoryColor(category: string): string {
-    switch(category.toLowerCase()) {
-      case 'clothing':
-        return 'cyan';
-      case 'electronics':
-        return 'blue';
-      case 'furniture':
-        return 'orange';
-      case 'beauty':
-        return 'pink';
-      case 'home':
-        return 'green';
-      case 'sports':
-        return 'volcano';
-      case 'accessories':
-        return 'purple';
-      default:
-        return 'default';
-    }
-  }
 
   return (
     <DashboardNavigation>
@@ -839,9 +837,8 @@ const Products: React.FC = () => {
           <Form.Item name="status" label="Status">
             <Select placeholder="Select Status">
               <Option value="all">All Statuses</Option>
-              <Option value="active">Active</Option>
-              <Option value="inactive">Inactive</Option>
-              <Option value="low stock">Low Stock</Option>
+              <Option value="in stock">In Stock</Option>
+              <Option value="out of stock">Out of Stock</Option>
             </Select>
           </Form.Item>
           <Form.Item name="stock" label="Stock Level">
