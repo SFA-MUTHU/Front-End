@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
@@ -13,7 +12,8 @@ import Signup from './pages/Signup';
 import Settings from './pages/Settings';
 import MessagingPage from './pages/MessagingPage'; // Changed from Messaging to MessagingPage
 import './App.css';
-import Profile from "./pages/profile.tsx";
+import Profile from "./pages/profile";
+import AllNotifications from './pages/AllNotifications';
 
 const App: React.FC = () => {
   // You would normally check for authentication here
@@ -38,7 +38,7 @@ const App: React.FC = () => {
         <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
         <Route path="/messaging" element={isAuthenticated ? <MessagingPage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
-        
+        <Route path="/all-notifications" element={isAuthenticated ? <AllNotifications /> : <Navigate to="/login" />} />
         {/* Default Route Redirect */}
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
