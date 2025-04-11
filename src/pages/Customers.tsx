@@ -227,7 +227,6 @@ const AddCustomerModal: React.FC<{
 const Customers: React.FC = () => {
   const [activeTab, setActiveTab] = useState('1');
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedFilters, setExpandedFilters] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -625,12 +624,6 @@ document.head.appendChild(styleElement);
                   Message {selectedCustomers.length > 0 ? `(${selectedCustomers.length})` : ''}
                 </Button>
                 <Button 
-                  onClick={() => setExpandedFilters(!expandedFilters)}
-                  icon={expandedFilters ? <UpOutlined /> : <DownOutlined />}
-                >
-                  {expandedFilters ? 'Hide Filters' : 'Show Filters'}
-                </Button>
-                <Button 
                   type="dashed" 
                   icon={<PlusOutlined />}
                   onClick={() => setModalVisible(true)}
@@ -655,61 +648,6 @@ document.head.appendChild(styleElement);
             onOk={handleAddCustomer}
             onCancel={() => setModalVisible(false)}
           />
-
-          <AnimatePresence>
-            {expandedFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Card 
-                  size="small" 
-                  style={{ marginBottom: 16, background: '#f9f9f9', borderRadius: 8 }}
-                >
-                  <Row gutter={[16, 16]} className="responsive-filters">
-                    <Col xs={24} sm={12} md={6}>
-                      <Select 
-                        placeholder="Membership" 
-                        style={{ width: '100%' }}
-                        allowClear
-                      >
-                        <Select.Option value="gold">Gold</Select.Option>
-                        <Select.Option value="silver">Silver</Select.Option>
-                        <Select.Option value="platinum">Platinum</Select.Option>
-                        <Select.Option value="basic">Basic</Select.Option>
-                      </Select>
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                      <Select 
-                        placeholder="Status" 
-                        style={{ width: '100%' }}
-                        allowClear
-                      >
-                        <Select.Option value="active">Active</Select.Option>
-                        <Select.Option value="inactive">Inactive</Select.Option>
-                      </Select>
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                      <DatePicker.RangePicker 
-                        style={{ width: '100%' }}
-                        placeholder={['Join Start', 'Join End']}
-                      />
-                    </Col>
-                    <Col xs={24} sm={12} md={6}>
-                      <Space wrap>
-                        <Button type="primary" style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}>
-                          Apply Filters
-                        </Button>
-                        <Button>Clear</Button>
-                      </Space>
-                    </Col>
-                  </Row>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           <AnimatePresence mode="wait">
             <motion.div
