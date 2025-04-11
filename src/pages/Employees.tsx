@@ -44,6 +44,7 @@ interface ExtendedEmployee {
   location?: string;
   totalSales?: number;
   monthlySales?: MonthlySale[];
+  taskCompletion?: number[]; // Add task completion data for each employee
 }
 
 interface AttendanceRecord {
@@ -65,10 +66,11 @@ const Employees: React.FC = () => {
   const [periodFilter, setPeriodFilter] = useState('This Month');
   const [showAttendanceView, setShowAttendanceView] = useState(false);
   const [attendanceFilter, setAttendanceFilter] = useState('All');
+  const [selectedTaskEmployee, setSelectedTaskEmployee] = useState<string>('All');
   
   const periods = ['Today', 'This Week', 'This Month', 'This Year'];
 
-  // Extended employees data with sales information
+  // Extended employees data with sales and task completion information
   const employees: ExtendedEmployee[] = [
     { 
       id: 'EM0096', 
@@ -100,7 +102,8 @@ const Employees: React.FC = () => {
           amount: 199.99,
           image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100'
         }
-      ]
+      ],
+      taskCompletion: [92, 88, 95, 91] // High performer
     },
     { 
       id: 'EM0097', 
@@ -126,9 +129,30 @@ const Employees: React.FC = () => {
           amount: 259.98,
           image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100'
         }
-      ]
+      ],
+      taskCompletion: [45, 52, 58, 65] // Improving but lower performer
     },
-    // ...other employees with similar data structure
+    { 
+      id: 'EM0098', 
+      name: 'Michael Johnson', 
+      phone: '555-123-4567', 
+      birthday: '1988-07-15', 
+      address: '789 Oak Dr', 
+      status: 'online',
+      avatar: 'https://randomuser.me/api/portraits/men/41.jpg',
+      employeeId: 'EM0098',
+      location: '789 Oak Dr, Boston, MA 02108',
+      totalSales: 115200,
+      monthlySales: [
+        {
+          itemName: 'Premium Headphones',
+          quantity: 5,
+          amount: 699.95,
+          image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100'
+        }
+      ],
+      taskCompletion: [78, 62, 55, 67] // Declining performance
+    }
   ];
 
   const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -176,17 +200,35 @@ const Employees: React.FC = () => {
     },
   };
 
-  const taskCompletionData = {
-    labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
-    datasets: [
-      {
-        label: 'Completed Tasks',
-        data: [68, 75, 82, 88],
-        backgroundColor: colors.accent,
-        borderWidth: 0,
-        borderRadius: 4,
-      },
-    ],
+  const getTaskCompletionData = () => {
+    if (selectedTaskEmployee === 'All') {
+      return {
+        labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
+        datasets: [
+          {
+            label: 'Completed Tasks',
+            data: [68, 62, 73, 76], // More varied data for all employees
+            backgroundColor: colors.accent,
+            borderWidth: 0,
+            borderRadius: 4,
+          },
+        ],
+      };
+    } else {
+      const selectedEmployee = employees.find(emp => emp.id === selectedTaskEmployee);
+      return {
+        labels: ['1st Week', '2nd Week', '3rd Week', '4th Week'],
+        datasets: [
+          {
+            label: `${selectedEmployee?.name}'s Completed Tasks`,
+            data: selectedEmployee?.taskCompletion || [0, 0, 0, 0],
+            backgroundColor: colors.accent,
+            borderWidth: 0,
+            borderRadius: 4,
+          },
+        ],
+      };
+    }
   };
 
   const taskCompletionOptions = {
@@ -941,6 +983,32 @@ const Employees: React.FC = () => {
         text-align: center;
       }
     }
+    
+    .ant-select-focused .ant-select-selector,
+    .ant-select-selector:focus,
+    .ant-select-selector:active,
+    .ant-select-open .ant-select-selector {
+      border-color: ${colors.primary} !important;
+      box-shadow: 0 0 0 2px rgba(156, 116, 86, 0.2) !important;
+    }
+    
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      background-color: ${colors.primaryLight} !important;
+      color: black !important;
+    }
+    
+    .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+      background-color: rgba(156, 116, 86, 0.1) !important;
+    }
+    
+    .ant-select-dropdown {
+      border-radius: 8px !important;
+      overflow: hidden;
+    }
+    
+    .ant-select:hover .ant-select-selector {
+      border-color: ${colors.primary} !important;
+    }
   `;
 
   return (
@@ -1038,14 +1106,35 @@ const Employees: React.FC = () => {
                     title={
                       <div className="title-container">
                         <Title level={4} style={{ color: colors.primary, margin: 0 }}>Monthly Task Completion</Title>
-                        <Button 
-                          type="primary" 
-                          shape="circle" 
-                          icon={<PlusOutlined />} 
-                          onClick={showTaskModal}
-                          style={{ backgroundColor: colors.primary }}
-                          className="desktop-plus-btn"
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Button 
+                            type="primary" 
+                            shape="circle" 
+                            icon={<PlusOutlined />} 
+                            onClick={showTaskModal}
+                            style={{ backgroundColor: colors.primary }}
+                            className="desktop-plus-btn"
+                          />
+                          <Select
+                            showSearch
+                            placeholder="Filter by employee"
+                            optionFilterProp="children"
+                            value={selectedTaskEmployee}
+                            onChange={setSelectedTaskEmployee}
+                            style={{ width: 150, marginLeft: '10px' }}
+                            filterOption={(input, option) => 
+                              (option?.children as unknown as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
+                            dropdownStyle={{ borderRadius: '8px' }}
+                          >
+                            <Select.Option value="All">All</Select.Option>
+                            {employees.map(emp => (
+                              <Select.Option key={emp.id} value={emp.id}>
+                                {emp.name}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </div>
                         <Button 
                           type="primary" 
                           shape="circle" 
@@ -1060,7 +1149,7 @@ const Employees: React.FC = () => {
                     style={{ ...cardStyle, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
                   >
                     <div className="chart-container" style={{ height: '300px', width: '100%', maxWidth: '500px' }}>
-                      <Bar data={taskCompletionData} options={taskCompletionOptions} />
+                      <Bar data={getTaskCompletionData()} options={taskCompletionOptions} />
                     </div>
                   </Card>
                 </Col>
@@ -1244,6 +1333,33 @@ const Employees: React.FC = () => {
                 placeholder="Enter task level in dollars"
                 prefix="$"
               />
+            </Form.Item>
+            
+            <Form.Item
+              name="employee"
+              label="Employee"
+              rules={[{ required: true, message: 'Please select an employee' }]}
+            >
+              <Select placeholder="Select employee">
+                <Select.Option value="all">All Employees</Select.Option>
+                {employees.map(emp => (
+                  <Select.Option key={emp.id} value={emp.id}>
+                    {emp.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            
+            <Form.Item
+              name="period"
+              label="Time Period"
+              rules={[{ required: true, message: 'Please select a time period' }]}
+            >
+              <Select placeholder="Select time period">
+                <Select.Option value="daily">Daily</Select.Option>
+                <Select.Option value="weekly">Weekly</Select.Option>
+                <Select.Option value="monthly">Monthly</Select.Option>
+              </Select>
             </Form.Item>
             <Form.Item
               name="notes" 
