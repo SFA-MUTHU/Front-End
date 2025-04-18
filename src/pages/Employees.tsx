@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Card, Col, Row, List, Avatar, Input, Button, Radio, Modal, Form, Upload, Typography } from 'antd';
 import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined, FileTextOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import "../style/status.css";
+import EmployeeAPI from '../services/EmployeeAPI.ts';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, ChartTitle, Tooltip, Legend);
@@ -34,7 +35,8 @@ interface MonthlySale {
 
 interface ExtendedEmployee {
   id: string;
-  name: string;
+  first_name: string;
+  last_Name: string;
   phone: string;
   birthday: string;
   address: string;
@@ -47,15 +49,30 @@ interface ExtendedEmployee {
 }
 
 const Employees: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<ExtendedEmployee | null>(null);
   const [periodFilter, setPeriodFilter] = useState('This Month');
-  
+  const [filteredEmployees,setfilteredEmployees] =  useState<any[]>([]);
   const periods = ['Today', 'This Week', 'This Month', 'This Year'];
 
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const { data } = await EmployeeAPI.getEmployees();
+        setfilteredEmployees(data);
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+      }
+    };
+  
+    fetchEmployees();
+  }, []);
+  
+  
   // Extended employees data with sales information
   const employees: ExtendedEmployee[] = [
     { 
@@ -119,7 +136,7 @@ const Employees: React.FC = () => {
     // ...other employees with similar data structure
   ];
 
-  const filteredEmployees = employees.filter(e => e.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  //const filteredEmployees = allEmployees.filter(e => e.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const showModal = () => setModalVisible(true);
   const handleOk = () => {
@@ -497,7 +514,7 @@ const Employees: React.FC = () => {
                     style={{ width: 200, borderRadius: 8 }}
                     prefix={<UserOutlined style={{ color: colors.primary }} />}
                   />
-                }
+                } 
                 hoverable
                 style={{ ...cardStyle, height: '100%', maxHeight: '500px', overflowY: 'auto' }}
               >
@@ -520,7 +537,7 @@ const Employees: React.FC = () => {
                         }
                         title={
                           <div className="flex justify-between items-center">
-                            <Text strong style={{ color: colors.primary }}>{employee.name}</Text>
+                            <Text strong style={{ color: colors.primary }}>{employee.first_name +" "+ employee.last_name}</Text>
                             <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>
                           </div>
                         }
