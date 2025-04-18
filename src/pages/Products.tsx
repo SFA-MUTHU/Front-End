@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { 
   Row, Col, Button, Card, Statistic, Table, Tag, Modal, Form, Input, 
-  Select, Divider, Badge, Space, Typography, Tooltip, Avatar, Image,
+  Select, Divider, Badge, Space, Typography, Avatar, Image,
   Dropdown, Menu, Rate
 } from 'antd';
 import { 
-  SearchOutlined, FilterOutlined, PlusOutlined, ArrowUpOutlined, 
+  FilterOutlined, PlusOutlined, ArrowUpOutlined, 
   ArrowDownOutlined, EditOutlined, DeleteOutlined, EyeOutlined,
   EllipsisOutlined, ShoppingOutlined
 } from '@ant-design/icons';
@@ -423,7 +423,7 @@ const Products: React.FC = () => {
   ];
 
   // Action menu for product table
-  const getActionMenu = (record: any) => (
+  const getActionMenu = () => (
     <Menu>
       <Menu.Item key="view" icon={<EyeOutlined />}>
         View Details
@@ -515,7 +515,7 @@ const Products: React.FC = () => {
         </Space>
       ),
       filters: categories.map(cat => ({ text: cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1), value: cat })),
-      onFilter: (value: string, record: any) => value === 'all' || record.category.toLowerCase() === value.toLowerCase(),
+      onFilter: (value: any, record: any) => value === 'all' || record.category.toLowerCase() === value.toString().toLowerCase(),
     },
     { 
       title: 'Status', 
@@ -553,7 +553,7 @@ const Products: React.FC = () => {
         { text: 'In Stock', value: 'in stock' },
         { text: 'Out of Stock', value: 'out of stock' }
       ],
-      onFilter: (value: string, record: any) => record.status.toLowerCase() === value.toLowerCase(),
+      onFilter: (value: any, record: any) => record.status.toLowerCase() === value.toString().toLowerCase(),
     },
     { 
       title: 'Stock',
@@ -595,13 +595,13 @@ const Products: React.FC = () => {
     { 
       title: 'Action', 
       key: 'action',
-      render: (record: any) => (
-        <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+      render: () => (
+        <Dropdown overlay={getActionMenu()} trigger={['click']}>
           <Button type="text" icon={<EllipsisOutlined />} />
         </Dropdown>
       ),
     },
-  ];
+  ] as any; 
 
   return (
     <DashboardNavigation>

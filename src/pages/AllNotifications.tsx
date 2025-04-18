@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Layout, 
   Typography, 
@@ -17,7 +17,6 @@ import {
   SearchOutlined,
   CloseOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardNavigation';
 import '../style/notify.css'; 
 
@@ -78,7 +77,7 @@ const mockNotifications = [
   }
 ];
 
-const formatTimestamp = (timestamp) => {
+const formatTimestamp = (timestamp: string) => {
   const date = new Date(timestamp);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -114,18 +113,13 @@ const AllNotifications = () => {
   // Responsive settings based on screen size
   const isMobile = windowWidth < 768;
   
-  // Add custom styles for the tabs
-  const tabStyles = {
-    '.ant-tabs-ink-bar': {
-      backgroundColor: '#9C7456 !important',
-    }
-  };
+  // Remove unused tabStyles variable
   
-  const navigate = useNavigate();
+  // Remove unused navigate variable
   const [notifications, setNotifications] = useState(mockNotifications);
   const [searchText, setSearchText] = useState('');
 
-  const handleMarkAsRead = (id) => {
+  const handleMarkAsRead = (id: number) => {
     setNotifications(prev => 
       prev.map(notification => 
         notification.id === id ? { ...notification, read: true } : notification
@@ -139,7 +133,7 @@ const AllNotifications = () => {
     );
   };
 
-  const handleDeleteNotification = (id) => {
+  const handleDeleteNotification = (id: number) => {
     setNotifications(prev => 
       prev.filter(notification => notification.id !== id)
     );
@@ -225,7 +219,7 @@ const AllNotifications = () => {
           '--ant-primary-5': '#9C7456', 
           '--ant-primary-color-hover': '#9C7456',
           marginBottom: isMobile ? 4 : undefined
-        }}
+        } as React.CSSProperties}
       >
         <TabPane 
           tab={<span style={{ color: '#9C7456' }}>All</span>} 
@@ -478,7 +472,7 @@ const AllNotifications = () => {
   );
 
   return (
-    <DashboardLayout pageTitle="Notifications">
+    <DashboardLayout>
       <Content
         style={{
           margin: isMobile ? '6px 4px' : '24px 16px', // Minimal margin

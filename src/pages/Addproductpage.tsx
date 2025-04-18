@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Upload, Row, Col, Card, Steps, message, InputNumber, Radio, Divider, Typography, Result } from 'antd';
-import { UploadOutlined, PlusOutlined, CheckCircleFilled, ArrowLeftOutlined, ArrowRightOutlined, SaveOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Select, Upload, Row, Col, Card, Steps, message, InputNumber, Radio, Divider, Typography, Result, Modal } from 'antd';
+import {  PlusOutlined,  ArrowLeftOutlined, ArrowRightOutlined, SaveOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import { motion } from 'framer-motion';
@@ -8,7 +8,6 @@ import '../style/main.scss';
 
 const { Option } = Select;
 const { Title, Text, Paragraph } = Typography;
-const { Step } = Steps;
 
 // Define a type for the product data
 type ProductData = {
@@ -36,10 +35,11 @@ const AddProductPage: React.FC = () => {
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [productData, setProductData] = useState<ProductData>({});
   const [previewImage, setPreviewImage] = useState<string>('');
   const [previewVisible, setPreviewVisible] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [productData, setProductData] = useState<ProductData>({});
+  const [selectedStatus, setSelectedStatus] = useState<string>('active'); // Add this line
 
   // Check for mobile view
   useEffect(() => {
@@ -106,6 +106,11 @@ const AddProductPage: React.FC = () => {
     setPreviewVisible(true);
   };
 
+  // Handle preview modal close
+  const handlePreviewCancel = () => {
+    setPreviewVisible(false);
+  };
+
   const uploadProps: UploadProps = {
     listType: "picture-card",
     maxCount: 1,
@@ -129,13 +134,13 @@ const AddProductPage: React.FC = () => {
       // Validate form fields for the current step
       if (currentStep === 0) {
         const values = await form.validateFields(['category', 'productName']);
-        setProductData(prev => ({ ...prev, ...values }));
+        setProductData(prev => ({...prev, ...values}));
       } else if (currentStep === 1) {
         const values = await form.validateFields(['price', 'discount', 'stock', 'status']);
-        setProductData(prev => ({ ...prev, ...values }));
+        setProductData(prev => ({...prev, ...values}));
       } else if (currentStep === 2) {
         const values = await form.validateFields(['productImage', 'description']);
-        setProductData(prev => ({ ...prev, ...values }));
+        setProductData(prev => ({...prev, ...values}));
       }
 
       setCurrentStep(currentStep + 1);
@@ -155,8 +160,8 @@ const AddProductPage: React.FC = () => {
   const onFinish = async () => {
     try {
       const values = await form.validateFields();
+      setProductData(values); // Update product data with final values
       console.log('Success:', values);
-      setProductData(values);
       setIsSubmitted(true);
       message.success('Product added successfully!');
     } catch (error) {
@@ -198,7 +203,7 @@ document.head.appendChild(styleElement);
     const titleLevel = isMobile ? 5 : 4;
     const inputSize = isMobile ? 'middle' : 'large';
     const cardPadding = isMobile ? '12px' : '16px';
-    const gutterValue = isMobile ? [16, 16] : [24, 24];
+    const gutterValue: [number, number] = isMobile ? [16, 16] : [24, 24];
     const radioButtonStyle = isMobile ? 'solid' : 'outline';
   
     switch (currentStep) {
@@ -278,7 +283,7 @@ document.head.appendChild(styleElement);
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
                     formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                    parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
                     min={0}
                   />
                 </Form.Item>
@@ -294,7 +299,7 @@ document.head.appendChild(styleElement);
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
                     formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+                    parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
                     min={0}
                   />
                 </Form.Item>
@@ -323,19 +328,19 @@ document.head.appendChild(styleElement);
               <Radio.Group
                 size={inputSize}
                 buttonStyle={radioButtonStyle}
-                onChange={(e) => form.setFieldsValue({ status: e.target.value })}
-                value={form.getFieldValue('status')}
                 style={{ width: '100%' }}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                value={selectedStatus}
               >
                 <Row gutter={8}>
                   <Col span={12}>
                     <Radio.Button
                       value="active"
-                      className={form.getFieldValue('status') === 'active' ? 'bg-primary text-white' : 'bg-white text-primary'}
                       style={{
                         width: '100%',
                         textAlign: 'center',
-                        backgroundColor: form.getFieldValue('status') === 'active' ? colors.primary : '',
+                        backgroundColor: selectedStatus === 'active' ? colors.primary : 'white',
+                        color: selectedStatus === 'active' ? 'white' : colors.primary,
                         borderColor: colors.primary
                       }}
                     >
@@ -345,11 +350,11 @@ document.head.appendChild(styleElement);
                   <Col span={12}>
                     <Radio.Button
                       value="inactive"
-                      className={form.getFieldValue('status') === 'inactive' ? 'bg-primary text-white' : 'bg-white text-primary'}
                       style={{
                         width: '100%',
                         textAlign: 'center',
-                        backgroundColor: form.getFieldValue('status') === 'inactive' ? colors.primary : '',
+                        backgroundColor: selectedStatus === 'inactive' ? colors.primary : 'white',
+                        color: selectedStatus === 'inactive' ? 'white' : colors.primary,
                         borderColor: colors.primary
                       }}
                     >
@@ -450,8 +455,8 @@ document.head.appendChild(styleElement);
                   }}
                   bodyStyle={{ padding: cardPadding }}
                 >
-                  <p><Text strong>Category:</Text> {form.getFieldValue('category')}</p>
-                  <p><Text strong>Name:</Text> {form.getFieldValue('productName')}</p>
+                  <p><Text strong>Category:</Text> {productData.category}</p>
+                  <p><Text strong>Name:</Text> {productData.productName}</p>
                 </Card>
               </Col>
               <Col xs={24} md={12}>
@@ -466,10 +471,10 @@ document.head.appendChild(styleElement);
                   }}
                   bodyStyle={{ padding: cardPadding }}
                 >
-                  <p><Text strong>Price:</Text> ${form.getFieldValue('price')}</p>
-                  <p><Text strong>Discount:</Text> ${form.getFieldValue('discount')}</p>
-                  <p><Text strong>Stock:</Text> {form.getFieldValue('stock')} units</p>
-                  <p><Text strong>Status:</Text> {form.getFieldValue('status')}</p>
+                  <p><Text strong>Price:</Text> ${productData.price}</p>
+                  <p><Text strong>Discount:</Text> ${productData.discount}</p>
+                  <p><Text strong>Stock:</Text> {productData.stock} units</p>
+                  <p><Text strong>Status:</Text> {productData.status}</p>
                 </Card>
               </Col>
               <Col span={24}>
@@ -480,7 +485,7 @@ document.head.appendChild(styleElement);
                   style={{ background: '#f9f9f9', borderRadius: '12px' }}
                   bodyStyle={{ padding: cardPadding }}
                 >
-                  <p>{form.getFieldValue('description')}</p>
+                  <p>{productData.description}</p>
                 </Card>
               </Col>
             </Row>
@@ -657,6 +662,16 @@ document.head.appendChild(styleElement);
             </Card>
           </Col>
         </Row>
+
+        {/* Add image preview modal */}
+        <Modal
+          visible={previewVisible}
+          title="Image Preview"
+          footer={null}
+          onCancel={handlePreviewCancel}
+        >
+          <img alt="Preview" style={{ width: '100%' }} src={previewImage} />
+        </Modal>
       </motion.div>
     </DashboardNavigation>
   );
