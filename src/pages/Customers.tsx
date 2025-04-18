@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
 import {
-  Layout, Button, Input, Table, Row, Col, Dropdown, Menu, Tag, Card,
-  Statistic, Avatar, Space, Badge, message, DatePicker, Select, Modal, Form, Typography, Upload
+  Layout, Button, Input, Table, Row, Col, Dropdown, Menu, Card,
+  Statistic, Space, message, Modal, Form, Typography, Upload
 } from 'antd';
 import { 
   EllipsisOutlined, UserOutlined, MailOutlined, PhoneOutlined, DollarOutlined, 
-  StarOutlined, DownOutlined, UpOutlined, PlusOutlined, EditOutlined, 
-  DeleteOutlined, CheckCircleOutlined, CalculatorOutlined, HomeOutlined,
+  StarOutlined, PlusOutlined, EditOutlined, 
+  DeleteOutlined, CalculatorOutlined, HomeOutlined,
   UploadOutlined
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -382,7 +382,6 @@ document.head.appendChild(styleElement);
   
   const totalCustomers = filteredData.length;
   const totalSpent = filteredData.reduce((sum, customer) => sum + customer.buy, 0);
-  const activeCustomers = filteredData.filter(customer => customer.status === 'active').length;
   const averageSpend = totalCustomers > 0 ? totalSpent / totalCustomers : 0;
   const topCustomer = filteredData.length > 0 ? filteredData.reduce((prev, current) => 
     (prev.buy > current.buy ? prev : current), filteredData[0]) : null;
@@ -524,15 +523,24 @@ document.head.appendChild(styleElement);
               <Col xs={24} sm={12} md={6}>
                 <Card bordered={false} className="responsive-card">
                   <Statistic
-                    title={<span className="responsive-title">Top Customer</span>}
-                    value={topCustomer ? topCustomer.name : "None"}
+                    title={<span className="responsive-title">Top Customer Spend</span>}
+                    value={topCustomer ? `$${topCustomer.buy.toFixed(2)}` : "None"}
                     valueStyle={{ fontSize: 24 }}
-                    prefix={<StarOutlined />}
                     valueRender={() => (
-                      <ResponsiveText 
-                        text={topCustomer ? topCustomer.name : "None"} 
-                        color="#9C7456" 
-                      />
+                      <div>
+                        {topCustomer ? (
+                          <ResponsiveText 
+                            text={`$${topCustomer.buy.toFixed(2)}`} 
+                            color="#3f8600" 
+                            className="top-customer-spend"
+                          />
+                        ) : (
+                          <ResponsiveText 
+                            text="None" 
+                            color="#9C7456" 
+                          />
+                        )}
+                      </div>
                     )}
                   />
                 </Card>

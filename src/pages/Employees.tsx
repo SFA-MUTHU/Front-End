@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, List, Avatar, Input, Button, Radio, Modal, Form, Upload, Typography, InputNumber, Select } from 'antd';
-import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Card, Col, Row, List, Avatar, Input, Button, Modal, Form, Upload, Typography, InputNumber, Select } from 'antd';
+import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -240,7 +240,7 @@ const Employees: React.FC = () => {
         text: ' Task Completion Rate',
         font: {
           size: 18,
-          weight: 'bold',
+          weight: "bold" as const,
           family: "'Inter', sans-serif",
         },
         color: colors.primary,
@@ -519,8 +519,8 @@ const Employees: React.FC = () => {
       }
     };
 
-    // Helper function to get text color based on check-in time
-    const getTimeColor = (time: string, status: string) => {
+    // Helper function to get text color based on status
+    const getTimeColor = (status: string) => {
       if (status === 'Absent') return { color: colors.red };
       if (status === 'Late arrival') return { color: '#854D0E' };
       return { color: colors.green };
@@ -555,7 +555,7 @@ const Employees: React.FC = () => {
             alignItems: 'center'
           }}>
             <span style={{ color: '#6B7280' }}>Check-in:</span>
-            <span style={{ ...getTimeColor(record.checkIn, record.status) }}>{record.checkIn}</span>
+            <span style={{ ...getTimeColor(record.status) }}>{record.checkIn}</span>
           </div>
           
           <div style={{ 
@@ -749,7 +749,7 @@ const Employees: React.FC = () => {
                 filteredAttendanceData.map((record, index) => (
                   <tr key={index} style={{ borderBottom: '1px solid #f0f0f0' }}>
                     <td style={{ padding: '12px', color: '#4B5563' }}>{record.date}</td>
-                    <td style={{ padding: '12px', ...getTimeColor(record.checkIn, record.status) }}>{record.checkIn}</td>
+                    <td style={{ padding: '12px', ...getTimeColor(record.status) }}>{record.checkIn}</td>
                     <td style={{ padding: '12px', color: colors.green }}>{record.checkOut}</td>
                     <td style={{ padding: '12px', color: '#4B5563' }}>{record.workHours}</td>
                     <td style={{ padding: '12px' }}>
