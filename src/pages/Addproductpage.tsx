@@ -278,14 +278,14 @@ document.head.appendChild(styleElement);
                   label={<Text strong>Price (USD)</Text>}
                   rules={[{ required: true, message: 'Please enter the price!' }]}
                 >
-                  <InputNumber
-                    placeholder="0.00"
-                    size={inputSize}
-                    style={{ width: '100%', borderRadius: '8px' }}
-                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
-                    min={0}
-                  />
+                 <InputNumber<number>
+                   placeholder="0.00"
+                   size={inputSize}
+                   style={{ width: '100%', borderRadius: '8px' }}
+                   formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                   parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
+                   min={0}
+                 />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={24} md={12}>
@@ -294,7 +294,7 @@ document.head.appendChild(styleElement);
                   label={<Text strong>Discount (USD)</Text>}
                   rules={[{ required: true, message: 'Please enter the discount!' }]}
                 >
-                  <InputNumber
+                  <InputNumber<number>
                     placeholder="0.00"
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
