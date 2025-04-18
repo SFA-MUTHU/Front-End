@@ -104,7 +104,6 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 {
                     key: '4',
                     label: <Text style={{ color: colors.primary }}>View all notifications</Text>,
-                    onClick: () => navigate('/all-notifications'),
                 },
             ]}
         />

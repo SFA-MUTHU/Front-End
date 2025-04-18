@@ -3,7 +3,7 @@
 .messaging-container {
   background: linear-gradient(135deg, #f9fafc, #e9eff5);
   min-height: 100vh;
-  padding: 0px;
+  padding: 40px;
   font-family: sans-serif;
 }
 
@@ -14,7 +14,7 @@
 
 .inbox-card {
   background: #fff;
-  padding: 12px;
+  padding: 24px;
   border-radius: 12px;
   box-shadow: vars.$shadow-lg;
 }

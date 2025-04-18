@@ -6,7 +6,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BagroundImag from "../assets/img/background .webp";
 import LogCharacter from "../assets/img/log.webp";
-import '../style/signup.css';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;

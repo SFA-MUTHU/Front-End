@@ -1,28 +1,15 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Modal, Button } from 'antd';
 
-interface SupplierFormData {
-  supplierID: string;
-  supplierName: string;
-  telephone: string;
-  address: string;
-}
-
-interface AddSupplierPageProps {
-  visible: boolean;
-  onCancel: () => void;
-  onSubmit: (data: SupplierFormData) => void;
-}
-
-const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) => {
-  const [formData, setFormData] = useState<SupplierFormData>({
+const Addsupplierpage = ({ visible, onCancel, onSubmit }) => {
+  const [formData, setFormData] = useState({
     supplierID: 'S0096',
     supplierName: '',
     telephone: '',
     address: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -30,7 +17,7 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
     setFormData({

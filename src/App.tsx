@@ -12,8 +12,7 @@ import Signup from './pages/Signup';
 import Settings from './pages/Settings';
 import MessagingPage from './pages/MessagingPage'; // Changed from Messaging to MessagingPage
 import './App.css';
-import Profile from "./pages/profile";
-import AllNotifications from './pages/AllNotifications';
+import Profile from "./pages/profile.tsx";
 
 const App: React.FC = () => {
   // You would normally check for authentication here
@@ -34,11 +33,11 @@ const App: React.FC = () => {
         <Route path="/products" element={isAuthenticated ? <Products /> : <Navigate to="/login" />} />
         <Route path="/suppliers" element={isAuthenticated ? <Suppliers /> : <Navigate to="/login" />} />
         <Route path="/addproductpage" element={isAuthenticated ? <AddProductPage /> : <Navigate to="/login" />} />
-        <Route path="/addsupplier" element={isAuthenticated ? <AddSupplierPage visible={true} onCancel={() => {}} onSubmit={() => {}} /> : <Navigate to="/login" />} />
+        <Route path="/addsupplier" element={isAuthenticated ? <AddSupplierPage visible={undefined} onCancel={undefined} onSubmit={undefined} /> : <Navigate to="/login" />} />
         <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
         <Route path="/messaging" element={isAuthenticated ? <MessagingPage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
-        <Route path="/all-notifications" element={isAuthenticated ? <AllNotifications /> : <Navigate to="/login" />} />
+        
         {/* Default Route Redirect */}
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
