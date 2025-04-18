@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { 
   Row, Col, Button, Card, Statistic, Table, Tag, Modal, Form, Input, 
-  Select, Divider, Badge, Space, Typography, Tooltip, Avatar, Image,
+  Select, Divider, Badge, Space, Typography, Avatar, Image,
   Dropdown, Menu, Rate
 } from 'antd';
 import { 
-  SearchOutlined, FilterOutlined, PlusOutlined, ArrowUpOutlined, 
+  FilterOutlined, PlusOutlined, ArrowUpOutlined, 
   ArrowDownOutlined, EditOutlined, DeleteOutlined, EyeOutlined,
   EllipsisOutlined, ShoppingOutlined
 } from '@ant-design/icons';
@@ -239,9 +239,26 @@ const Products: React.FC = () => {
     }
   ];
 
+  // Update data array to use new status values
+  const updateProductStatus = () => {
+    return productData.map(product => {
+      let updatedStatus = product.status;
+      if (product.status === 'Active') updatedStatus = 'In Stock';
+      if (product.status === 'Inactive') updatedStatus = 'Out of Stock';
+      // Change Low Stock to Out of Stock or In Stock based on stock level
+      if (product.status === 'Low Stock') {
+        updatedStatus = product.stock <= 10 ? 'Out of Stock' : 'In Stock';
+      }
+      return {...product, status: updatedStatus};
+    });
+  };
+
+  // Use updated product data with new status values
+  const updatedProductData = updateProductStatus();
+
   // Filter products based on active category, status, and search query
   const getFilteredProducts = () => {
-    return productData.filter(product => {
+    return updatedProductData.filter(product => {
       // Filter by category
       const categoryMatch = activeCategory === 'all' || 
         product.category.toLowerCase() === activeCategory.toLowerCase();
@@ -406,7 +423,7 @@ const Products: React.FC = () => {
   ];
 
   // Action menu for product table
-  const getActionMenu = (record: any) => (
+  const getActionMenu = () => (
     <Menu>
       <Menu.Item key="view" icon={<EyeOutlined />}>
         View Details
@@ -420,6 +437,40 @@ const Products: React.FC = () => {
       </Menu.Item>
     </Menu>
   );
+
+  // Helper function for status badge colors
+  function getStatusBadge(status: string): 'success' | 'error' | 'warning' | 'default' {
+    switch(status.toLowerCase()) {
+      case 'in stock':
+        return 'success';
+      case 'out of stock':
+        return 'error';
+      default:
+        return 'default';
+    }
+  }
+
+  // Helper function for category colors
+  function getCategoryColor(category: string): string {
+    switch(category.toLowerCase()) {
+      case 'clothing':
+        return 'cyan';
+      case 'electronics':
+        return 'blue';
+      case 'furniture':
+        return 'orange';
+      case 'beauty':
+        return 'pink';
+      case 'home':
+        return 'green';
+      case 'sports':
+        return 'volcano';
+      case 'accessories':
+        return 'purple';
+      default:
+        return 'default';
+    }
+  }
 
   // Enhanced table columns with better styling
   const columns = [
@@ -464,7 +515,7 @@ const Products: React.FC = () => {
         </Space>
       ),
       filters: categories.map(cat => ({ text: cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1), value: cat })),
-      onFilter: (value: string, record: any) => value === 'all' || record.category.toLowerCase() === value.toLowerCase(),
+      onFilter: (value: any, record: any) => value === 'all' || record.category.toLowerCase() === value.toString().toLowerCase(),
     },
     { 
       title: 'Status', 
@@ -472,17 +523,13 @@ const Products: React.FC = () => {
       key: 'status', 
       render: (status: string) => {
         let color;
-        let icon;
         
         switch(status.toLowerCase()) {
-          case 'active':
+          case 'in stock':
             color = colors.success;
             break;
-          case 'inactive':
+          case 'out of stock':
             color = colors.danger;
-            break;
-          case 'low stock':
-            color = colors.warning;
             break;
           default:
             color = colors.info;
@@ -503,11 +550,10 @@ const Products: React.FC = () => {
         );
       },
       filters: [
-        { text: 'Active', value: 'active' },
-        { text: 'Inactive', value: 'inactive' },
-        { text: 'Low Stock', value: 'low stock' }
+        { text: 'In Stock', value: 'in stock' },
+        { text: 'Out of Stock', value: 'out of stock' }
       ],
-      onFilter: (value: string, record: any) => record.status.toLowerCase() === value.toLowerCase(),
+      onFilter: (value: any, record: any) => record.status.toLowerCase() === value.toString().toLowerCase(),
     },
     { 
       title: 'Stock',
@@ -547,67 +593,19 @@ const Products: React.FC = () => {
       sorter: (a: any, b: any) => parseFloat(a.price.substring(1)) - parseFloat(b.price.substring(1)),
     },
     { 
-      title: 'Rating', 
-      dataIndex: 'rating', 
-      key: 'rating',
-      render: (rating: number) => (
-        <div>
-          <Rate disabled defaultValue={Math.round(rating)} style={{ fontSize: '14px' }} />
-          <Text style={{ marginLeft: '8px' }}>{rating}</Text>
-        </div>
-      ),
-      sorter: (a: any, b: any) => a.rating - b.rating,
-    },
-    { 
       title: 'Action', 
       key: 'action',
-      render: (record: any) => (
-        <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
+      render: () => (
+        <Dropdown overlay={getActionMenu()} trigger={['click']}>
           <Button type="text" icon={<EllipsisOutlined />} />
         </Dropdown>
       ),
     },
-  ];
-
-  // Helper function for status badge colors
-  function getStatusBadge(status: string): 'success' | 'error' | 'warning' | 'default' {
-    switch(status.toLowerCase()) {
-      case 'active':
-        return 'success';
-      case 'inactive':
-        return 'error';
-      case 'low stock':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  }
-
-  // Helper function for category colors
-  function getCategoryColor(category: string): string {
-    switch(category.toLowerCase()) {
-      case 'clothing':
-        return 'cyan';
-      case 'electronics':
-        return 'blue';
-      case 'furniture':
-        return 'orange';
-      case 'beauty':
-        return 'pink';
-      case 'home':
-        return 'green';
-      case 'sports':
-        return 'volcano';
-      case 'accessories':
-        return 'purple';
-      default:
-        return 'default';
-    }
-  }
+  ] as any; 
 
   return (
     <DashboardNavigation>
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '5px' }}>
         {/* Enhanced Top Bar */}
 
         <Row justify="space-between" align="middle" style={topBarStyle} className="top-bar">
@@ -623,7 +621,7 @@ const Products: React.FC = () => {
       </div>
       <Divider type="vertical" style={{ height: '36px' }} />
       <div>
-        <Text type="secondary" style={{ fontSize: '14px' }}>Last updated</Text>
+        <Text type="secondary" style={{ fontSize: '12px' }}>Last updated</Text>
         <div>
           <Text style={{ fontSize: '16px' }}>Feb 20, 2025</Text>
         </div>
@@ -839,9 +837,8 @@ const Products: React.FC = () => {
           <Form.Item name="status" label="Status">
             <Select placeholder="Select Status">
               <Option value="all">All Statuses</Option>
-              <Option value="active">Active</Option>
-              <Option value="inactive">Inactive</Option>
-              <Option value="low stock">Low Stock</Option>
+              <Option value="in stock">In Stock</Option>
+              <Option value="out of stock">Out of Stock</Option>
             </Select>
           </Form.Item>
           <Form.Item name="stock" label="Stock Level">
@@ -933,7 +930,7 @@ const Products: React.FC = () => {
           /* Make the table scrollable in all directions on mobile */
           .table-responsive-wrapper {
             overflow: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch; 
           }
 
           .ant-table {

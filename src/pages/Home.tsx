@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Col, Row, List, Avatar, Tag, Select, Input, Statistic, Typography, Badge } from 'antd';
 import { MoreOutlined, ArrowUpOutlined, CrownOutlined, TrophyOutlined, WalletOutlined, RollbackOutlined, SmileOutlined } from '@ant-design/icons';
-import DashboardNavigation from '../components/DashboardNavigation';
+import DashboardNavigation from '../components/DashboardNavigation'; // Check this for Dropdown usage
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -35,10 +35,9 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon }) => {
-  // Determine card-specific styles based on the title
   const getCardStyles = () => {
     switch (title) {
-      case 'Net Income':
+      case 'Profit':
         return {
           icon: <WalletOutlined style={{ color: colors.primary, fontSize: 28 }} />,
           valueColor: colors.primary,
@@ -73,51 +72,27 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
 
   const { icon: cardIcon, valueColor } = getCardStyles();
 
-  // @ts-ignore
-    // @ts-ignore
-    return (
+  return (
     <Card
       hoverable
       style={{
         borderRadius: 12,
         boxShadow: colors.shadowLight,
-        background: '#FFFFFF', // White background for all cards
+        background: '#FFFFFF',
         transition: 'all 0.3s ease',
         border: '1px solid #f0f0f0',
         overflow: 'hidden',
         padding: '8px',
         transform: 'translateY(0)',
-
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-        <Text
-          style={{
-            color: '#888',
-            fontSize: '16px',
-            fontWeight: 'bold',
-          }}
-        >
-          {title}
-        </Text>
+        <Text style={{ color: '#888', fontSize: '16px', fontWeight: 'bold' }}>{title}</Text>
         {icon || <MoreOutlined style={{ color: '#bbb' }} />}
       </div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: 12,
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
         {cardIcon}
-        <AntTitle
-          level={title === 'Top Performance' ? 2 : 3}
-          style={{
-            margin: 0,
-            color: valueColor,
-          }}
-        >
+        <AntTitle level={title === 'Top Performance' ? 2 : 3} style={{ margin: 0, color: valueColor }}>
           {value}
         </AntTitle>
       </div>
@@ -149,20 +124,20 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
 };
 
 const soldItems = [
-  { name: 'Mr. T-Shirt', status: 'Active', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Jersey Frock', status: 'Inactive', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Smart Jacket', status: 'Active', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Casual Shirt', status: 'Active', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Formal Pants', status: 'Inactive', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Summer Dress', status: 'Active', imgSrc: 'https://via.placeholder.com/40' },
+  { name: 'Mr. T-Shirt', status: 'Active', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Jersey Frock', status: 'Inactive', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Smart Jacket', status: 'Active', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Casual Shirt', status: 'Active', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Formal Pants', status: 'Inactive', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Summer Dress', status: 'Active', imgSrc: 'https://picsum.photos/40' },
 ];
 
 const topSellers = [
-  { name: 'Bhishan K.C', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Tom Cruise', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Jack Sparrow', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'William', imgSrc: 'https://via.placeholder.com/40' },
-  { name: 'Thomas Selby', imgSrc: 'https://via.placeholder.com/40' },
+  { name: 'Bhishan K.C', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Tom Cruise', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Jack Sparrow', imgSrc: 'https://picsum.photos/40' },
+  { name: 'William', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Thomas Selby', imgSrc: 'https://picsum.photos/40' },
 ];
 
 const getInitials = (name: string) => {
@@ -247,7 +222,7 @@ const Home: React.FC = () => {
     <DashboardNavigation>
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Net Income" value="$498,000" change="24%" period="last month" />
+          <StatCard title="Profit" value="$498,000" change="24%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
@@ -271,7 +246,7 @@ const Home: React.FC = () => {
                 onChange={value => setFilter(value)}
                 style={{ width: 120 }}
                 size="small"
-                bordered={false}
+                variant="borderless"
               >
                 <Option value="All">All</Option>
                 <Option value="Active">Active</Option>
@@ -284,7 +259,7 @@ const Home: React.FC = () => {
               boxShadow: colors.shadowLight,
               height: '100%',
             }}
-            bodyStyle={{ padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' }}
+            styles={{ body: { padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' } }}
           >
             <List
               itemLayout="horizontal"
@@ -323,7 +298,7 @@ const Home: React.FC = () => {
               title={<Text type="secondary">Total Sales</Text>}
               value={112893}
               precision={2}
-              valueStyle={{ color: colors.primary, fontSize: '24px' ,fontWeight: 'bold'}}
+              valueStyle={{ color: colors.primary, fontSize: '24px', fontWeight: 'bold' }}
             />
             <div style={{ marginTop: 16, height: 250 }}>
               <Line
@@ -331,17 +306,8 @@ const Home: React.FC = () => {
                 options={{
                   ...commonChartOptions,
                   scales: {
-                    y: {
-                      beginAtZero: true,
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
-                      },
-                    },
-                    x: {
-                      grid: {
-                        display: false,
-                      },
-                    },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                    x: { grid: { display: false } },
                   },
                 }}
               />
@@ -367,7 +333,7 @@ const Home: React.FC = () => {
               boxShadow: colors.shadowLight,
               height: '100%',
             }}
-            bodyStyle={{ padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' }}
+            styles={{ body: { padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' } }}
           >
             <List
               itemLayout="horizontal"
@@ -409,40 +375,28 @@ const Home: React.FC = () => {
               boxShadow: colors.shadowMedium,
             }}
           >
-              <Statistic
-                  title={<Text type="secondary">Total Revenue</Text>}
-                  value={256000}
-                  precision={2}
-                  valueStyle={{
-                      color: colors.primary,
-                      fontSize: '24px',
-                      fontWeight: 'bold'
-                  }}
-                  prefix="RS"
-              />
+            <Statistic
+              title={<Text type="secondary">Total Revenue</Text>}
+              value={256000}
+              precision={2}
+              valueStyle={{ color: colors.primary, fontSize: '24px', fontWeight: 'bold' }}
+              prefix="RS"
+            />
             <div style={{ marginTop: 20, height: 300 }}>
               <Line
                 data={revenueTimeData}
                 options={{
                   ...commonChartOptions,
-                  interaction: {
-                    mode: 'index',
-                    intersect: false,
-                  },
+                  interaction: { mode: 'index', intersect: false },
                   plugins: {
                     ...commonChartOptions.plugins,
                     tooltip: {
                       callbacks: {
                         label: function (context) {
                           let label = context.dataset.label || '';
-                          if (label) {
-                            label += ': ';
-                          }
+                          if (label) label += ': ';
                           if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('en-US', {
-                              style: 'currency',
-                              currency: 'USD',
-                            }).format(context.parsed.y);
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
                           }
                           return label;
                         },
@@ -452,20 +406,10 @@ const Home: React.FC = () => {
                   scales: {
                     y: {
                       beginAtZero: true,
-                      ticks: {
-                        callback: function (value) {
-                          return '$' + value.toLocaleString();
-                        },
-                      },
-                      grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
-                      },
+                      ticks: { callback: value => '$' + value.toLocaleString() },
+                      grid: { color: 'rgba(0, 0, 0, 0.05)' },
                     },
-                    x: {
-                      grid: {
-                        display: false,
-                      },
-                    },
+                    x: { grid: { display: false } },
                   },
                 }}
               />
