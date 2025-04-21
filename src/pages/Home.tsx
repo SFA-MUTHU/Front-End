@@ -47,9 +47,9 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
           icon: <RollbackOutlined style={{ color: colors.accent, fontSize: 28 }} />,
           valueColor: colors.accent,
         };
-      case 'Customer Satisfaction':
+      case 'Supplier Loan':
         return {
-          icon: <SmileOutlined style={{ color: colors.secondary, fontSize: 28 }} />,
+          icon: <WalletOutlined style={{ color: colors.red, fontSize: 28 }} />,
           valueColor: colors.secondary,
         };
       case 'Top Performance':
@@ -228,7 +228,7 @@ const Home: React.FC = () => {
           <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Customer Satisfaction" value="4.8/5" change="16%" period="last month" />
+          <StatCard title="Supplier Loan" value="$498,000" change="16%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
           <StatCard title="Top Performance" value="Premium" change="12%" period="last month" />

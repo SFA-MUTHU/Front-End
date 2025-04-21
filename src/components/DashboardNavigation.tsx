@@ -151,7 +151,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
 
                 <div className="logo" style={{ height: '64px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     {!collapsed ? (
-                        <Title level={4} style={{ margin: 0, fontFamily: 'Roboto', color: 'white' }}>WRENIX</Title>
+                        <Title level={4} style={{ margin: 0, fontFamily: 'Roboto', color: 'white' }}>Muthu Tex</Title>
                     ) : (
                         <HomeOutlined style={{ fontSize: '24px', color: 'white' }} />
                     )}
