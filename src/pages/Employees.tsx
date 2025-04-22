@@ -207,7 +207,7 @@ const Employees: React.FC = () => {
         datasets: [
           {
             label: 'Completed Tasks',
-            data: [68, 62, 73, 76], // More varied data for all employees
+            data: [68, 62, 73, 76], 
             backgroundColor: colors.accent,
             borderWidth: 0,
             borderRadius: 4,
@@ -447,51 +447,102 @@ const Employees: React.FC = () => {
   const AttendanceView = () => {
     if (!selectedEmployee) return null;
     
-    // Sample attendance data
-    const attendanceData: AttendanceRecord[] = [
-      { 
-        date: '2025-02-17', 
-        checkIn: '09:00', 
-        checkOut: '18:00', 
-        workHours: '10h 2m', 
-        status: 'Work from office' 
-      },
-      { 
-        date: '2025-02-18', 
-        checkIn: '00:00', 
-        checkOut: '00:00', 
-        workHours: '0m', 
-        status: 'Absent' 
-      },
-      { 
-        date: '2025-02-19', 
-        checkIn: '10:30', 
-        checkOut: '18:00', 
-        workHours: '8h 30m', 
-        status: 'Late arrival' 
-      },
-      { 
-        date: '2025-02-20', 
-        checkIn: '09:00', 
-        checkOut: '13.00', 
-        workHours: '5h 5m', 
-        status: 'Half day leave' 
-      },
-      { 
-        date: '2025-02-23', 
-        checkIn: '09:00', 
-        checkOut: '18:00', 
-        workHours: '10h 2m', 
-        status: 'Work from office' 
-      },
-      { 
-        date: '2025-02-24', 
-        checkIn: '09:00', 
-        checkOut: '18:00', 
-        workHours: '10h 12m', 
-        status: 'Work from office' 
-      }
-    ];
+    // Employee-specific attendance data mapped by employee ID
+    const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = {
+      'EM0096': [
+        { 
+          date: '2025-02-17', 
+          checkIn: '09:00', 
+          checkOut: '18:00', 
+          workHours: '10h 2m', 
+          status: 'Work from office' 
+        },
+        { 
+          date: '2025-02-18', 
+          checkIn: '09:30', 
+          checkOut: '18:00', 
+          workHours: '8h 30m', 
+          status: 'Late arrival' 
+        },
+        { 
+          date: '2025-02-19', 
+          checkIn: '09:00', 
+          checkOut: '18:00', 
+          workHours: '9h 0m', 
+          status: 'Work from office' 
+        },
+        { 
+          date: '2025-02-20', 
+          checkIn: '09:00', 
+          checkOut: '13:00', 
+          workHours: '5h 0m', 
+          status: 'Half day leave' 
+        }
+      ],
+      'EM0097': [
+        { 
+          date: '2025-02-17', 
+          checkIn: '00:00', 
+          checkOut: '00:00', 
+          workHours: '0m', 
+          status: 'Absent' 
+        },
+        { 
+          date: '2025-02-18', 
+          checkIn: '09:00', 
+          checkOut: '18:00', 
+          workHours: '9h 0m', 
+          status: 'Work from office' 
+        },
+        { 
+          date: '2025-02-19', 
+          checkIn: '09:00', 
+          checkOut: '18:00', 
+          workHours: '9h 0m', 
+          status: 'Work from office' 
+        },
+        { 
+          date: '2025-02-20', 
+          checkIn: '10:45', 
+          checkOut: '18:00', 
+          workHours: '7h 15m', 
+          status: 'Late arrival' 
+        }
+      ],
+      'EM0098': [
+        { 
+          date: '2025-02-17', 
+          checkIn: '09:00', 
+          checkOut: '18:00', 
+          workHours: '9h 0m', 
+          status: 'Work from office' 
+        },
+        { 
+          date: '2025-02-18', 
+          checkIn: '09:00', 
+          checkOut: '18:00', 
+          workHours: '9h 0m', 
+          status: 'Work from office' 
+        },
+        { 
+          date: '2025-02-19', 
+          checkIn: '00:00', 
+          checkOut: '00:00', 
+          workHours: '0m', 
+          status: 'Absent' 
+        },
+        { 
+          date: '2025-02-20', 
+          checkIn: '00:00', 
+          checkOut: '00:00', 
+          workHours: '0m', 
+          status: 'Absent' 
+        }
+      ]
+    };
+    
+    // Get attendance records for the selected employee, or use empty array if none exist
+    const attendanceData = attendanceDataByEmployee[selectedEmployee.id] || [];
     
     // Filter records based on selected filter
     const filteredAttendanceData = attendanceData.filter(record => {

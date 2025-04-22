@@ -1,11 +1,19 @@
 import { useState } from 'react';
-import { Modal, Button } from 'antd';
+import { Modal, Button, Form } from 'antd';
+
+interface BankAccountDetails {
+  accountNumber: string;
+  bankName: string;
+  branch: string;
+  accountType: string;
+}
 
 interface SupplierFormData {
   supplierID: string;
   supplierName: string;
   telephone: string;
   address: string;
+  bankAccount?: BankAccountDetails;
 }
 
 interface AddSupplierPageProps {
@@ -21,6 +29,14 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
     telephone: '',
     address: '',
   });
+  
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [bankFormData, setBankFormData] = useState<BankAccountDetails>({
+    accountNumber: '',
+    bankName: '',
+    branch: '',
+    accountType: '',
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,7 +48,13 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(formData);
+    const dataToSubmit = { ...formData };
+    if (showBankForm) {
+      dataToSubmit.bankAccount = bankFormData;
+    }
+    onSubmit(dataToSubmit);
+    
+    // Reset form
     setFormData({
       supplierID: `S${Math.floor(Math.random() * 10000)
         .toString()
@@ -40,7 +62,26 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
       supplierName: '',
       telephone: '',
       address: '',
-    }); // Reset form
+    });
+    setBankFormData({
+      accountNumber: '',
+      bankName: '',
+      branch: '',
+      accountType: '',
+    });
+    setShowBankForm(false);
+  };
+
+  const handleBankFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBankFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const toggleBankForm = () => {
+    setShowBankForm(!showBankForm);
   };
 
   return (
@@ -128,6 +169,76 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
               required
             />
           </div>
+
+          {/* Bank Account Button */}
+          <div className="mb-4">
+            <Button 
+              onClick={toggleBankForm}
+              type="default"
+              className="w-full h-10 rounded-lg border-dashed"
+              style={{ borderColor: '#b08968', color: '#b08968' }}
+            >
+              {showBankForm ? 'Hide Bank Account Details' : 'Add Bank Account Details (Optional)'}
+            </Button>
+          </div>
+
+          {/* Bank Account Form */}
+          {showBankForm && (
+            <div className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-medium text-gray-700">Bank Account Details</h3>
+                <span className="text-xs text-gray-500 italic">Optional</span>
+              </div>
+              
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                <input
+                  type="text"
+                  name="accountNumber"
+                  value={bankFormData.accountNumber}
+                  onChange={handleBankFormChange}
+                  placeholder="Enter Account Number"
+                  className="w-full rounded-lg p-2 border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                />
+              </div>
+              
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                <input
+                  type="text"
+                  name="bankName"
+                  value={bankFormData.bankName}
+                  onChange={handleBankFormChange}
+                  placeholder="Enter Bank Name"
+                  className="w-full rounded-lg p-2 border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                />
+              </div>
+              
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+                <input
+                  type="text"
+                  name="branch"
+                  value={bankFormData.branch}
+                  onChange={handleBankFormChange}
+                  placeholder="Enter Branch Name"
+                  className="w-full rounded-lg p-2 border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                />
+              </div>
+              
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+                <input
+                  type="text"
+                  name="accountType"
+                  value={bankFormData.accountType}
+                  onChange={handleBankFormChange}
+                  placeholder="Enter Account Type"
+                  className="w-full rounded-lg p-2 border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="my-6 border-t border-gray-200"></div>
 

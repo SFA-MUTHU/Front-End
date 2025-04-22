@@ -13,10 +13,13 @@ const { Title, Text, Paragraph } = Typography;
 type ProductData = {
   productImage?: UploadFile[];
   category?: string;
+  subCategory?: string; // Add sub-category field
   productName?: string;
   stock?: number;
   price?: number;
   discount?: number;
+  costPrice?: number; // Add cost price field
+  supplierName?: string; // Add supplier name field
   status?: string;
   description?: string;
 };
@@ -40,6 +43,7 @@ const AddProductPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [productData, setProductData] = useState<ProductData>({});
   const [selectedStatus, setSelectedStatus] = useState<string>('active'); // Add this line
+  const [selectedCategory, setSelectedCategory] = useState<string>(''); // Add this for tracking selected category
 
   // Check for mobile view
   useEffect(() => {
@@ -133,10 +137,10 @@ const AddProductPage: React.FC = () => {
     try {
       // Validate form fields for the current step
       if (currentStep === 0) {
-        const values = await form.validateFields(['category', 'productName']);
+        const values = await form.validateFields(['category', 'subCategory', 'productName']); // Add subCategory
         setProductData(prev => ({...prev, ...values}));
       } else if (currentStep === 1) {
-        const values = await form.validateFields(['price', 'discount', 'stock', 'status']);
+        const values = await form.validateFields(['price', 'discount', 'stock', 'status', 'costPrice', 'supplierName']);
         setProductData(prev => ({...prev, ...values}));
       } else if (currentStep === 2) {
         const values = await form.validateFields(['productImage', 'description']);
@@ -198,6 +202,15 @@ const css = `
 styleElement.textContent = css;
 document.head.appendChild(styleElement);
 
+// Sub-categories mapping based on main category
+const subCategoryOptions: Record<string, string[]> = {
+  electronics: ['Smartphones', 'Laptops', 'Accessories', 'Audio', 'Cameras'],
+  fashion: ['Men\'s Clothing', 'Women\'s Clothing', 'Footwear', 'Accessories', 'Jewelry'],
+  home: ['Furniture', 'Kitchen', 'Decor', 'Bedding', 'Bath'],
+  beauty: ['Skincare', 'Makeup', 'Haircare', 'Fragrance', 'Personal Care'],
+  sports: ['Equipment', 'Apparel', 'Footwear', 'Accessories', 'Outdoor'],
+};
+
   const renderStepContent = () => {
     // Responsive values
     const titleLevel = isMobile ? 5 : 4;
@@ -232,12 +245,32 @@ document.head.appendChild(styleElement);
                 placeholder="Select a category"
                 size={inputSize}
                 style={{ width: '100%', borderRadius: '8px' }}
+                onChange={(value) => setSelectedCategory(value)}
               >
                 <Option value="electronics">Electronics</Option>
                 <Option value="fashion">Fashion</Option>
                 <Option value="home">Home</Option>
                 <Option value="beauty">Beauty</Option>
                 <Option value="sports">Sports</Option>
+              </Select>
+            </Form.Item>
+            
+            <Form.Item
+              name="subCategory"
+              label={<Text strong>Sub Category</Text>}
+              rules={[{ required: true, message: 'Please select a sub-category!' }]}
+            >
+              <Select
+                placeholder="Select a sub-category"
+                size={inputSize}
+                style={{ width: '100%', borderRadius: '8px' }}
+                disabled={!selectedCategory}
+              >
+                {selectedCategory && 
+                  subCategoryOptions[selectedCategory]?.map(subCat => (
+                    <Option key={subCat} value={subCat}>{subCat}</Option>
+                  ))
+                }
               </Select>
             </Form.Item>
   
@@ -290,6 +323,25 @@ document.head.appendChild(styleElement);
               </Col>
               <Col xs={24} sm={24} md={12}>
                 <Form.Item
+                  name="costPrice"
+                  label={<Text strong>Cost Price (USD)</Text>}
+                  rules={[{ required: true, message: 'Please enter the cost price!' }]}
+                >
+                  <InputNumber
+                    placeholder="0.00"
+                    size={inputSize}
+                    style={{ width: '100%', borderRadius: '8px' }}
+                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
+                    min={0}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            
+            <Row gutter={gutterValue}>
+              <Col xs={24} sm={24} md={12}>
+                <Form.Item
                   name="discount"
                   label={<Text strong>Discount (USD)</Text>}
                   rules={[{ required: true, message: 'Please enter the discount!' }]}
@@ -301,6 +353,19 @@ document.head.appendChild(styleElement);
                     formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
                     min={0}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={24} md={12}>
+                <Form.Item
+                  name="supplierName"
+                  label={<Text strong>Supplier Name</Text>}
+                  rules={[{ required: true, message: 'Please enter the supplier name!' }]}
+                >
+                  <Input
+                    placeholder="Enter supplier name"
+                    size={inputSize}
+                    style={{ width: '100%', borderRadius: '8px' }}
                   />
                 </Form.Item>
               </Col>
@@ -388,7 +453,7 @@ document.head.appendChild(styleElement);
               label={<Text strong>Product Image</Text>}
               valuePropName="fileList"
               getValueFromEvent={e => Array.isArray(e) ? e : e?.fileList}
-              rules={[{ required: true, message: 'Please upload a product image!' }]}
+              // Removed the required validation as requested
             >
               <Upload.Dragger
                 {...uploadProps}
@@ -427,6 +492,16 @@ document.head.appendChild(styleElement);
         );
   
       case 3: // Review
+        // Calculate profit margin
+        const calculateProfitMargin = () => {
+          if (productData.price && productData.costPrice) {
+            const profit = productData.price - productData.costPrice;
+            const profitMargin = (profit / productData.price) * 100;
+            return profitMargin.toFixed(2);
+          }
+          return "N/A";
+        };
+
         return (
           <motion.div
             initial="initial"
@@ -456,6 +531,7 @@ document.head.appendChild(styleElement);
                   bodyStyle={{ padding: cardPadding }}
                 >
                   <p><Text strong>Category:</Text> {productData.category}</p>
+                  <p><Text strong>Sub Category:</Text> {productData.subCategory}</p>
                   <p><Text strong>Name:</Text> {productData.productName}</p>
                 </Card>
               </Col>
@@ -472,7 +548,10 @@ document.head.appendChild(styleElement);
                   bodyStyle={{ padding: cardPadding }}
                 >
                   <p><Text strong>Price:</Text> ${productData.price}</p>
+                  <p><Text strong>Cost Price:</Text> ${productData.costPrice}</p>
+                  <p><Text strong>Profit Margin:</Text> <Text type="success">{calculateProfitMargin()}%</Text></p>
                   <p><Text strong>Discount:</Text> ${productData.discount}</p>
+                  <p><Text strong>Supplier:</Text> {productData.supplierName}</p>
                   <p><Text strong>Stock:</Text> {productData.stock} units</p>
                   <p><Text strong>Status:</Text> {productData.status}</p>
                 </Card>
