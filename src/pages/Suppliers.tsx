@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+
 import { Layout, Row, Col, Button, Table, Tag, Typography, Avatar, Input, Modal } from 'antd';
 import { SearchOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
+
 import DashboardNavigation from '../components/DashboardNavigation';
 import AddSupplierForm from './Addsupplierpage';
 
@@ -45,9 +47,11 @@ const Suppliers: React.FC = () => {
   const [filteredSuppliers, setFilteredSuppliers] = useState<Array<{ name: string; logo: string }>>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
   const [currentSupplierDetails, setCurrentSupplierDetails] = useState<any>(null);
   const [invoiceDetails, setInvoiceDetails] = useState<InvoiceDetail | null>(null);
+
 
   // Check if mobile on resize and initial load
   useEffect(() => {
@@ -349,6 +353,7 @@ const Suppliers: React.FC = () => {
               {record.status}
             </Tag>
           </div>
+
           <div style={{ marginTop: '8px' }}>
             <Button
               icon={<EyeOutlined />}
@@ -359,6 +364,7 @@ const Suppliers: React.FC = () => {
               View Details
             </Button>
           </div>
+
         </div>
       ),
     },
@@ -420,6 +426,7 @@ const Suppliers: React.FC = () => {
                 <Text type="secondary">Select a supplier</Text>
               </div>
 
+
               <Search
                 placeholder="Search suppliers"
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -427,6 +434,7 @@ const Suppliers: React.FC = () => {
                 allowClear
                 size="middle"
               />
+
 
               <div
                 className="custom-scrollbar"
@@ -626,6 +634,7 @@ const Suppliers: React.FC = () => {
         )}
       </Layout>
 
+
       {/* Add Supplier Modal */}
       <AddSupplierForm
         visible={isModalVisible}
@@ -765,6 +774,7 @@ const Suppliers: React.FC = () => {
           </div>
         )}
       </Modal>
+
     </DashboardNavigation>
   );
 };

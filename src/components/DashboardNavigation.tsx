@@ -32,9 +32,11 @@ const colors = {
 const styleElement = document.createElement('style');
 
 const css = `
+
   :where(.css-dev-only-do-not-override-240cud).ant-menu-dark .ant-menu-item-selected,
   :where(.css-dev-only-do-not-override-240cud).ant-menu-dark > .ant-menu .ant-menu-item-selected {
     background-color: #DBC1AD;
+
   }
 `;
 
@@ -144,7 +146,7 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
 
                 <div className="logo" style={{ height: '64px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     {!collapsed ? (
-                        <Title level={4} style={{ margin: 0, fontFamily: 'Roboto', color: 'white' }}>WRENIX</Title>
+                        <Title level={4} style={{ margin: 0, fontFamily: 'Roboto', color: 'white' }}>Muthu Tex</Title>
                     ) : (
                         <HomeOutlined style={{ fontSize: '24px', color: 'white' }} />
                     )}

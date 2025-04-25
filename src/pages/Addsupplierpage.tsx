@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { Modal, Button, Form } from 'antd';
 
 interface BankAccountDetails {
@@ -8,12 +9,15 @@ interface BankAccountDetails {
   accountType: string;
 }
 
+
 interface SupplierFormData {
   supplierID: string;
   supplierName: string;
   telephone: string;
   address: string;
+
   bankAccount?: BankAccountDetails;
+
 }
 
 interface AddSupplierPageProps {

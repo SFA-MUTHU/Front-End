@@ -13,7 +13,9 @@ const { Title, Text, Paragraph } = Typography;
 type ProductData = {
   productImage?: UploadFile[];
   category?: string;
+
   subCategory?: string; // Add sub-category field
+
   productName?: string;
   stock?: number;
   price?: number;
@@ -43,7 +45,9 @@ const AddProductPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [productData, setProductData] = useState<ProductData>({});
   const [selectedStatus, setSelectedStatus] = useState<string>('active'); // Add this line
+
   const [selectedCategory, setSelectedCategory] = useState<string>(''); // Add this for tracking selected category
+
 
   // Check for mobile view
   useEffect(() => {
@@ -137,10 +141,12 @@ const AddProductPage: React.FC = () => {
     try {
       // Validate form fields for the current step
       if (currentStep === 0) {
+
         const values = await form.validateFields(['category', 'subCategory', 'productName']); // Add subCategory
         setProductData(prev => ({...prev, ...values}));
       } else if (currentStep === 1) {
         const values = await form.validateFields(['price', 'discount', 'stock', 'status', 'costPrice', 'supplierName']);
+
         setProductData(prev => ({...prev, ...values}));
       } else if (currentStep === 2) {
         const values = await form.validateFields(['productImage', 'description']);
@@ -202,6 +208,7 @@ const css = `
 styleElement.textContent = css;
 document.head.appendChild(styleElement);
 
+
 // Sub-categories mapping based on main category
 const subCategoryOptions: Record<string, string[]> = {
   electronics: ['Smartphones', 'Laptops', 'Accessories', 'Audio', 'Cameras'],
@@ -210,6 +217,7 @@ const subCategoryOptions: Record<string, string[]> = {
   beauty: ['Skincare', 'Makeup', 'Haircare', 'Fragrance', 'Personal Care'],
   sports: ['Equipment', 'Apparel', 'Footwear', 'Accessories', 'Outdoor'],
 };
+
 
   const renderStepContent = () => {
     // Responsive values
@@ -245,7 +253,9 @@ const subCategoryOptions: Record<string, string[]> = {
                 placeholder="Select a category"
                 size={inputSize}
                 style={{ width: '100%', borderRadius: '8px' }}
+
                 onChange={(value) => setSelectedCategory(value)}
+
               >
                 <Option value="electronics">Electronics</Option>
                 <Option value="fashion">Fashion</Option>
@@ -254,7 +264,7 @@ const subCategoryOptions: Record<string, string[]> = {
                 <Option value="sports">Sports</Option>
               </Select>
             </Form.Item>
-            
+
             <Form.Item
               name="subCategory"
               label={<Text strong>Sub Category</Text>}
@@ -273,6 +283,7 @@ const subCategoryOptions: Record<string, string[]> = {
                 }
               </Select>
             </Form.Item>
+
   
             <Form.Item
               name="productName"
@@ -311,7 +322,9 @@ const subCategoryOptions: Record<string, string[]> = {
                   label={<Text strong>Price (USD)</Text>}
                   rules={[{ required: true, message: 'Please enter the price!' }]}
                 >
+
                   <InputNumber
+
                     placeholder="0.00"
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
@@ -321,6 +334,7 @@ const subCategoryOptions: Record<string, string[]> = {
                   />
                 </Form.Item>
               </Col>
+
               <Col xs={24} sm={24} md={12}>
                 <Form.Item
                   name="costPrice"
@@ -369,6 +383,7 @@ const subCategoryOptions: Record<string, string[]> = {
                   />
                 </Form.Item>
               </Col>
+
             </Row>
   
             <Form.Item
@@ -453,7 +468,9 @@ const subCategoryOptions: Record<string, string[]> = {
               label={<Text strong>Product Image</Text>}
               valuePropName="fileList"
               getValueFromEvent={e => Array.isArray(e) ? e : e?.fileList}
+
               // Removed the required validation as requested
+
             >
               <Upload.Dragger
                 {...uploadProps}
@@ -492,6 +509,7 @@ const subCategoryOptions: Record<string, string[]> = {
         );
   
       case 3: // Review
+
         // Calculate profit margin
         const calculateProfitMargin = () => {
           if (productData.price && productData.costPrice) {
@@ -501,6 +519,7 @@ const subCategoryOptions: Record<string, string[]> = {
           }
           return "N/A";
         };
+
 
         return (
           <motion.div
@@ -531,7 +550,9 @@ const subCategoryOptions: Record<string, string[]> = {
                   bodyStyle={{ padding: cardPadding }}
                 >
                   <p><Text strong>Category:</Text> {productData.category}</p>
+
                   <p><Text strong>Sub Category:</Text> {productData.subCategory}</p>
+
                   <p><Text strong>Name:</Text> {productData.productName}</p>
                 </Card>
               </Col>
@@ -548,10 +569,12 @@ const subCategoryOptions: Record<string, string[]> = {
                   bodyStyle={{ padding: cardPadding }}
                 >
                   <p><Text strong>Price:</Text> ${productData.price}</p>
+
                   <p><Text strong>Cost Price:</Text> ${productData.costPrice}</p>
                   <p><Text strong>Profit Margin:</Text> <Text type="success">{calculateProfitMargin()}%</Text></p>
                   <p><Text strong>Discount:</Text> ${productData.discount}</p>
                   <p><Text strong>Supplier:</Text> {productData.supplierName}</p>
+
                   <p><Text strong>Stock:</Text> {productData.stock} units</p>
                   <p><Text strong>Status:</Text> {productData.status}</p>
                 </Card>

@@ -207,7 +207,9 @@ const Employees: React.FC = () => {
         datasets: [
           {
             label: 'Completed Tasks',
+
             data: [68, 62, 73, 76], 
+
             backgroundColor: colors.accent,
             borderWidth: 0,
             borderRadius: 4,
@@ -447,6 +449,7 @@ const Employees: React.FC = () => {
   const AttendanceView = () => {
     if (!selectedEmployee) return null;
     
+
     // Employee-specific attendance data mapped by employee ID
     const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = {
       'EM0096': [
@@ -543,6 +546,7 @@ const Employees: React.FC = () => {
     
     // Get attendance records for the selected employee, or use empty array if none exist
     const attendanceData = attendanceDataByEmployee[selectedEmployee.id] || [];
+
     
     // Filter records based on selected filter
     const filteredAttendanceData = attendanceData.filter(record => {
