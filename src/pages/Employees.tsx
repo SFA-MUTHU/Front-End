@@ -1239,7 +1239,7 @@ const Employees: React.FC = () => {
                             <Form.Item
                               name="profileImage"
                               label="Profile Image"
-                              rules={[{ required: true, message: 'Please upload a profile image!' }]}
+                              rules={[{ required: false }]}
                             >
                               <Upload
                                 name="profileImage"
@@ -1262,24 +1262,30 @@ const Employees: React.FC = () => {
                               </Upload>
                             </Form.Item>
                             <Form.Item
-                              name="employeeId"
-                              label="Employee ID"
+                              name="employeeNic"
+                              label="Employee NIC"
                               rules={[{ required: true, message: 'Enter employee ID!' }]}
-                              initialValue="EM0096"
+
                             >
                               <Input
-                                placeholder="EM0096"
-                                disabled
-                                style={{ backgroundColor: '#F5F5F5', color: '#888' }}
+                                placeholder="Add NIC Number"
+
                               />
                             </Form.Item>
                             <Form.Item
-                              name="employeeName"
-                              label="Employee Name"
-                              rules={[{ required: true, message: 'Type employee name!' }]}
+                              name="employeeFname"
+                              label="Employee First Name"
+                              rules={[{ required: true, message: 'Type employee first name!' }]}
                             >
-                              <Input placeholder="Type Employee name here" />
+                              <Input placeholder="Type Employee first name here" />
                             </Form.Item>
+                            <Form.Item
+                                name="employeeLname"
+                                label="Employee Last Name"
+                                rules={[{ required: false,  }]}
+                                                        >
+                                <Input placeholder="Type Employee last name here" />
+                               </Form.Item>
                             <Form.Item
                               name="phoneNumber"
                               label="Telephone Number"
