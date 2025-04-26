@@ -1,4 +1,4 @@
-// src/services/userService.ts
+
 import { API_BASE_URL, getAuthHeaders } from './apiConfig';
 
 export interface UserProfile {
