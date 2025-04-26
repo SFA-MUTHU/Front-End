@@ -124,12 +124,12 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
 };
 
 const soldItems = [
-  { name: 'Mr. T-Shirt', status: 'Active', imgSrc: 'https://picsum.photos/40' },
-  { name: 'Jersey Frock', status: 'Inactive', imgSrc: 'https://picsum.photos/40' },
-  { name: 'Smart Jacket', status: 'Active', imgSrc: 'https://picsum.photos/40' },
-  { name: 'Casual Shirt', status: 'Active', imgSrc: 'https://picsum.photos/40' },
-  { name: 'Formal Pants', status: 'Inactive', imgSrc: 'https://picsum.photos/40' },
-  { name: 'Summer Dress', status: 'Active', imgSrc: 'https://picsum.photos/40' },
+  { name: 'Mr. T-Shirt', status: 'Active' },
+  { name: 'Jersey Frock', status: 'Inactive' },
+  { name: 'Smart Jacket', status: 'Active' },
+  { name: 'Casual Shirt', status: 'Active' },
+  { name: 'Formal Pants', status: 'Inactive' },
+  { name: 'Summer Dress', status: 'Active'  },
 ];
 
 const topSellers = [
