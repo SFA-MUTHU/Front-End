@@ -7,6 +7,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import BagroundImag from "../assets/img/background .webp";
 import LogCharacter from "../assets/img/log.webp";
 import '../style/signup.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { signup, clearAuthState } from '../redux/authSlice';
+import { RootState } from '../redux/store';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -14,7 +17,8 @@ const { Option } = Select;
 
 const Signup: React.FC = () => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+    const { loading, error, success } = useSelector((state: RootState) => state.auth);
     const [currentStep, setCurrentStep] = useState(0);
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const [form] = Form.useForm();
@@ -24,6 +28,37 @@ const Signup: React.FC = () => {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        if (success) {
+            toast.success('Account created successfully!', {
+                position: "top-left",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                onClose: () => {
+                    dispatch(clearAuthState());
+                    navigate('/login');
+                }
+            });
+        }
+
+        if (error) {
+            toast.error(error, {
+                position: "top-left",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined
+            });
+            dispatch(clearAuthState());
+        }
+    }, [success, error, dispatch, navigate]);
 
     const nextStep = async () => {
         try {
@@ -42,21 +77,8 @@ const Signup: React.FC = () => {
         setCurrentStep(currentStep - 1);
     };
 
-    const onFinish = async () => {
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            toast.success('Account created successfully!', {
-                position: "top-left",
-                autoClose: 4000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                onClose: () => navigate('/login')
-            });
-        }, 1500);
+    const onFinish = (values: any) => {
+        dispatch(signup(values));
     };
 
     const steps = [
@@ -165,7 +187,6 @@ const Signup: React.FC = () => {
         }
     ];
 
-    // @ts-ignore
     return (
         <div style={{
             display: 'flex',
