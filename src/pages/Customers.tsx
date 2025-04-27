@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
 import {
   Layout, Button, Input, Table, Row, Col, Dropdown, Menu, Card,
-  Statistic, Space, message, Modal, Form, Typography, Upload
+  Statistic, Space, message, Modal, Form, Typography, Upload,Select
 } from 'antd';
 import { 
   EllipsisOutlined, UserOutlined, MailOutlined, PhoneOutlined, DollarOutlined, 
@@ -116,7 +116,7 @@ const AddCustomerModal: React.FC<{
         <Form.Item
           name="profileImage"
           label="Profile Image"
-          rules={[{ required: true, message: 'Please upload a profile image!' }]}
+          rules={[{ required: false, message: 'Please upload a profile image!' }]}
         >
           <Upload
             name="profileImage"
@@ -194,15 +194,20 @@ const AddCustomerModal: React.FC<{
         </Form.Item>
 
         <Form.Item
-          name="address"
-          label="Address"
-          rules={[{ required: true, message: 'Please enter address!' }]}
+          name="paymentMethod"
+          label="Payment Method"
+          rules={[{ required: true, message: 'Please enter payment Method!' }]}
         >
-          <Input 
-            placeholder="Enter customer address"
-            prefix={<HomeOutlined style={{ color: colors.primary }} />}
-            style={{ borderRadius: 8 }}
-          />
+          <Select
+              placeholder="Select payment method"
+              style={{ borderRadius: 8 }}
+              dropdownStyle={{ borderRadius: 8 }}
+              prefix={<DollarOutlined style={{ color: colors.primary }} />}
+            >
+              <Select.Option value="cash">Cash</Select.Option>
+              <Select.Option value="card">Card</Select.Option>
+              <Select.Option value="cheque">Cheque</Select.Option>
+            </Select>
         </Form.Item>
 
         <Button
