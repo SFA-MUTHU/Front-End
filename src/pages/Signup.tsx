@@ -7,6 +7,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import BagroundImag from "../assets/img/background .webp";
 import LogCharacter from "../assets/img/log.webp";
 import '../style/signup.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../redux/signSlice';
+import { RootState } from '../redux/store';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -14,7 +17,8 @@ const { Option } = Select;
 
 const Signup: React.FC = () => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+    const { isLoading, error, success } = useSelector((state: RootState) => state.signup);
     const [currentStep, setCurrentStep] = useState(0);
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const [form] = Form.useForm();
@@ -24,6 +28,30 @@ const Signup: React.FC = () => {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                position: "top-left",
+                autoClose: 4000,
+            });
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (success) {
+            toast.success('Account created successfully!', {
+                position: "top-left",
+                autoClose: 4000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                onClose: () => navigate('/login')
+            });
+        }
+    }, [success, navigate]);
 
     const nextStep = async () => {
         try {
@@ -42,21 +70,17 @@ const Signup: React.FC = () => {
         setCurrentStep(currentStep - 1);
     };
 
-    const onFinish = async () => {
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
-            toast.success('Account created successfully!', {
-                position: "top-left",
-                autoClose: 4000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                onClose: () => navigate('/login')
-            });
-        }, 1500);
+    const onFinish = async (values) => {
+        const userData = {
+            firstName: values.firstName,
+            lastName: values.lastName,
+            mobile: values.mobile,
+            email: values.email,
+            role: values.role,
+            password: values.password
+        };
+
+        await dispatch(registerUser(userData) as any);
     };
 
     const steps = [
@@ -165,7 +189,6 @@ const Signup: React.FC = () => {
         }
     ];
 
-    // @ts-ignore
     return (
         <div style={{
             display: 'flex',
@@ -230,7 +253,7 @@ const Signup: React.FC = () => {
                                 <Button
                                     type="primary"
                                     htmlType="submit"
-                                    loading={loading}
+                                    loading={isLoading}
                                     style={{ marginLeft: 'auto', backgroundColor: '#9C7456', borderColor: '#9C7456' }}
                                 >
                                     Create Account
