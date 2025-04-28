@@ -1,3 +1,4 @@
+// src/pages/Login.tsx
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Checkbox, Typography, Divider } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
@@ -6,12 +7,16 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BagroundImag from "../assets/img/background .webp";
 import LogCharacter from "../assets/img/log.webp";
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../redux/loginSlice';
+import { RootState } from '../redux/store';
 
 const { Title, Text } = Typography;
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+    const { isLoading, error } = useSelector((state: RootState) => state.auth);
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
     useEffect(() => {
@@ -19,10 +24,20 @@ const Login: React.FC = () => {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-    const onFinish = () => {
-        setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                position: "top-left",
+                autoClose: 4000,
+            });
+        }
+    }, [error]);
+
+    const onFinish = async (values: { email: string; password: string }) => {
+        const resultAction = await dispatch(loginUser(values) as any);
+
+        if (loginUser.fulfilled.match(resultAction)) {
             toast.success('Login successful!', {
                 position: "top-left",
                 autoClose: 4000,
@@ -33,9 +48,8 @@ const Login: React.FC = () => {
                 progress: undefined,
             });
             navigate('/home');
-        }, 1500);
+        }
     };
-
 
     return (
         <div style={{
@@ -105,7 +119,7 @@ const Login: React.FC = () => {
                                 type="primary"
                                 htmlType="submit"
                                 block
-                                loading={loading}
+                                loading={isLoading}
                                 style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}
                             >
                                 Login
