@@ -27,6 +27,9 @@ export const fetchEmployees = async (): Promise<Employee[]> => {
   }
 };
 
+
+
+
 export const fetchEmployeeById = async (id: number): Promise<Employee> => {
   try {
     const response = await fetch(`${API_BASE_URL}/employees/${id}`, {
