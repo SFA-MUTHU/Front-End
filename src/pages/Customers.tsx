@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../style/Customers.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { addCustomer } from '../redux/customerSlice';
+import { addCustomer, fetchCustomers } from '../redux/customerSlice';
 import { AppDispatch, RootState } from '../redux/store';
 import { fetchCustomerStats } from '../redux/customerCardSlice';
 
@@ -236,19 +236,37 @@ const AddCustomerModal: React.FC<{
 const Customers: React.FC = () => {
   // Moved useDispatch inside the component
   const dispatch = useDispatch<AppDispatch>();
-  const { stats, loading: statsLoading } = useSelector((state: RootState) => state.customerCard);
+  
+  // Add null checks and default values for the Redux state
+  const { stats, loading: statsLoading } = useSelector((state: RootState) => state.customerCard || {});
+  const { customers = [], pagination = { total: 0 } } = useSelector((state: RootState) => state.customer || {});
 
   const [activeTab, setActiveTab] = useState('1');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
   const navigate = useNavigate();
 
   // Fetch customer statistics when component mounts
   useEffect(() => {
     dispatch(fetchCustomerStats());
   }, [dispatch]);
+
+  // Fetch customers on component mount and when dependencies change
+  useEffect(() => {
+    dispatch(fetchCustomers({ 
+      page,
+      limit,
+      filter: {
+        searchTerm: searchTerm,
+        groupId: activeTab !== '1' ? parseInt(activeTab) : undefined,
+        active: true
+      }
+    }));
+  }, [dispatch, page, limit, searchTerm, activeTab]);
 
   // Customer data
   const allCustomersData: CustomerData[] = [
@@ -295,27 +313,23 @@ const Customers: React.FC = () => {
   styleElement.textContent = css;
   document.head.appendChild(styleElement);
 
+  // Replace the getFilteredData function to use the data from Redux store
   const getFilteredData = () => {
-    let filteredByPackage: CustomerData[] = allCustomersData;
-
-    if (activeTab === '2') {
-      filteredByPackage = allCustomersData.filter(customer => customer.package === 'Basic');
-    } else if (activeTab === '3') {
-      filteredByPackage = allCustomersData.filter(customer => customer.package === 'Platinum');
-    } else if (activeTab === '4') {
-      filteredByPackage = allCustomersData.filter(customer =>
-        customer.package === 'Gold' || customer.package === 'Silver');
-    }
-
-    if (searchTerm) {
-      return filteredByPackage.filter(customer =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone.includes(searchTerm) ||
-        customer.address.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filteredByPackage;
+    return (customers || []).map(customer => ({
+      key: customer?.id?.toString() || '',
+      name: customer?.name || 'Unknown',
+      phone: customer?.phone || 'N/A',
+      package: customer?.customer_group?.name === 'Platinum' ? 'Platinum' :
+              customer?.customer_group?.name === 'Gold' ? 'Gold' :
+              customer?.customer_group?.name === 'Silver' ? 'Silver' : 'Basic',
+      address: customer?.address || 'N/A',
+      buy: customer?.totalSpent || 0,
+      email: customer?.email || 'N/A',
+      avatar: `https://randomuser.me/api/portraits/${customer?.id! % 2 === 0 ? 'women' : 'men'}/${customer?.id! % 30 || 1}.jpg`,
+      joinDate: customer?.created_at?.substring(0, 10) || 'N/A',
+      lastPurchase: customer?.lastPurchaseDate?.substring(0, 10) || 'N/A',
+      status: customer?.active ? 'active' : 'inactive'
+    }));
   };
 
   const filteredData = getFilteredData();
@@ -326,9 +340,15 @@ const Customers: React.FC = () => {
   const averageSpend = stats?.averageSpend || 0;
   const topCustomerSpend = stats?.topCustomerSpend || 0;
 
+  // Handle tab change with API calls
   const handleTabChange = (key: string) => {
     setLoading(true);
     setActiveTab(key);
+    
+    // Reset to first page when changing tabs
+    setPage(1);
+    
+    // The actual data fetching will be triggered by useEffect
     setTimeout(() => {
       setLoading(false);
     }, 600);
@@ -448,6 +468,14 @@ const Customers: React.FC = () => {
       ),
     },
   ];
+
+  // Update pagination handler
+  const handlePaginationChange = (newPage: number, newPageSize?: number) => {
+    setPage(newPage);
+    if (newPageSize) {
+      setLimit(newPageSize);
+    }
+  };
 
   return (
     <DashboardNavigation>
@@ -615,10 +643,13 @@ const Customers: React.FC = () => {
                 dataSource={filteredData}
                 loading={loading}
                 pagination={{
-                  pageSize: 5,
-                  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} customers`,
+                  current: page,
+                  pageSize: limit,
+                  total: pagination.total,
+                  onChange: handlePaginationChange,
                   showSizeChanger: true,
                   pageSizeOptions: ['5', '10', '20'],
+                  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} customers`,
                 }}
                 rowSelection={{
                   onChange: (selectedRowKeys) => {
