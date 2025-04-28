@@ -32,3 +32,23 @@ export const createCustomer = async (customerData: Customer): Promise<Customer> 
     throw error;
   }
 };
+
+
+
+export const getCustomers = async (): Promise<Customer[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/customers`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    throw error;
+  }
+}

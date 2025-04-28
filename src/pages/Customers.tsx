@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
 import {
@@ -14,9 +14,10 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import '../style/Customers.css';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addCustomer } from '../redux/customerSlice';
-import { AppDispatch } from '../redux/store';
+import { AppDispatch, RootState } from '../redux/store';
+import { fetchCustomerStats } from '../redux/customerCardSlice';
 
 const { Content } = Layout;
 const { Text } = Typography;
@@ -235,6 +236,7 @@ const AddCustomerModal: React.FC<{
 const Customers: React.FC = () => {
   // Moved useDispatch inside the component
   const dispatch = useDispatch<AppDispatch>();
+  const { stats, loading: statsLoading } = useSelector((state: RootState) => state.customerCard);
 
   const [activeTab, setActiveTab] = useState('1');
   const [searchTerm, setSearchTerm] = useState('');
@@ -242,6 +244,11 @@ const Customers: React.FC = () => {
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch customer statistics when component mounts
+  useEffect(() => {
+    dispatch(fetchCustomerStats());
+  }, [dispatch]);
 
   // Customer data
   const allCustomersData: CustomerData[] = [
@@ -271,84 +278,7 @@ const Customers: React.FC = () => {
       lastPurchase: '2024-03-05',
       status: 'active'
     },
-    {
-      key: '3',
-      name: 'Liam Smith',
-      phone: '555-666-7777',
-      package: 'Platinum',
-      address: '789 Broadway, Town',
-      buy: 3200.0,
-      email: 'liam@example.com',
-      avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-      joinDate: '2022-08-12',
-      lastPurchase: '2024-03-10',
-      status: 'active'
-    },
-    {
-      key: '4',
-      name: 'Emma Johnson',
-      phone: '111-222-3333',
-      package: 'Gold',
-      address: '321 Market St, Village',
-      buy: 1580.0,
-      email: 'emma@example.com',
-      avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
-      joinDate: '2023-03-05',
-      lastPurchase: '2024-02-15',
-      status: 'inactive'
-    },
-    {
-      key: '5',
-      name: 'Noah Brown',
-      phone: '444-555-6666',
-      package: 'Silver',
-      address: '654 Center Rd, City',
-      buy: 920.0,
-      email: 'noah@example.com',
-      avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-      joinDate: '2023-05-22',
-      lastPurchase: '2024-01-30',
-      status: 'active'
-    },
-    {
-      key: '6',
-      name: 'Olivia Davis',
-      phone: '777-888-9999',
-      package: 'Basic',
-      address: '987 Oak St, Hometown',
-      buy: 450.0,
-      email: 'olivia@example.com',
-      avatar: 'https://randomuser.me/api/portraits/women/6.jpg',
-      joinDate: '2023-09-15',
-      lastPurchase: '2024-02-10',
-      status: 'active'
-    },
-    {
-      key: '7',
-      name: 'William Miller',
-      phone: '222-333-4444',
-      package: 'Platinum',
-      address: '741 Pine Ave, Suburbia',
-      buy: 4500.0,
-      email: 'william@example.com',
-      avatar: 'https://randomuser.me/api/portraits/men/7.jpg',
-      joinDate: '2022-06-10',
-      lastPurchase: '2024-03-01',
-      status: 'active'
-    },
-    {
-      key: '8',
-      name: 'Sophia Wilson',
-      phone: '555-777-9999',
-      package: 'Basic',
-      address: '852 Maple Rd, Downtown',
-      buy: 320.0,
-      email: 'sophia@example.com',
-      avatar: 'https://randomuser.me/api/portraits/women/8.jpg',
-      joinDate: '2023-11-30',
-      lastPurchase: '2024-01-15',
-      status: 'inactive'
-    },
+
   ];
 
   const styleElement = document.createElement('style');
@@ -390,11 +320,11 @@ const Customers: React.FC = () => {
 
   const filteredData = getFilteredData();
 
-  const totalCustomers = filteredData.length;
-  const totalSpent = filteredData.reduce((sum, customer) => sum + customer.buy, 0);
-  const averageSpend = totalCustomers > 0 ? totalSpent / totalCustomers : 0;
-  const topCustomer = filteredData.length > 0 ? filteredData.reduce((prev, current) =>
-    (prev.buy > current.buy ? prev : current), filteredData[0]) : null;
+  // Get values from Redux store instead of calculating locally
+  const totalCustomers = stats?.totalCustomers || 0;
+  const totalSpent = stats?.totalRevenue || 0;
+  const averageSpend = stats?.averageSpend || 0;
+  const topCustomerSpend = stats?.topCustomerSpend || 0;
 
   const handleTabChange = (key: string) => {
     setLoading(true);
@@ -548,23 +478,14 @@ const Customers: React.FC = () => {
                 <Card bordered={false} className="responsive-card">
                   <Statistic
                     title={<span className="responsive-title">Top Customer Spend</span>}
-                    value={topCustomer ? `$${topCustomer.buy.toFixed(2)}` : "None"}
+                    value={topCustomerSpend}
                     valueStyle={{ fontSize: 24 }}
                     valueRender={() => (
-                      <div>
-                        {topCustomer ? (
-                          <ResponsiveText
-                            text={`$${topCustomer.buy.toFixed(2)}`}
-                            color="#3f8600"
-                            className="top-customer-spend"
-                          />
-                        ) : (
-                          <ResponsiveText
-                            text="None"
-                            color="#9C7456"
-                          />
-                        )}
-                      </div>
+                      <ResponsiveText
+                        text={`$${topCustomerSpend.toFixed(2)}`}
+                        color="#3f8600"
+                        className="top-customer-spend"
+                      />
                     )}
                   />
                 </Card>
