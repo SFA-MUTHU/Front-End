@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardNavigation from '../components/DashboardNavigation';
 import {
   Layout, Button, Input, Table, Row, Col, Dropdown, Menu, Card,
-  Statistic, Space, message, Modal, Form, Typography, Upload
+  Statistic, Space, message, Modal, Form, Typography, Upload, Select
 } from 'antd';
-import { 
-  EllipsisOutlined, UserOutlined, MailOutlined, PhoneOutlined, DollarOutlined, 
-  StarOutlined, PlusOutlined, EditOutlined, 
+import {
+  EllipsisOutlined, UserOutlined, MailOutlined, PhoneOutlined, DollarOutlined,
+  StarOutlined, PlusOutlined, EditOutlined,
   DeleteOutlined, CalculatorOutlined, HomeOutlined,
   UploadOutlined
 } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../style/Customers.css';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { addCustomer } from '../redux/customerSlice';
+import { AppDispatch, RootState } from '../redux/store';
+import { fetchCustomerStats } from '../redux/customerCardSlice';
 
 const { Content } = Layout;
 const { Text } = Typography;
@@ -116,7 +121,7 @@ const AddCustomerModal: React.FC<{
         <Form.Item
           name="profileImage"
           label="Profile Image"
-          rules={[{ required: true, message: 'Please upload a profile image!' }]}
+          rules={[{ required: false, message: 'Please upload a profile image!' }]}
         >
           <Upload
             name="profileImage"
@@ -159,7 +164,7 @@ const AddCustomerModal: React.FC<{
           label="Customer Name"
           rules={[{ required: true, message: 'Please enter customer name!' }]}
         >
-          <Input 
+          <Input
             placeholder="Enter customer name"
             prefix={<UserOutlined style={{ color: colors.primary }} />}
             style={{ borderRadius: 8 }}
@@ -174,7 +179,7 @@ const AddCustomerModal: React.FC<{
             { type: 'email', message: 'Please enter a valid email!' }
           ]}
         >
-          <Input 
+          <Input
             placeholder="Enter customer email"
             prefix={<MailOutlined style={{ color: colors.primary }} />}
             style={{ borderRadius: 8 }}
@@ -186,7 +191,7 @@ const AddCustomerModal: React.FC<{
           label="Phone Number"
           rules={[{ required: true, message: 'Please enter phone number!' }]}
         >
-          <Input 
+          <Input
             placeholder="Enter customer phone number"
             prefix={<PhoneOutlined style={{ color: colors.primary }} />}
             style={{ borderRadius: 8 }}
@@ -194,26 +199,30 @@ const AddCustomerModal: React.FC<{
         </Form.Item>
 
         <Form.Item
-          name="address"
-          label="Address"
-          rules={[{ required: true, message: 'Please enter address!' }]}
+          name="paymentMethod"
+          label="Payment Method"
+          rules={[{ required: true, message: 'Please enter payment Method!' }]}
         >
-          <Input 
-            placeholder="Enter customer address"
-            prefix={<HomeOutlined style={{ color: colors.primary }} />}
+          <Select
+            placeholder="Select payment method"
             style={{ borderRadius: 8 }}
-          />
+            dropdownStyle={{ borderRadius: 8 }}
+          >
+            <Select.Option value="cash">Cash</Select.Option>
+            <Select.Option value="card">Card</Select.Option>
+            <Select.Option value="cheque">Cheque</Select.Option>
+          </Select>
         </Form.Item>
 
         <Button
           type="primary"
           htmlType="submit"
-          style={{ 
-            width: '100%', 
-            height: 40, 
-            borderRadius: 8, 
+          style={{
+            width: '100%',
+            height: 40,
+            borderRadius: 8,
             backgroundColor: colors.primary,
-            borderColor: colors.primary 
+            borderColor: colors.primary
           }}
           onClick={handleOk}
         >
@@ -225,6 +234,10 @@ const AddCustomerModal: React.FC<{
 };
 
 const Customers: React.FC = () => {
+  // Moved useDispatch inside the component
+  const dispatch = useDispatch<AppDispatch>();
+  const { stats, loading: statsLoading } = useSelector((state: RootState) => state.customerCard);
+
   const [activeTab, setActiveTab] = useState('1');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -232,14 +245,19 @@ const Customers: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
 
+  // Fetch customer statistics when component mounts
+  useEffect(() => {
+    dispatch(fetchCustomerStats());
+  }, [dispatch]);
+
   // Customer data
   const allCustomersData: CustomerData[] = [
-    { 
-      key: '1', 
-      name: 'James Wilson', 
-      phone: '123-456-7890', 
-      package: 'Gold', 
-      address: '123 Main St, City', 
+    {
+      key: '1',
+      name: 'James Wilson',
+      phone: '123-456-7890',
+      package: 'Gold',
+      address: '123 Main St, City',
       buy: 1250.0,
       email: 'james@example.com',
       avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
@@ -247,12 +265,12 @@ const Customers: React.FC = () => {
       lastPurchase: '2024-02-28',
       status: 'active'
     },
-    { 
-      key: '2', 
-      name: 'Ava Harris', 
-      phone: '987-654-3210', 
-      package: 'Silver', 
-      address: '456 Park Ave, Metropolis', 
+    {
+      key: '2',
+      name: 'Ava Harris',
+      phone: '987-654-3210',
+      package: 'Silver',
+      address: '456 Park Ave, Metropolis',
       buy: 845.0,
       email: 'ava@example.com',
       avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
@@ -260,113 +278,35 @@ const Customers: React.FC = () => {
       lastPurchase: '2024-03-05',
       status: 'active'
     },
-    { 
-      key: '3', 
-      name: 'Liam Smith', 
-      phone: '555-666-7777', 
-      package: 'Platinum', 
-      address: '789 Broadway, Town', 
-      buy: 3200.0,
-      email: 'liam@example.com',
-      avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-      joinDate: '2022-08-12',
-      lastPurchase: '2024-03-10',
-      status: 'active'
-    },
-    { 
-      key: '4', 
-      name: 'Emma Johnson', 
-      phone: '111-222-3333', 
-      package: 'Gold', 
-      address: '321 Market St, Village', 
-      buy: 1580.0,
-      email: 'emma@example.com',
-      avatar: 'https://randomuser.me/api/portraits/women/4.jpg',
-      joinDate: '2023-03-05',
-      lastPurchase: '2024-02-15',
-      status: 'inactive'
-    },
-    { 
-      key: '5', 
-      name: 'Noah Brown', 
-      phone: '444-555-6666', 
-      package: 'Silver', 
-      address: '654 Center Rd, City', 
-      buy: 920.0,
-      email: 'noah@example.com',
-      avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-      joinDate: '2023-05-22',
-      lastPurchase: '2024-01-30',
-      status: 'active'
-    },
-    { 
-      key: '6', 
-      name: 'Olivia Davis', 
-      phone: '777-888-9999', 
-      package: 'Basic', 
-      address: '987 Oak St, Hometown', 
-      buy: 450.0,
-      email: 'olivia@example.com',
-      avatar: 'https://randomuser.me/api/portraits/women/6.jpg',
-      joinDate: '2023-09-15',
-      lastPurchase: '2024-02-10',
-      status: 'active'
-    },
-    { 
-      key: '7', 
-      name: 'William Miller', 
-      phone: '222-333-4444', 
-      package: 'Platinum', 
-      address: '741 Pine Ave, Suburbia', 
-      buy: 4500.0,
-      email: 'william@example.com',
-      avatar: 'https://randomuser.me/api/portraits/men/7.jpg',
-      joinDate: '2022-06-10',
-      lastPurchase: '2024-03-01',
-      status: 'active'
-    },
-    { 
-      key: '8', 
-      name: 'Sophia Wilson', 
-      phone: '555-777-9999', 
-      package: 'Basic', 
-      address: '852 Maple Rd, Downtown', 
-      buy: 320.0,
-      email: 'sophia@example.com',
-      avatar: 'https://randomuser.me/api/portraits/women/8.jpg',
-      joinDate: '2023-11-30',
-      lastPurchase: '2024-01-15',
-      status: 'inactive'
-    },
+
   ];
- 
-const styleElement = document.createElement('style');
-const css = `
-  :where(.css-dev-only-do-not-override-240cud).ant-pagination .ant-pagination-item-active {
-    font-weight: 600;
-    background-color: #ffffff;
-    border-color: #A67B5B;
-}
+
+  const styleElement = document.createElement('style');
+  const css = `
+    :where(.css-dev-only-do-not-override-240cud).ant-pagination .ant-pagination-item-active {
+      font-weight: 600;
+      background-color: #ffffff;
+      border-color: #A67B5B;
+    }
     :where(.css-dev-only-do-not-override-240cud).ant-pagination .ant-pagination-item-active a {
       color:#A67B5B;
-  
-  }
-`;
-styleElement.textContent = css;
-document.head.appendChild(styleElement);
+    }
+  `;
+  styleElement.textContent = css;
+  document.head.appendChild(styleElement);
 
   const getFilteredData = () => {
     let filteredByPackage: CustomerData[] = allCustomersData;
-    
+
     if (activeTab === '2') {
       filteredByPackage = allCustomersData.filter(customer => customer.package === 'Basic');
     } else if (activeTab === '3') {
       filteredByPackage = allCustomersData.filter(customer => customer.package === 'Platinum');
     } else if (activeTab === '4') {
-      filteredByPackage = allCustomersData.filter(customer => 
+      filteredByPackage = allCustomersData.filter(customer =>
         customer.package === 'Gold' || customer.package === 'Silver');
     }
-    
+
     if (searchTerm) {
       return filteredByPackage.filter(customer =>
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -374,17 +314,17 @@ document.head.appendChild(styleElement);
         customer.address.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     return filteredByPackage;
   };
 
   const filteredData = getFilteredData();
-  
-  const totalCustomers = filteredData.length;
-  const totalSpent = filteredData.reduce((sum, customer) => sum + customer.buy, 0);
-  const averageSpend = totalCustomers > 0 ? totalSpent / totalCustomers : 0;
-  const topCustomer = filteredData.length > 0 ? filteredData.reduce((prev, current) => 
-    (prev.buy > current.buy ? prev : current), filteredData[0]) : null;
+
+  // Get values from Redux store instead of calculating locally
+  const totalCustomers = stats?.totalCustomers || 0;
+  const totalSpent = stats?.totalRevenue || 0;
+  const averageSpend = stats?.averageSpend || 0;
+  const topCustomerSpend = stats?.topCustomerSpend || 0;
 
   const handleTabChange = (key: string) => {
     setLoading(true);
@@ -426,13 +366,27 @@ document.head.appendChild(styleElement);
   };
 
   const handleAddCustomer = (values: any) => {
-    console.log('New Customer:', values);
-    message.success(`Customer ${values.customerName} added successfully`);
-    setModalVisible(false);
+    const customerData = {
+      name: values.customerName,
+      email: values.email,
+      phone: values.phoneNumber,
+      customer_group_id: 1, // Set appropriate default or add to form
+      payment_method: values.paymentMethod.toUpperCase()
+    };
+
+    dispatch(addCustomer(customerData))
+      .unwrap()
+      .then(() => {
+        message.success(`Customer ${values.customerName} added successfully`);
+        setModalVisible(false);
+      })
+      .catch((error) => {
+        message.error(`Failed to add customer: ${error}`);
+      });
   };
 
   const columns = [
-    { 
+    {
       title: 'Customer',
       key: 'customer',
       render: (record: CustomerData) => (
@@ -443,7 +397,7 @@ document.head.appendChild(styleElement);
       ),
       sorter: (a: CustomerData, b: CustomerData) => a.name.localeCompare(b.name),
     },
-    { 
+    {
       title: 'Contact',
       key: 'contact',
       render: (record: CustomerData) => (
@@ -459,24 +413,24 @@ document.head.appendChild(styleElement);
         </Space>
       ),
     },
-    { 
-      title: 'Joined', 
-      dataIndex: 'joinDate', 
+    {
+      title: 'Joined',
+      dataIndex: 'joinDate',
       key: 'joinDate',
-      sorter: (a: CustomerData, b: CustomerData) => 
+      sorter: (a: CustomerData, b: CustomerData) =>
         new Date(a.joinDate || '').getTime() - new Date(b.joinDate || '').getTime(),
     },
-    { 
-      title: 'Last Purchase', 
-      dataIndex: 'lastPurchase', 
+    {
+      title: 'Last Purchase',
+      dataIndex: 'lastPurchase',
       key: 'lastPurchase',
-      sorter: (a: CustomerData, b: CustomerData) => 
+      sorter: (a: CustomerData, b: CustomerData) =>
         new Date(a.lastPurchase || '').getTime() - new Date(b.lastPurchase || '').getTime(),
     },
-    { 
-      title: 'Total Spend', 
-      dataIndex: 'buy', 
-      key: 'buy', 
+    {
+      title: 'Total Spend',
+      dataIndex: 'buy',
+      key: 'buy',
       render: (value: number) => (
         <div style={{ fontWeight: 'bold', color: value > 1000 ? '#3f8600' : undefined }}>
           ${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -484,8 +438,8 @@ document.head.appendChild(styleElement);
       ),
       sorter: (a: CustomerData, b: CustomerData) => a.buy - b.buy,
     },
-    { 
-      title: 'Action', 
+    {
+      title: 'Action',
       key: 'action',
       render: (_: any, record: CustomerData) => (
         <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
@@ -524,23 +478,14 @@ document.head.appendChild(styleElement);
                 <Card bordered={false} className="responsive-card">
                   <Statistic
                     title={<span className="responsive-title">Top Customer Spend</span>}
-                    value={topCustomer ? `$${topCustomer.buy.toFixed(2)}` : "None"}
+                    value={topCustomerSpend}
                     valueStyle={{ fontSize: 24 }}
                     valueRender={() => (
-                      <div>
-                        {topCustomer ? (
-                          <ResponsiveText 
-                            text={`$${topCustomer.buy.toFixed(2)}`} 
-                            color="#3f8600" 
-                            className="top-customer-spend"
-                          />
-                        ) : (
-                          <ResponsiveText 
-                            text="None" 
-                            color="#9C7456" 
-                          />
-                        )}
-                      </div>
+                      <ResponsiveText
+                        text={`$${topCustomerSpend.toFixed(2)}`}
+                        color="#3f8600"
+                        className="top-customer-spend"
+                      />
                     )}
                   />
                 </Card>
@@ -577,10 +522,10 @@ document.head.appendChild(styleElement);
           </motion.div>
         </AnimatePresence>
 
-        <Card 
+        <Card
           bordered={false}
-          style={{ 
-            borderRadius: 12, 
+          style={{
+            borderRadius: 12,
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             marginBottom: 24,
             overflow: 'visible'
@@ -623,16 +568,16 @@ document.head.appendChild(styleElement);
           <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }} gutter={[8, 8]}>
             <Col xs={24} sm={12} md={12}>
               <Space size="small" wrap className="responsive-actions">
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   style={{ backgroundColor: '#9C7456', borderColor: '#9C7456' }}
                   onClick={handleMessageClick}
                   icon={<MailOutlined />}
                 >
                   Message {selectedCustomers.length > 0 ? `(${selectedCustomers.length})` : ''}
                 </Button>
-                <Button 
-                  type="dashed" 
+                <Button
+                  type="dashed"
                   icon={<PlusOutlined />}
                   onClick={() => setModalVisible(true)}
                   style={{ borderRadius: 8 }}
@@ -642,8 +587,8 @@ document.head.appendChild(styleElement);
               </Space>
             </Col>
             <Col xs={24} sm={12} md={12} style={{ textAlign: 'right', maxWidth:'350px' }}>
-              <Input.Search 
-                placeholder="Search customers..." 
+              <Input.Search
+                placeholder="Search customers..."
                 className="responsive-search"
                 allowClear
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -665,11 +610,11 @@ document.head.appendChild(styleElement);
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <Table 
-                columns={columns} 
-                dataSource={filteredData} 
+              <Table
+                columns={columns}
+                dataSource={filteredData}
                 loading={loading}
-                pagination={{ 
+                pagination={{
                   pageSize: 5,
                   showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} customers`,
                   showSizeChanger: true,
@@ -693,4 +638,3 @@ document.head.appendChild(styleElement);
 };
 
 export default Customers;
-

@@ -46,4 +46,5 @@ const employeeSlice = createSlice({
   },
 });
 
+
 export default employeeSlice.reducer;
