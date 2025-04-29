@@ -8,7 +8,7 @@ import "../style/status.css";
 
 import { useDispatch, useSelector } from 'react-redux';
 import { getEmployees } from '../redux/employeeSlice';
-import { RootState } from '../redux/store';
+import { RootState,AppDispatch } from '../redux/store';
 import { Employee } from '../services/employeeService';
 
 // Register ChartJS components
@@ -64,7 +64,7 @@ interface AttendanceRecord {
 }
 
 const Employees: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { employees, loading, error } = useSelector((state: RootState) => state.employees);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,7 +76,6 @@ const Employees: React.FC = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<ExtendedEmployee | null>(null);
   const [periodFilter, setPeriodFilter] = useState('This Month');
   const [showAttendanceView, setShowAttendanceView] = useState(false);
-  const [attendanceFilter, setAttendanceFilter] = useState('All');
   const [selectedTaskEmployee, setSelectedTaskEmployee] = useState<string>('All');
 
   const periods = ['Today', 'This Week', 'This Month', 'This Year'];
