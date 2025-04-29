@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE_URL, getAuthHeaders } from './apiConfig';
+import { API_BASE_URL } from './apiConfig';
 
 export interface LoginRequest {
   email: string;

@@ -1,6 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { login, logout, LoginRequest } from '../services/loginService';
 
+// Define interface for state
+interface AuthState {
+  user: any | null;
+  token: string | null;
+  isLoggedIn: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
 // Create the login thunk
 export const loginUser = createAsyncThunk(
   'auth/login',
@@ -25,10 +34,10 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
-// Define the initial state
-const initialState = {
+// Define the initial state with explicit typing
+const initialState: AuthState = {
   user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') as string) : null,
-  token: localStorage.getItem('token'),
+  token: localStorage.getItem('token') || null,
   isLoggedIn: !!localStorage.getItem('token'),
   isLoading: false,
   error: null
@@ -53,11 +62,11 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isLoggedIn = true;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.token || null; // Handle potential undefined
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        state.error = action.payload as string || null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.isLoggedIn = false;
