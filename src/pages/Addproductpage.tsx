@@ -370,8 +370,8 @@ const subCategoryOptions: Record<string, string[]> = {
                     style={{ width: '100%', borderRadius: '8px' }}
                     formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     parser={value => {
-                      const parsed = parseFloat(value?.replace(/\$\s?|(,*)/g, '') || 0);
-                      return isNaN(parsed) ? 0 : parsed;
+                      const parsed = parseFloat(value?.replace(/\$\s?|(,*)/g, '') || '0');
+                      return (isNaN(parsed) ? 0 : parsed) as 0;
                     }}
                     min={0}
                   />
