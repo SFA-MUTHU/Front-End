@@ -47,7 +47,7 @@ interface ExtendedEmployee {
   avatar?: string;
   employeeId?: string;
   location?: string;
-  totalSales?: number;
+  totalSales?: number | string;
   monthlySales?: MonthlySale[];
   taskCompletion?: number[];
   email?: string;
@@ -317,7 +317,7 @@ const Employees: React.FC = () => {
                     </Text>
                   </div>
                 </div>
-                <div>${item.amount.toFixed(2)}</div>
+                <div>${item.amount}</div>
               </div>
             ))}
           </div>
@@ -504,32 +504,6 @@ const Employees: React.FC = () => {
       ]
     };
 
-    // Get attendance records for the selected employee, or use empty array if none exist
-    const attendanceData = attendanceDataByEmployee[selectedEmployee.id] || [];
-
-    // Helper function to get color based on status
-    const getStatusStyle = (status: string) => {
-      switch (status) {
-        case 'Work from office':
-          return { backgroundColor: colors.green + '40', color: colors.green };
-        case 'Absent':
-          return { backgroundColor: colors.red + '40', color: colors.red };
-        case 'Late arrival':
-          return { backgroundColor: '#FEFCE8', color: '#854D0E' };
-        case 'Half day leave':
-          return { backgroundColor: '#F3F4F6', color: '#4B5563' };
-        default:
-          return {};
-      }
-    };
-
-    // Helper function to get text color based on status
-    const getTimeColor = (status: string) => {
-      if (status === 'Absent') return { color: colors.red };
-      if (status === 'Late arrival') return { color: '#854D0E' };
-      return { color: colors.green };
-    };
-
     return (
       <Card
         title={
@@ -699,7 +673,7 @@ const Employees: React.FC = () => {
                             <Select.Option value="All">All</Select.Option>
                             {employees.map(emp => (
                               <Select.Option key={emp.id} value={emp.id}>
-                                {emp.name}
+                                {emp.first_name + ' ' + emp.last_name}
                               </Select.Option>
                             ))}
                           </Select>
@@ -913,7 +887,7 @@ const Employees: React.FC = () => {
                 <Select.Option value="all">All Employees</Select.Option>
                 {employees.map(emp => (
                   <Select.Option key={emp.id} value={emp.id}>
-                    {emp.name}
+                    {emp.first_name + ' ' + emp.last_name}
                   </Select.Option>
                 ))}
               </Select>
