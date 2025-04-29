@@ -326,7 +326,7 @@ const Suppliers: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (text: any, record: any, index: number) => (
+      render: ( record: any) => (
         <Button
           icon={<EyeOutlined />}
           type="text"
