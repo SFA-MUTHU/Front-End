@@ -324,12 +324,14 @@ const subCategoryOptions: Record<string, string[]> = {
                 >
 
                   <InputNumber
-
                     placeholder="0.00"
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
                     formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
+                    parser={value => {
+                      const parsed = parseFloat(value?.replace(/\$\s?|(,*)/g, '') || '0');
+                      return (isNaN(parsed) ? 0 : parsed) as 0;
+                    }}
                     min={0}
                   />
                 </Form.Item>
@@ -346,7 +348,10 @@ const subCategoryOptions: Record<string, string[]> = {
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
                     formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
+                    parser={value => {
+                      const parsed = parseFloat(value?.replace(/\$\s?|(,*)/g, '') || '0');
+                      return (isNaN(parsed) ? 0 : parsed) as 0;
+                    }}
                     min={0}
                   />
                 </Form.Item>
@@ -365,7 +370,10 @@ const subCategoryOptions: Record<string, string[]> = {
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
                     formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={value => parseFloat(value!.replace(/\$\s?|(,*)/g, '') || '0')}
+                    parser={value => {
+                      const parsed = parseFloat(value?.replace(/\$\s?|(,*)/g, '') || '0');
+                      return (isNaN(parsed) ? 0 : parsed) as 0;
+                    }}
                     min={0}
                   />
                 </Form.Item>
