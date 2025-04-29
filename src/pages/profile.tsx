@@ -3,13 +3,13 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, Avatar, Typography, Row, Col, Descriptions, Spin, Alert } from 'antd';
 import DashboardNavigation from '../components/DashboardNavigation';
-import { getUserProfile } from '../redux/userSlice';
-import { RootState } from '../redux/store';
+import { getUserProfile,  } from '../redux/userSlice';
+import { RootState, AppDispatch } from '../redux/store';
 
 const { Title, Text } = Typography;
 
 const UserProfile: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { profile, loading, error } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
