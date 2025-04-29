@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Modal, Button, Form } from 'antd';
+import { Modal, Button } from 'antd';
 
 interface BankAccountDetails {
   accountNumber: string;
