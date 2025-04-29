@@ -5,6 +5,12 @@ import DashboardNavigation from '../components/DashboardNavigation';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import { motion } from 'framer-motion';
 import '../style/main.scss';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../redux/store';
+import { createProduct, fetchCategories, fetchProductById, updateProductThunk } from '../redux/productSlice';
+import { fetchSuppliers } from '../redux/supplierSlice';
+import { useLocation } from 'react-router-dom';
+import { uploadProductImage } from '../services/productService';
 
 const { Option } = Select;
 const { Title, Text, Paragraph } = Typography;
@@ -37,6 +43,22 @@ const colors = {
 };
 
 const AddProductPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const editMode = queryParams.get('edit');
+  const editId = editMode ? parseInt(editMode) : null;
+  
+  const { 
+    categories, 
+    loading: productLoading, 
+    error: productError,
+    currentProduct,
+    success
+  } = useSelector((state: RootState) => state.products);
+  
+  const { suppliers, loading: supplierLoading } = useSelector((state: RootState) => state.suppliers);
+
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -47,7 +69,51 @@ const AddProductPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>('active'); // Add this line
 
   const [selectedCategory, setSelectedCategory] = useState<string>(''); // Add this for tracking selected category
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  
+  // Fetch product details in edit mode
+  useEffect(() => {
+    if (editId) {
+      dispatch(fetchProductById(editId));
+    }
+  }, [dispatch, editId]);
 
+  // Populate form fields when editing a product
+  useEffect(() => {
+    if (editMode && currentProduct) {
+      form.setFieldsValue({
+        category: currentProduct.category_id.toString(),
+        subCategory: currentProduct.sub_category,
+        productName: currentProduct.name,
+        price: currentProduct.price,
+        costPrice: currentProduct.cost_price,
+        discount: currentProduct.discount,
+        stock: currentProduct.stock,
+        status: currentProduct.status,
+        supplierName: currentProduct.supplier_id?.toString(),
+        description: currentProduct.description,
+      });
+      
+      setSelectedCategory(currentProduct.category_id.toString());
+      setSelectedStatus(currentProduct.status);
+      setProductData({
+        category: currentProduct.category_id.toString(),
+        subCategory: currentProduct.sub_category,
+        productName: currentProduct.name,
+        price: currentProduct.price,
+        costPrice: currentProduct.cost_price,
+        discount: currentProduct.discount,
+        stock: currentProduct.stock,
+        status: currentProduct.status,
+        supplierName: currentProduct.supplier_id?.toString(),
+        description: currentProduct.description,
+      });
+      
+      if (currentProduct.image_url) {
+        setUploadedImageUrl(currentProduct.image_url);
+      }
+    }
+  }, [editMode, currentProduct, form]);
 
   // Check for mobile view
   useEffect(() => {
@@ -59,6 +125,12 @@ const AddProductPage: React.FC = () => {
     window.addEventListener('resize', checkMobileView);
     return () => window.removeEventListener('resize', checkMobileView);
   }, []);
+
+  // Fetch categories and suppliers when component mounts
+  useEffect(() => {
+    dispatch(fetchCategories());
+    dispatch(fetchSuppliers());
+  }, [dispatch]);
 
   // Animation variants for transitions
   const pageVariants = {
@@ -170,12 +242,52 @@ const AddProductPage: React.FC = () => {
   const onFinish = async () => {
     try {
       const values = await form.validateFields();
-      setProductData(values); // Update product data with final values
-      console.log('Success:', values);
+      
+      // Transform form values to match API format
+      const productData = {
+        name: values.productName,
+        category_id: parseInt(values.category),
+        sub_category: values.subCategory,
+        description: values.description,
+        price: parseFloat(values.price),
+        cost_price: parseFloat(values.costPrice),
+        discount: parseFloat(values.discount) || 0,
+        stock: parseInt(values.stock),
+        status: values.status,
+        supplier_id: parseInt(values.supplierName),
+      };
+      
+      let productId;
+      
+      if (editMode && editId) {
+        // Update existing product
+        await dispatch(updateProductThunk({ 
+          id: editId, 
+          data: productData 
+        })).unwrap();
+        productId = editId;
+      } else {
+        // Create new product
+        const result = await dispatch(createProduct(productData)).unwrap();
+        productId = result.id;
+      }
+      
+      // Handle image upload if present
+      if (values.productImage && values.productImage[0]?.originFileObj && productId) {
+        try {
+          await uploadProductImage(productId, values.productImage[0].originFileObj);
+        } catch (error) {
+          console.error('Image upload failed but product was saved:', error);
+          message.warning('Product saved but image upload failed.');
+        }
+      }
+      
+      setLoading(false);
       setIsSubmitted(true);
-      message.success('Product added successfully!');
+      message.success(`Product ${editMode ? 'updated' : 'added'} successfully!`);
     } catch (error) {
       console.log('Validation failed:', error);
+      message.error(`Failed to ${editMode ? 'update' : 'add'} product. Please check your inputs.`);
     }
   };
 
@@ -255,13 +367,10 @@ const subCategoryOptions: Record<string, string[]> = {
                 style={{ width: '100%', borderRadius: '8px' }}
 
                 onChange={(value) => setSelectedCategory(value)}
+                loading={productLoading}
 
               >
-                <Option value="electronics">Electronics</Option>
-                <Option value="fashion">Fashion</Option>
-                <Option value="home">Home</Option>
-                <Option value="beauty">Beauty</Option>
-                <Option value="sports">Sports</Option>
+                {renderCategories()}
               </Select>
             </Form.Item>
 
@@ -377,14 +486,17 @@ const subCategoryOptions: Record<string, string[]> = {
               <Col xs={24} sm={24} md={12}>
                 <Form.Item
                   name="supplierName"
-                  label={<Text strong>Supplier Name</Text>}
-                  rules={[{ required: true, message: 'Please enter the supplier name!' }]}
+                  label={<Text strong>Supplier</Text>}
+                  rules={[{ required: true, message: 'Please select a supplier!' }]}
                 >
-                  <Input
-                    placeholder="Enter supplier name"
+                  <Select
+                    placeholder="Select supplier"
                     size={inputSize}
                     style={{ width: '100%', borderRadius: '8px' }}
-                  />
+                    loading={supplierLoading}
+                  >
+                    {renderSuppliers()}
+                  </Select>
                 </Form.Item>
               </Col>
 
@@ -611,15 +723,15 @@ const subCategoryOptions: Record<string, string[]> = {
           <Col xs={24} sm={20} md={16} lg={12}>
             <Result
               status="success"
-              title="Product Added Successfully!"
-              subTitle="Your product has been added to the inventory and is now available."
+              title={`Product ${editMode ? 'Updated' : 'Added'} Successfully!`}
+              subTitle={`Your product has been ${editMode ? 'updated' : 'added to the inventory'} and is now available.`}
               extra={[
                 <Button
                   type="primary"
                   key="inventory"
                   size={isMobile ? 'middle' : 'large'}
                   style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
-                  onClick={() => window.location.href = '/products'}
+                  onClick={() => navigate('/products')}
                 >
                   Go to Products
                 </Button>,
@@ -630,9 +742,14 @@ const subCategoryOptions: Record<string, string[]> = {
                     setIsSubmitted(false);
                     form.resetFields();
                     setCurrentStep(0);
+                    
+                    // Clear edit mode if we were editing
+                    if (editMode) {
+                      navigate('/addproductpage');
+                    }
                   }}
                 >
-                  Add Another Product
+                  {editMode ? 'Add New Product' : 'Add Another Product'}
                 </Button>,
               ]}
             />

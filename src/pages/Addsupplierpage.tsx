@@ -1,6 +1,7 @@
 import { useState } from 'react';
-
-import { Modal, Button, Form } from 'antd';
+import { Modal, Button, Form, Upload, message } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import type { RcFile, UploadFile } from 'antd/es/upload/interface';
 
 interface BankAccountDetails {
   accountNumber: string;
@@ -9,15 +10,13 @@ interface BankAccountDetails {
   accountType: string;
 }
 
-
 interface SupplierFormData {
   supplierID: string;
   supplierName: string;
   telephone: string;
   address: string;
-
   bankAccount?: BankAccountDetails;
-
+  logo?: string;
 }
 
 interface AddSupplierPageProps {
@@ -41,6 +40,7 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
     branch: '',
     accountType: '',
   });
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,6 +56,19 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
     if (showBankForm) {
       dataToSubmit.bankAccount = bankFormData;
     }
+    
+    // Add any files uploaded
+    if (fileList.length > 0) {
+      // In a real app, you'd upload the file to your server/storage
+      // and set the URL to the logo field
+      // For now, we're just demonstrating how to access the file
+      const file = fileList[0];
+      console.log("File to upload:", file);
+      
+      // Mock logo URL for demonstration
+      dataToSubmit.logo = URL.createObjectURL(file.originFileObj as Blob);
+    }
+    
     onSubmit(dataToSubmit);
     
     // Reset form
@@ -73,6 +86,7 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
       branch: '',
       accountType: '',
     });
+    setFileList([]);
     setShowBankForm(false);
   };
 
@@ -86,6 +100,38 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
 
   const toggleBankForm = () => {
     setShowBankForm(!showBankForm);
+  };
+
+  // Handle file upload
+  const handleFileChange = (info: any) => {
+    let newFileList = [...info.fileList];
+    // Limit to 1 file
+    newFileList = newFileList.slice(-1);
+    
+    // Check file type and size
+    newFileList = newFileList.map(file => {
+      if (file.response) {
+        file.url = file.response.url;
+      }
+      return file;
+    });
+    
+    setFileList(newFileList);
+  };
+
+  // Before upload handler to validate files
+  const beforeUpload = (file: RcFile) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('You can only upload JPG/PNG files!');
+      return false;
+    }
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('Image must be smaller than 2MB!');
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -103,23 +149,30 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
     >
       <div className="p-6 bg-white">
         {/* Photo Upload Area */}
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 mb-6 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-400 mb-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <p className="text-gray-500 m-0">Add Photo</p>
-        </div>
-
+        <Upload
+          listType="picture-card"
+          fileList={fileList}
+          onChange={handleFileChange}
+          beforeUpload={beforeUpload}
+          maxCount={1}
+        >
+          {fileList.length < 1 && (
+            <div className="ant-upload-text">
+              <UploadOutlined style={{ fontSize: 24, color: '#b08968' }} />
+              <p className="text-gray-500 m-0">Add Photo</p>
+            </div>
+          )}
+        </Upload>
+        
         {/* Photo Buttons */}
         <div className="flex flex-wrap gap-4 justify-center mb-6">
-          <Button style={{ backgroundColor: '#b08968', color: 'white' }}>Profile Image</Button>
-          <Button>Remove</Button>
+          <Button 
+            style={{ backgroundColor: '#b08968', color: 'white' }}
+            disabled={fileList.length === 0}
+          >
+            Profile Image
+          </Button>
+          <Button onClick={() => setFileList([])}>Remove</Button>
         </div>
 
         {/* Form */}

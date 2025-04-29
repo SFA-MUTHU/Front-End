@@ -1,20 +1,28 @@
 // src/redux/store.ts
 import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './userSlice';
-import employeeReducer from './employeeSlice';
 import customerReducer from './customerSlice';
 import customerCardReducer from './customerCardSlice';
+
+import employeeReducer from './employeeSlice';
+import supplierReducer from './supplierSlice';
+import productReducer from './productSlice';
+
 import authReducer from './loginSlice';
 import signupReducer from './signSlice';
 
+
 export const store = configureStore({
   reducer: {
-    user: userReducer,
-    employees: employeeReducer,
     customers: customerReducer,
     customerCard: customerCardReducer,
+
+    employees: employeeReducer,
+    suppliers: supplierReducer,
+    products: productReducer,
+
     auth: authReducer,
     signup: signupReducer,
+
   },
 });
 
