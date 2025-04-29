@@ -468,6 +468,7 @@ const Customers: React.FC = () => {
                     value={totalCustomers}
                     valueStyle={{ fontSize: 24 }}
                     prefix={<UserOutlined />}
+                    loading={statsLoading}
                     valueRender={() => (
                       <ResponsiveText text={totalCustomers} color="#9C7456" />
                     )}
