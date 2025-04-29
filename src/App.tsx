@@ -14,6 +14,7 @@ import MessagingPage from './pages/MessagingPage'; // Changed from Messaging to 
 import './App.css';
 import Profile from "./pages/profile";
 import AllNotifications from './pages/AllNotifications';
+import Notfound from './pages/404';
 
 const App: React.FC = () => {
   // You would normally check for authentication here
@@ -26,7 +27,8 @@ const App: React.FC = () => {
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        
+        <Route path="/notfound" element={<Notfound />} />
+
         {/* Protected Routes */}
         <Route path="/home" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
         <Route path="/employees" element={isAuthenticated ? <Employees /> : <Navigate to="/login" />} />
@@ -39,8 +41,9 @@ const App: React.FC = () => {
         <Route path="/messaging" element={isAuthenticated ? <MessagingPage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
         <Route path="/all-notifications" element={isAuthenticated ? <AllNotifications /> : <Navigate to="/login" />} />
-        {/* Default Route Redirect */}
-        <Route path="*" element={<Navigate to="/home" />} />
+
+        {/* Default Route for Invalid URLs */}
+        <Route path="*" element={<Notfound />} />
       </Routes>
     </Router>
   );

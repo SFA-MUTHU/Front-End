@@ -222,16 +222,16 @@ const Home: React.FC = () => {
     <DashboardNavigation>
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Profit" value="$498,000" change="24%" period="last month" />
+          <StatCard title="Profit" value="Rs.498,000" change="24%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
+          <StatCard title="Total Return" value="Rs.27,000" change="8%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Supplier Loan" value="$498,000" change="16%" period="last month" />
+          <StatCard title="Supplier Loan" value="Rs.498,000" change="16%" period="last month" />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Top Performance" value="Premium" change="12%" period="last month" />
+          <StatCard title="Top Performance" value="Nikeshala" change="12%" period="last month" />
         </Col>
       </Row>
 
@@ -406,7 +406,7 @@ const Home: React.FC = () => {
                   scales: {
                     y: {
                       beginAtZero: true,
-                      ticks: { callback: value => '$' + value.toLocaleString() },
+                      ticks: { callback: value => 'Rs ' + value.toLocaleString() },
                       grid: { color: 'rgba(0, 0, 0, 0.05)' },
                     },
                     x: { grid: { display: false } },

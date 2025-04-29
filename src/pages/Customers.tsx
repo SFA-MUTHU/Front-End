@@ -482,7 +482,7 @@ const Customers: React.FC = () => {
                     valueStyle={{ fontSize: 24 }}
                     valueRender={() => (
                       <ResponsiveText
-                        text={`$${topCustomerSpend.toFixed(2)}`}
+                        text={`Rs${topCustomerSpend.toFixed(2)}`}
                         color="#3f8600"
                         className="top-customer-spend"
                       />
