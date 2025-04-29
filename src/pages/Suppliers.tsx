@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Row, Col, Button, Table, Tag, Typography, Avatar, Input, Modal, message, Spin } from 'antd';
+
+import { Layout, Row, Col, Button, Table, Tag, Typography, Avatar, Input, Modal } from 'antd';
 import { SearchOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
+
 import DashboardNavigation from '../components/DashboardNavigation';
 import AddSupplierForm from './Addsupplierpage';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../redux/store';
-import { fetchSuppliers, fetchSupplierDetails, createSupplier } from '../redux/supplierSlice';
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -43,11 +42,7 @@ interface InvoiceDetail {
 }
 
 const Suppliers: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { suppliers, loading, error, pagination } = useSelector((state: RootState) => state.suppliers);
-  const { supplierDetails } = useSelector((state: RootState) => state.suppliers);
-
-  const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<string>('Nike');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredSuppliers, setFilteredSuppliers] = useState<Array<{ name: string; logo: string }>>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -55,7 +50,8 @@ const Suppliers: React.FC = () => {
 
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
   const [currentSupplierDetails, setCurrentSupplierDetails] = useState<any>(null);
-  const [invoiceDetails, setInvoiceDetails] = useState<any>(null);
+  const [invoiceDetails, setInvoiceDetails] = useState<InvoiceDetail | null>(null);
+
 
   // Check if mobile on resize and initial load
   useEffect(() => {
@@ -67,130 +63,230 @@ const Suppliers: React.FC = () => {
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
-  // Fetch suppliers when component mounts
-  useEffect(() => {
-    dispatch(fetchSuppliers());
-  }, [dispatch]);
-
-  // Map API response to component's format
-  useEffect(() => {
-    if (suppliers.length > 0) {
-      const mappedSuppliers = suppliers.map(supplier => ({
-        name: supplier.name,
-        logo: supplier.name.charAt(0)
-      }));
-      setFilteredSuppliers(mappedSuppliers);
-      
-      // Select the first supplier by default if none is selected
-      if (!selectedSupplier && mappedSuppliers.length > 0) {
-        setSelectedSupplier(mappedSuppliers[0].name);
-      }
-    }
-  }, [suppliers, selectedSupplier]);
+  // Sample suppliers list with logos
+  const suppliersList = [
+    { name: 'Nike', logo: 'N' },
+    { name: 'Adidas', logo: 'A' },
+    { name: 'Zara', logo: 'Z' },
+    { name: 'H&M', logo: 'H' },
+    { name: "Levi's", logo: 'L' },
+    { name: 'Gucci', logo: 'G' },
+    { name: 'Louis Vuitton', logo: 'LV' },
+    { name: 'Polo', logo: 'P' },
+    { name: 'Versace', logo: 'V' },
+    { name: 'Tommy Hilfiger', logo: 'TH' },
+  ];
 
   // Filter suppliers based on search term
   useEffect(() => {
-    if (suppliers.length > 0) {
-      const filtered = suppliers
-        .filter(supplier => 
-          supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-        .map(supplier => ({
-          name: supplier.name,
-          logo: supplier.name.charAt(0)
-        }));
-      
-      setFilteredSuppliers(filtered);
-    }
-  }, [searchTerm, suppliers]);
+    const filtered = suppliersList.filter((supplier) =>
+      supplier.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredSuppliers(filtered);
+  }, [searchTerm]);
 
-  // Handle supplier click and fetch supplier details
+  // Initialize filtered suppliers
+  useEffect(() => {
+    setFilteredSuppliers(suppliersList);
+  }, []);
+
+  // Generate supplier-specific data
+  const suppliersData: Record<string, SupplierData> = {
+    Nike: {
+      name: 'Nike',
+      data: [
+        { key: '1', billNumber: '#N5267', date: 'Mar 1, 2024', amount: '$100,000', paymentMethod: 'Card', status: 'Success' },
+        { key: '2', billNumber: '#N5268', date: 'Mar 2, 2024', amount: '$85,000', paymentMethod: 'Cash', status: 'In Process' },
+        { key: '3', billNumber: '#N5269', date: 'Mar 3, 2024', amount: '$120,000', paymentMethod: 'Cheque', status: 'Rejected' },
+      ],
+    },
+    Adidas: {
+      name: 'Adidas',
+      data: [
+        { key: '1', billNumber: '#A8721', date: 'Feb 28, 2024', amount: '$95,000', paymentMethod: 'Card', status: 'Success' },
+        { key: '2', billNumber: '#A8722', date: 'Mar 5, 2024', amount: '$78,000', paymentMethod: 'Cash', status: 'Success' },
+        { key: '3', billNumber: '#A8723', date: 'Mar 10, 2024', amount: '$110,000', paymentMethod: 'Cheque', status: 'In Process' },
+      ],
+    },
+    Zara: {
+      name: 'Zara',
+      data: [
+        { key: '1', billNumber: '#Z3421', date: 'Mar 7, 2024', amount: '$65,000', paymentMethod: 'Card', status: 'Success' },
+        { key: '2', billNumber: '#Z3422', date: 'Mar 12, 2024', amount: '$72,000', paymentMethod: 'Cash', status: 'In Process' },
+      ],
+    },
+  };
+
+  suppliersList.forEach((supplier) => {
+    if (!suppliersData[supplier.name]) {
+      suppliersData[supplier.name] = {
+        name: supplier.name,
+        data: [
+          {
+            key: '1',
+            billNumber: `#${supplier.logo}1234`,
+            date: 'Mar 15, 2024',
+            amount: '$80,000',
+            paymentMethod: 'Card',
+            status: 'Success',
+          },
+          {
+            key: '2',
+            billNumber: `#${supplier.logo}1235`,
+            date: 'Mar 16, 2024',
+            amount: '$92,000',
+            paymentMethod: 'Cash',
+            status: 'In Process',
+          },
+        ],
+      };
+    }
+  });
+
+  // Sample invoice details for each supplier and bill number
+  const invoiceDetailsMap: Record<string, InvoiceDetail> = {
+    // Nike invoices
+    "Nike#N5267": {
+      dueDate: "Apr 15, 2024",
+      invoiceDate: "Mar 1, 2024",
+      invoiceNumber: "#N5267",
+      reference: "INV-057",
+      items: [
+        { description: "Nike Air Max", quantity: 500, rate: 120, amount: 60000 },
+        { description: "Nike T-Shirts", quantity: 1000, rate: 40, amount: 40000 }
+      ],
+      subtotal: 100000,
+      discountPercentage: 0,
+      discountAmount: 0,
+      total: 100000,
+      amountPaid: 100000,
+      status: "Success"
+    },
+    "Nike#N5268": {
+      dueDate: "Apr 20, 2024",
+      invoiceDate: "Mar 2, 2024",
+      invoiceNumber: "#N5268",
+      reference: "INV-058",
+      items: [
+        { description: "Nike Jordans", quantity: 300, rate: 150, amount: 45000 },
+        { description: "Nike Socks", quantity: 2000, rate: 20, amount: 40000 }
+      ],
+      subtotal: 85000,
+      discountPercentage: 0,
+      discountAmount: 0,
+      total: 85000,
+      amountPaid: 40000,
+      status: "In Process"
+    },
+    "Nike#N5269": {
+      dueDate: "Apr 25, 2024",
+      invoiceDate: "Mar 3, 2024",
+      invoiceNumber: "#N5269",
+      reference: "INV-059",
+      items: [
+        { description: "Nike Running Shoes", quantity: 600, rate: 100, amount: 60000 },
+        { description: "Nike Sweatshirts", quantity: 400, rate: 150, amount: 60000 }
+      ],
+      subtotal: 120000,
+      discountPercentage: 0,
+      discountAmount: 0,
+      total: 120000,
+      amountPaid: 0,
+      status: "Rejected"
+    },
+    
+    // Adidas invoices
+    "Adidas#A8721": {
+      dueDate: "Apr 10, 2024",
+      invoiceDate: "Feb 28, 2024",
+      invoiceNumber: "#A8721",
+      reference: "INV-060",
+      items: [
+        { description: "Adidas Ultraboost", quantity: 350, rate: 130, amount: 45500 },
+        { description: "Adidas Track Pants", quantity: 700, rate: 70, amount: 49500 }
+      ],
+      subtotal: 95000,
+      discountPercentage: 5,
+      discountAmount: 4750,
+      total: 90250,
+      amountPaid: 90250,
+      status: "Success"
+    },
+    "Adidas#A8722": {
+      dueDate: "Apr 25, 2024",
+      invoiceDate: "Mar 5, 2024",
+      invoiceNumber: "#A8722",
+      reference: "INV-061",
+      items: [
+        { description: "Adidas Stan Smith", quantity: 400, rate: 95, amount: 38000 },
+        { description: "Adidas Hoodies", quantity: 500, rate: 80, amount: 40000 }
+      ],
+      subtotal: 78000,
+      discountPercentage: 0,
+      discountAmount: 0,
+      total: 78000,
+      amountPaid: 78000,
+      status: "Success"
+    },
+    
+    // Zara invoices
+    "Zara#Z3421": {
+      dueDate: "May 1, 2024",
+      invoiceDate: "Mar 7, 2024",
+      invoiceNumber: "#Z3421",
+      reference: "INV-062",
+      items: [
+        { description: "Zara Men's Shirts", quantity: 800, rate: 45, amount: 36000 },
+        { description: "Zara Women's Dresses", quantity: 600, rate: 48.33, amount: 29000 }
+      ],
+      subtotal: 65000,
+      discountPercentage: 10,
+      discountAmount: 6500,
+      total: 58500,
+      amountPaid: 58500,
+      status: "Success"
+    }
+  };
+
+  // Default template for suppliers without specific invoice details
+  const createDefaultInvoice = (supplierName: string, billNumber: string, amount: string, status: string, date: string) => {
+    const numericAmount = parseInt(amount.replace(/\$|,/g, ''));
+    return {
+      dueDate: "Jun 1, 2024",
+      invoiceDate: date,
+      invoiceNumber: billNumber,
+      reference: `REF-${billNumber.substring(1)}`,
+      items: [
+        { description: `${supplierName} Product A`, quantity: Math.floor(numericAmount * 0.6 / 100), rate: 100, amount: numericAmount * 0.6 },
+        { description: `${supplierName} Product B`, quantity: Math.floor(numericAmount * 0.4 / 50), rate: 50, amount: numericAmount * 0.4 }
+      ],
+      subtotal: numericAmount,
+      discountPercentage: 0,
+      discountAmount: 0,
+      total: numericAmount,
+      amountPaid: status === "Success" ? numericAmount : status === "In Process" ? numericAmount * 0.5 : 0,
+      status: status
+    };
+  };
+
   const handleSupplierClick = (supplier: string) => {
     setSelectedSupplier(supplier);
-    
-    // Find the supplier ID to fetch details
-    const selectedSupplierObj = suppliers.find(s => s.name === supplier);
-    if (selectedSupplierObj?.id) {
-      dispatch(fetchSupplierDetails(selectedSupplierObj.id));
-    }
   };
 
   const handleViewDetails = (record: any) => {
     setCurrentSupplierDetails(record);
+    
+    // Get the invoice details for this supplier and bill number
+    const invoiceKey = `${selectedSupplier}${record.billNumber}`;
+    let details = invoiceDetailsMap[invoiceKey];
+    
+    // If no specific details exist, create a default one
+    if (!details) {
+      details = createDefaultInvoice(selectedSupplier, record.billNumber, record.amount, record.status, record.date);
+    }
+    
+    setInvoiceDetails(details);
     setIsDetailsModalVisible(true);
-    
-    // Construct invoice details from the record data
-    // This is a placeholder. Ideally, you would fetch this from an API
-    const invoiceDetail = {
-      dueDate: record.dueDate || "Apr 15, 2024",
-      invoiceDate: record.date,
-      invoiceNumber: record.billNumber,
-      reference: `REF-${record.billNumber.substring(1)}`,
-      items: [
-        { 
-          description: `${selectedSupplier} Product A`, 
-          quantity: Math.floor(parseInt(record.amount.replace(/\$|,/g, '')) * 0.6 / 100), 
-          rate: 100, 
-          amount: parseInt(record.amount.replace(/\$|,/g, '')) * 0.6 
-        },
-        { 
-          description: `${selectedSupplier} Product B`, 
-          quantity: Math.floor(parseInt(record.amount.replace(/\$|,/g, '')) * 0.4 / 50), 
-          rate: 50, 
-          amount: parseInt(record.amount.replace(/\$|,/g, '')) * 0.4 
-        }
-      ],
-      subtotal: parseInt(record.amount.replace(/\$|,/g, '')),
-      discountPercentage: 0,
-      discountAmount: 0,
-      total: parseInt(record.amount.replace(/\$|,/g, '')),
-      amountPaid: record.status === 'Success' 
-        ? parseInt(record.amount.replace(/\$|,/g, '')) 
-        : record.status === 'In Process' 
-          ? parseInt(record.amount.replace(/\$|,/g, '')) * 0.5 
-          : 0,
-      status: record.status
-    };
-    
-    setInvoiceDetails(invoiceDetail);
-  };
-
-  // Generate supplier-specific data based on API data
-  const generateSupplierData = (supplierName: string) => {
-    // This is mock data, in a real app this would come from API
-    const mockData = [
-      { key: '1', billNumber: '#N5267', date: 'Mar 1, 2024', amount: '$100,000', paymentMethod: 'Card', status: 'Success' },
-      { key: '2', billNumber: '#N5268', date: 'Mar 2, 2024', amount: '$85,000', paymentMethod: 'Cash', status: 'In Process' },
-    ];
-    
-    return {
-      name: supplierName,
-      data: mockData
-    };
-  };
-
-  // Handle adding a new supplier
-  const handleAddSupplier = (data: any) => {
-    // Transform data to match API requirements
-    const supplierData = {
-      name: data.supplierName,
-      contact_person: data.supplierName,
-      phone_number: data.telephone,
-      address: data.address,
-      bankAccount: data.bankAccount
-    };
-    
-    dispatch(createSupplier(supplierData))
-      .unwrap()
-      .then(() => {
-        message.success(`Supplier ${data.supplierName} added successfully`);
-        setIsModalVisible(false);
-        // Refresh the supplier list
-        dispatch(fetchSuppliers());
-      })
-      .catch(error => {
-        message.error(`Failed to add supplier: ${error}`);
-      });
   };
 
   const columns = [
@@ -274,15 +370,12 @@ const Suppliers: React.FC = () => {
     },
   ];
 
-  // Get current supplier data
-  const getCurrentSupplierData = () => {
-    if (!selectedSupplier) return { name: '', data: [] };
-    
-    // Return mock data for now
-    return generateSupplierData(selectedSupplier);
-  };
+  const currentSupplierData = suppliersData[selectedSupplier] || suppliersData['Nike'];
 
-  const currentSupplierData = getCurrentSupplierData();
+  const handleAddSupplier = (data: any) => {
+    console.log('New Supplier Data:', data);
+    setIsModalVisible(false);
+  };
 
   const scrollbarStyle = `
     .custom-scrollbar::-webkit-scrollbar {
@@ -347,38 +440,32 @@ const Suppliers: React.FC = () => {
                 className="custom-scrollbar"
                 style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}
               >
-                {loading ? (
-                  <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <Spin />
+                {filteredSuppliers.map((supplier, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSupplierClick(supplier.name)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '10px 15px',
+                      marginBottom: '8px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: selectedSupplier === supplier.name ? '#f0f0f0' : 'transparent',
+                      transition: 'all 0.3s ease',
+                      border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
+                      boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
+                    }}
+                  >
+                    <Avatar size="small" style={{ backgroundColor: '#9C7456', marginRight: '10px' }}>
+                      {supplier.logo}
+                    </Avatar>
+                    <Text strong={selectedSupplier === supplier.name} style={{ color: selectedSupplier === supplier.name ? '#9C7456' : '#333' }}>
+                      {supplier.name}
+                    </Text>
                   </div>
-                ) : (
-                  filteredSuppliers.map((supplier, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleSupplierClick(supplier.name)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '10px 15px',
-                        marginBottom: '8px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        backgroundColor: selectedSupplier === supplier.name ? '#f0f0f0' : 'transparent',
-                        transition: 'all 0.3s ease',
-                        border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
-                        boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
-                      }}
-                    >
-                      <Avatar size="small" style={{ backgroundColor: '#9C7456', marginRight: '10px' }}>
-                        {supplier.logo}
-                      </Avatar>
-                      <Text strong={selectedSupplier === supplier.name} style={{ color: selectedSupplier === supplier.name ? '#9C7456' : '#333' }}>
-                        {supplier.name}
-                      </Text>
-                    </div>
-                  ))
-                )}
-                {!loading && filteredSuppliers.length === 0 && (
+                ))}
+                {filteredSuppliers.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '20px 0' }}>
                     <Text type="secondary">No suppliers found</Text>
                   </div>
@@ -467,38 +554,32 @@ const Suppliers: React.FC = () => {
                 className="custom-scrollbar"
                 style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '4px', flex: 1 }}
               >
-                {loading ? (
-                  <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <Spin />
+                {filteredSuppliers.map((supplier, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSupplierClick(supplier.name)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '10px 15px',
+                      marginBottom: '8px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: selectedSupplier === supplier.name ? '#f0f0f0' : 'transparent',
+                      transition: 'all 0.3s ease',
+                      border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
+                      boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
+                    }}
+                  >
+                    <Avatar size="small" style={{ backgroundColor: '#9C7456', marginRight: '10px' }}>
+                      {supplier.logo}
+                    </Avatar>
+                    <Text strong={selectedSupplier === supplier.name} style={{ color: selectedSupplier === supplier.name ? '#9C7456' : '#333' }}>
+                      {supplier.name}
+                    </Text>
                   </div>
-                ) : (
-                  filteredSuppliers.map((supplier, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleSupplierClick(supplier.name)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '10px 15px',
-                        marginBottom: '8px',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        backgroundColor: selectedSupplier === supplier.name ? '#f0f0f0' : 'transparent',
-                        transition: 'all 0.3s ease',
-                        border: selectedSupplier === supplier.name ? '1px solid #DBC1AD' : '1px solid transparent',
-                        boxShadow: selectedSupplier === supplier.name ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
-                      }}
-                    >
-                      <Avatar size="small" style={{ backgroundColor: '#9C7456', marginRight: '10px' }}>
-                        {supplier.logo}
-                      </Avatar>
-                      <Text strong={selectedSupplier === supplier.name} style={{ color: selectedSupplier === supplier.name ? '#9C7456' : '#333' }}>
-                        {supplier.name}
-                      </Text>
-                    </div>
-                  ))
-                )}
-                {!loading && filteredSuppliers.length === 0 && (
+                ))}
+                {filteredSuppliers.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '20px 0' }}>
                     <Text type="secondary">No suppliers found</Text>
                   </div>
@@ -542,17 +623,11 @@ const Suppliers: React.FC = () => {
               </Row>
 
               <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)' }}>
-                {loading ? (
-                  <div style={{ textAlign: 'center', padding: '40px' }}>
-                    <Spin size="large" />
-                  </div>
-                ) : (
-                  <Table 
-                    columns={columns} 
-                    dataSource={currentSupplierData.data} 
-                    pagination={{ pageSize: 5 }} 
-                  />
-                )}
+                <Table 
+                  columns={columns} 
+                  dataSource={currentSupplierData.data} 
+                  pagination={{ pageSize: 5 }} 
+                />
               </div>
             </Content>
           </>
