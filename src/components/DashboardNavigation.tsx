@@ -32,13 +32,19 @@ const colors = {
 const styleElement = document.createElement('style');
 
 const css = `
+  .ant-menu-dark .ant-menu-item-selected {
+    background-color: #DBC1AD !important;
+  }
 
-  :where(.css-dev-only-do-not-override-240cud).ant-menu-dark .ant-menu-item-selected,
-  :where(.css-dev-only-do-not-override-240cud).ant-menu-dark > .ant-menu .ant-menu-item-selected {
-    background-color: #DBC1AD;
+  .ant-menu-dark .ant-menu-item-selected a {
+    color: #000 !important; /* Or white if you prefer */
+  }
 
+  .ant-menu-dark .ant-menu-item-selected .anticon {
+    color: #000 !important;
   }
 `;
+
 
 styleElement.textContent = css;
 
