@@ -33,7 +33,7 @@ const colors = {
 interface MonthlySale {
   itemName: string;
   quantity: number;
-  amount: number;
+  TotalAmount: number;
   image: string;
 }
 
@@ -267,7 +267,7 @@ const Employees: React.FC = () => {
     if (!selectedEmployee || !selectedEmployee.monthlySales) return null;
 
     const totalAmount = selectedEmployee.monthlySales.reduce(
-      (sum, item) => sum + item.amount,
+      (sum, item) => sum + item.TotalAmount,
       0,
     );
 
@@ -318,7 +318,7 @@ const Employees: React.FC = () => {
                     </Text>
                   </div>
                 </div>
-                <div>${item.amount.toFixed(2)}</div>
+                <div>${item.TotalAmount}</div>
               </div>
             ))}
           </div>
@@ -413,7 +413,7 @@ const Employees: React.FC = () => {
 
     // Employee-specific attendance data mapped by employee ID
     const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = {
-      'EM0096': [
+      'EM0002': [
         {
           date: '2025-02-17',
           checkIn: '09:00',
