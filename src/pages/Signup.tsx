@@ -15,6 +15,17 @@ const { Title, Text } = Typography;
 const { Step } = Steps;
 const { Option } = Select;
 
+
+interface RegistrationFormValues {
+    firstName: string;
+    lastName: string;
+    mobile: string;
+    email: string;
+    role: string;
+    password: string;
+    // Add other fields if your form has more
+  }
+
 const Signup: React.FC = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -70,7 +81,7 @@ const Signup: React.FC = () => {
         setCurrentStep(currentStep - 1);
     };
 
-    const onFinish = async (values) => {
+    const onFinish = async (values: RegistrationFormValues) => {
         const userData = {
             firstName: values.firstName,
             lastName: values.lastName,
