@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getEmployees } from '../redux/employeeSlice';
 import { RootState } from '../redux/store';
 import { Employee } from '../services/employeeService';
+import { getAllAttendances } from '../redux/attendanceSlice';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, ChartTitle, Tooltip, Legend);
@@ -66,6 +67,7 @@ interface AttendanceRecord {
 const Employees: React.FC = () => {
   const dispatch = useDispatch();
   const { employees, loading, error } = useSelector((state: RootState) => state.employees);
+  const { attendances, loadingAttendance, errorAttendance } = useSelector((state: RootState) => state.attendances);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -84,7 +86,33 @@ const Employees: React.FC = () => {
   // Load employees when component mounts
   useEffect(() => {
     dispatch(getEmployees());
+    dispatch(getAllAttendances());
   }, [dispatch]);
+
+
+  // Transform API data to match your existing format
+  const transformAttendanceData = (apiData) => {
+    const transformed: Record<string, AttendanceRecord[]> = {};
+    
+    apiData.data.forEach(item => {
+      if (!transformed[item.staff_id]) {
+        transformed[item.staff_id] = [];
+      }
+      
+      transformed[item.staff_id].push({
+        date: new Date(item.date).toISOString().split('T')[0], // Format to YYYY-MM-DD
+        checkIn: item.check_in,
+        checkOut: item.check_out,
+        workHours: item.work_hours,
+        status: item.status === 'Present' ? 'Work from office' : 
+               item.status === 'Late' ? 'Late arrival' : 
+               item.status === 'Half Day' ? 'Half day leave' : 
+               'Absent' // Map API status to your UI status
+      });
+    });
+    
+    return transformed;
+  };
 
   // Map API response to component's expected format
   const mappedEmployees: ExtendedEmployee[] = employees.map((emp: Employee) => ({
@@ -411,101 +439,11 @@ const Employees: React.FC = () => {
    // Attendance View Component
    const AttendanceView = () => {
     if (!selectedEmployee) return null;
-    
+    if (loadingAttendance) return <div>Loading attendances...</div>;
+    if (errorAttendance) return <div>Error: {error}</div>;
 
     // Employee-specific attendance data mapped by employee ID
-    const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = {
-      'EM0096': [
-        { 
-          date: '2025-02-17', 
-          checkIn: '09:00', 
-          checkOut: '18:00', 
-          workHours: '10h 2m', 
-          status: 'Work from office' 
-        },
-        { 
-          date: '2025-02-18', 
-          checkIn: '09:30', 
-          checkOut: '18:00', 
-          workHours: '8h 30m', 
-          status: 'Late arrival' 
-        },
-        { 
-          date: '2025-02-19', 
-          checkIn: '09:00', 
-          checkOut: '18:00', 
-          workHours: '9h 0m', 
-          status: 'Work from office' 
-        },
-        { 
-          date: '2025-02-20', 
-          checkIn: '09:00', 
-          checkOut: '13:00', 
-          workHours: '5h 0m', 
-          status: 'Half day leave' 
-        }
-      ],
-      'EM0097': [
-        { 
-          date: '2025-02-17', 
-          checkIn: '00:00', 
-          checkOut: '00:00', 
-          workHours: '0m', 
-          status: 'Absent' 
-        },
-        { 
-          date: '2025-02-18', 
-          checkIn: '09:00', 
-          checkOut: '18:00', 
-          workHours: '9h 0m', 
-          status: 'Work from office' 
-        },
-        { 
-          date: '2025-02-19', 
-          checkIn: '09:00', 
-          checkOut: '18:00', 
-          workHours: '9h 0m', 
-          status: 'Work from office' 
-        },
-        { 
-          date: '2025-02-20', 
-          checkIn: '10:45', 
-          checkOut: '18:00', 
-          workHours: '7h 15m', 
-          status: 'Late arrival' 
-        }
-      ],
-      '2': [
-        { 
-          date: '2025-02-17', 
-          checkIn: '09:00', 
-          checkOut: '18:00', 
-          workHours: '9h 0m', 
-          status: 'Work from office' 
-        },
-        { 
-          date: '2025-02-18', 
-          checkIn: '09:00', 
-          checkOut: '18:00', 
-          workHours: '9h 0m', 
-          status: 'Work from office' 
-        },
-        { 
-          date: '2025-02-19', 
-          checkIn: '00:00', 
-          checkOut: '00:00', 
-          workHours: '0m', 
-          status: 'Absent' 
-        },
-        { 
-          date: '2025-02-20', 
-          checkIn: '00:00', 
-          checkOut: '00:00', 
-          workHours: '0m', 
-          status: 'Absent' 
-        }
-      ]
-    };
+    const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = transformAttendanceData(attendances);
     
     // Get attendance records for the selected employee, or use empty array if none exist
     const attendanceData = attendanceDataByEmployee[selectedEmployee.id] || [];
