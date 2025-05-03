@@ -130,12 +130,7 @@ const Employees: React.FC = () => {
     createdAt: emp.created_at,
     totalSales: emp.totalSales || 0,
     monthlySales: emp.monthlySales || [],
-    taskCompletion: [
-      Math.floor(Math.random() * 30) + 70,
-      Math.floor(Math.random() * 30) + 70,
-      Math.floor(Math.random() * 30) + 70,
-      Math.floor(Math.random() * 30) + 70
-    ]
+    taskCompletion: emp.taskCompletions  || []
   }));
 
   // Filter employees based on search term
