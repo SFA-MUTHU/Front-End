@@ -9,6 +9,17 @@ export interface Employee {
   created_at: string;
 }
 
+export interface Attendance {
+  id: number;
+  staff_id: number;
+  date: string;
+  check_in: string | null;
+  check_out: string | null;
+  work_hours: string | null;
+  status: string;
+  created_at: string;
+}
+
 export const fetchEmployees = async (): Promise<Employee[]> => {
   try {
     const response = await fetch(`${API_BASE_URL}/employees`, {
@@ -44,6 +55,26 @@ export const fetchEmployeeById = async (id: number): Promise<Employee> => {
     return await response.json();
   } catch (error) {
     console.error(`Error fetching employee with id ${id}:`, error);
+    throw error;
+  }
+};
+
+
+// New attendance-related functions
+export const fetchAllAttendances = async (): Promise<Attendance[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/attendance`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching attendances:', error);
     throw error;
   }
 };

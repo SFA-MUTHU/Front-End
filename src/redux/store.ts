@@ -6,6 +6,7 @@ import customerReducer from './customerSlice';
 import customerCardReducer from './customerCardSlice';
 import authReducer from './loginSlice';
 import signupReducer from './signSlice';
+import attendanceReducer from './attendanceSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     customerCard: customerCardReducer,
     auth: authReducer,
     signup: signupReducer,
+    attendances: attendanceReducer,
   },
 });
 
