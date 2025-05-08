@@ -15,6 +15,7 @@ import { Breadcrumb, Layout, Menu, theme, Typography } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import CurrentDateTime from "./CurrentDateTime.tsx";
 import HeaderControls from "./HeaderControls";
+import '../styles/MenuStyles.css';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { Title } = Typography;
@@ -29,20 +30,6 @@ const colors = {
     cardBg: '#FFFFFF',
     headerBg: '#F6F4F1',
 };
-const styleElement = document.createElement('style');
-
-const css = `
-
-  :where(.css-dev-only-do-not-override-240cud).ant-menu-dark .ant-menu-item-selected,
-  :where(.css-dev-only-do-not-override-240cud).ant-menu-dark > .ant-menu .ant-menu-item-selected {
-    background-color: #DBC1AD;
-
-  }
-`;
-
-styleElement.textContent = css;
-
-document.head.appendChild(styleElement);
 
 function getItem(
     label: React.ReactNode,
@@ -72,7 +59,11 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
 
     const mainNavItems: MenuItem[] = [
         getItem(<span style={{ fontWeight: 'bold', fontFamily: 'Roboto', color: 'white' }}>Overview</span>, '/home', <AppstoreOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/home')),
-        getItem(<span style={{ fontWeight: 'bold', fontFamily: 'Roboto', color: 'white' }}>Employees</span>, '/employees', <TeamOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/employees')),
+        getItem(<span style={{ fontWeight: 'bold', fontFamily: 'Roboto', color: 'white' }}>Employees</span>, '/employees', <TeamOutlined style={{ fontSize: '20px', color: 'white' }} />, [
+            getItem(<span style={{ fontFamily: 'Roboto', color: 'white' }}>Employee List</span>, '/employees', undefined, undefined, () => navigate('/employees')),
+            getItem(<span style={{ fontFamily: 'Roboto', color: 'white' }}>Mark Attendance</span>, '/markattendance', undefined, undefined, () => navigate('/employees/attendance')),
+            
+        ]),
         getItem(<span style={{ fontWeight: 'bold', fontFamily: 'Roboto', color: 'white' }}>Customers</span>, '/customers', <UserOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/customers')),
         getItem(<span style={{ fontWeight: 'bold', fontFamily: 'Roboto', color: 'white' }}>Products</span>, '/products', <ShoppingOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/products')),
         getItem(<span style={{ fontWeight: 'bold', fontFamily: 'Roboto', color: 'white' }}>Suppliers</span>, '/suppliers', <ShopOutlined style={{ fontSize: '20px', color: 'white' }} />, undefined, () => navigate('/suppliers')),
@@ -113,6 +104,9 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
         switch (location.pathname) {
             case '/home': return 'Overview';
             case '/employees': return 'Employees';
+            case '/employees': return 'Employees ';
+            case '/markattendance': return 'Employees / Mark Attendance';
+           
             case '/customers': return 'Customers';
             case '/products': return 'Products';
             case '/suppliers': return 'Suppliers';
@@ -151,9 +145,20 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
                         <HomeOutlined style={{ fontSize: '24px', color: 'white' }} />
                     )}
                 </div>
-                <Menu theme="dark" mode="inline" items={mainNavItems} selectedKeys={selectedKeys} onClick={({ key }) => { navigate(key); setSelectedKeys([key]); }} style={{ backgroundColor: colors.primary, fontFamily: 'Roboto' }} />
+                <Menu 
+                    theme="light" 
+                    mode="inline" 
+                    items={mainNavItems} 
+                    selectedKeys={selectedKeys} 
+                    onClick={({ key }) => { navigate(key); setSelectedKeys([key]); }} 
+                    style={{ 
+                        backgroundColor: colors.primary, 
+                        fontFamily: 'Roboto',
+                        color: 'white'
+                    }} 
+                />
                 <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '8px' }}>
-                    <Menu theme="dark" mode="inline" items={bottomNavItems} selectedKeys={selectedKeys} onClick={({ key }) => { navigate(key); setSelectedKeys([key]); }} style={{ backgroundColor: colors.primary, fontFamily: 'Roboto' }} />
+                    <Menu theme="light" mode="inline" items={bottomNavItems} selectedKeys={selectedKeys} onClick={({ key }) => { navigate(key); setSelectedKeys([key]); }} style={{ backgroundColor: colors.primary, fontFamily: 'Roboto' }} />
                 </div>
             </Sider>
             <Layout>

@@ -1,0 +1,23 @@
+.ant-menu {
+    background-color: #A67B5B !important;
+}
+
+.ant-menu-item-selected {
+    background-color: #DBC1AD !important;
+}
+
+.ant-menu-item:hover {
+    background-color: #DBC1AD !important;
+}
+
+.ant-menu-submenu-title:hover {
+    background-color: #DBC1AD !important;
+}
+
+.ant-menu-submenu-arrow {
+    color: white !important;
+}
+
+.ant-menu-submenu:hover > .ant-menu-submenu-title > .ant-menu-submenu-arrow {
+    color: white !important;
+}
