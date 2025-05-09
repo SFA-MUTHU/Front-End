@@ -159,7 +159,7 @@ const Suppliers: React.FC = () => {
   const generateSupplierData = (supplierName: string) => {
     // This is mock data, in a real app this would come from API
     const mockData = [
-      { key: '1', billNumber: '#N5267', date: 'Mar 1, 2024', amount: '$100,000', paymentMethod: 'Card', status: 'Success' },
+      { key: '1', billNumber: '#N5267', date: 'Mar 8, 2024', amount: '$100,000', paymentMethod: 'Card', status: 'Success' },
       { key: '2', billNumber: '#N5268', date: 'Mar 2, 2024', amount: '$85,000', paymentMethod: 'Cash', status: 'In Process' },
     ];
 
@@ -170,16 +170,26 @@ const Suppliers: React.FC = () => {
   };
 
   // Handle adding a new supplier
-  const handleAddSupplier = (data: any) => {
+  const handleAddSupplier = (data: {
+    supplierName: string;
+    contactPerson?: string;
+    telephone: string;
+    email: string;
+    address: string;
+    bankAccount: string;
+    paymentMethod: string;
+  }) => {
     // Transform data to match API requirements
     const supplierData = {
       name: data.supplierName,
-      contact_person: data.supplierName,
+      contact_person: data.contactPerson || data.supplierName, // Fallback to supplierName if contactPerson not provided
+      email: data.email,
       phone_number: data.telephone,
       address: data.address,
-      bankAccount: data.bankAccount
+      bank_account_details: data.bankAccount,
+      payment_method: data.paymentMethod
     };
-
+  
     dispatch(createSupplier(supplierData))
       .unwrap()
       .then(() => {
@@ -188,12 +198,36 @@ const Suppliers: React.FC = () => {
         // Refresh the supplier list
         dispatch(fetchSuppliers());
       })
-      .catch(error => {
-        message.error(`Failed to add supplier: ${error}`);
+      .catch((error: Error) => {
+        message.error(`Failed to add supplier: ${error.message}`);
       });
   };
 
   const columns = [
+    { 
+      title: 'Bill Number', 
+      dataIndex: 'billNumber', 
+      key: 'billNumber',
+      responsive: ['md'] as any,
+    },
+    { 
+      title: 'Date', 
+      dataIndex: 'date', 
+      key: 'date',
+      responsive: ['md'] as any,
+    },
+    { 
+      title: 'Amount', 
+      dataIndex: 'amount', 
+      key: 'amount',
+      responsive: ['md'] as any,
+    },
+    { 
+      title: 'Payment Method', 
+      dataIndex: 'paymentMethod', 
+      key: 'paymentMethod',
+      responsive: ['md'] as any,
+    },
 
     {
       title: 'Status',
