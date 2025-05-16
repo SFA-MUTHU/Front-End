@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../style/Customers.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { addCustomer } from '../redux/customerSlice';
+import { addCustomer,fetchCustomers } from '../redux/customerSlice';
 import { AppDispatch, RootState } from '../redux/store';
 import { fetchCustomerStats } from '../redux/customerCardSlice';
 
@@ -482,7 +482,7 @@ const Customers: React.FC = () => {
                     valueStyle={{ fontSize: 24 }}
                     valueRender={() => (
                       <ResponsiveText
-                        text={`$${topCustomerSpend.toFixed(2)}`}
+                        text={`$${topCustomerSpend}`}
                         color="#3f8600"
                         className="top-customer-spend"
                       />
@@ -499,7 +499,7 @@ const Customers: React.FC = () => {
                     valueStyle={{ fontSize: 24 }}
                     prefix={<DollarOutlined />}
                     valueRender={() => (
-                      <ResponsiveText text={totalSpent.toFixed(2)} color="#3f8600" />
+                      <ResponsiveText text={totalSpent} color="#3f8600" />
                     )}
                   />
                 </Card>

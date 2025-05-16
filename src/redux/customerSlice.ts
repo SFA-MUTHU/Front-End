@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { createCustomer, Customer } from '../services/customerService';
+import { createCustomer, getCustomers, Customer } from '../services/customerService';
 
 interface CustomerState {
   customers: Customer[];
@@ -12,6 +12,17 @@ const initialState: CustomerState = {
   loading: false,
   error: null,
 };
+
+export const fetchCustomers = createAsyncThunk(
+  'customers/fetchCustomers',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getCustomers();
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch customers');
+    }
+  }
+);
 
 export const addCustomer = createAsyncThunk(
   'customers/addCustomer',
@@ -30,6 +41,20 @@ const customerSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch Customers cases
+      .addCase(fetchCustomers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCustomers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customers = action.payload;
+      })
+      .addCase(fetchCustomers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Add Customer cases
       .addCase(addCustomer.pending, (state) => {
         state.loading = true;
         state.error = null;
