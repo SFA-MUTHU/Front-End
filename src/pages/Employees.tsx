@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getEmployees } from '../redux/employeeSlice';
 import { RootState } from '../redux/store';
 import { Employee } from '../services/employeeService';
+import { getAllAttendances } from '../redux/attendanceSlice';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, ChartTitle, Tooltip, Legend);
@@ -33,7 +34,7 @@ const colors = {
 interface MonthlySale {
   itemName: string;
   quantity: number;
-  amount: number;
+  TotalAmount: number;
   image: string;
 }
 
@@ -66,6 +67,7 @@ interface AttendanceRecord {
 const Employees: React.FC = () => {
   const dispatch = useDispatch();
   const { employees, loading, error } = useSelector((state: RootState) => state.employees);
+  const { attendances, loadingAttendance, errorAttendance } = useSelector((state: RootState) => state.attendances);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -84,7 +86,33 @@ const Employees: React.FC = () => {
   // Load employees when component mounts
   useEffect(() => {
     dispatch(getEmployees());
+    dispatch(getAllAttendances());
   }, [dispatch]);
+
+
+  // Transform API data to match your existing format
+  const transformAttendanceData = (apiData) => {
+    const transformed: Record<string, AttendanceRecord[]> = {};
+    
+    apiData.data.forEach(item => {
+      if (!transformed[item.staff_id]) {
+        transformed[item.staff_id] = [];
+      }
+      
+      transformed[item.staff_id].push({
+        date: new Date(item.date).toISOString().split('T')[0], // Format to YYYY-MM-DD
+        checkIn: item.check_in,
+        checkOut: item.check_out,
+        workHours: item.work_hours,
+        status: item.status === 'Present' ? 'Work from office' : 
+               item.status === 'Late' ? 'Late arrival' : 
+               item.status === 'Half Day' ? 'Half day leave' : 
+               'Absent' // Map API status to your UI status
+      });
+    });
+    
+    return transformed;
+  };
 
   // Map API response to component's expected format
   const mappedEmployees: ExtendedEmployee[] = employees.map((emp: Employee) => ({
@@ -102,12 +130,7 @@ const Employees: React.FC = () => {
     createdAt: emp.created_at,
     totalSales: emp.totalSales || 0,
     monthlySales: emp.monthlySales || [],
-    taskCompletion: [
-      Math.floor(Math.random() * 30) + 70,
-      Math.floor(Math.random() * 30) + 70,
-      Math.floor(Math.random() * 30) + 70,
-      Math.floor(Math.random() * 30) + 70
-    ]
+    taskCompletion: emp.taskCompletions  || []
   }));
 
   // Filter employees based on search term
@@ -267,7 +290,7 @@ const Employees: React.FC = () => {
     if (!selectedEmployee || !selectedEmployee.monthlySales) return null;
 
     const totalAmount = selectedEmployee.monthlySales.reduce(
-      (sum, item) => sum + item.amount,
+      (sum, item) => sum + item.TotalAmount,
       0,
     );
 
@@ -318,7 +341,7 @@ const Employees: React.FC = () => {
                     </Text>
                   </div>
                 </div>
-                <div>${item.amount.toFixed(2)}</div>
+                <div>${item.TotalAmount}</div>
               </div>
             ))}
           </div>
@@ -408,106 +431,29 @@ const Employees: React.FC = () => {
   };
 
   // Attendance View Component
-  const AttendanceView = () => {
+   // Attendance View Component
+   const AttendanceView = () => {
     if (!selectedEmployee) return null;
+    if (loadingAttendance) return <div>Loading attendances...</div>;
+    if (errorAttendance) return <div>Error: {error}</div>;
 
     // Employee-specific attendance data mapped by employee ID
-    const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = {
-      'EM0096': [
-        {
-          date: '2025-02-17',
-          checkIn: '09:00',
-          checkOut: '18:00',
-          workHours: '10h 2m',
-          status: 'Work from office'
-        },
-        {
-          date: '2025-02-18',
-          checkIn: '09:30',
-          checkOut: '18:00',
-          workHours: '8h 30m',
-          status: 'Late arrival'
-        },
-        {
-          date: '2025-02-19',
-          checkIn: '09:00',
-          checkOut: '18:00',
-          workHours: '9h 0m',
-          status: 'Work from office'
-        },
-        {
-          date: '2025-02-20',
-          checkIn: '09:00',
-          checkOut: '13:00',
-          workHours: '5h 0m',
-          status: 'Half day leave'
-        }
-      ],
-      'EM0097': [
-        {
-          date: '2025-02-17',
-          checkIn: '00:00',
-          checkOut: '00:00',
-          workHours: '0m',
-          status: 'Absent'
-        },
-        {
-          date: '2025-02-18',
-          checkIn: '09:00',
-          checkOut: '18:00',
-          workHours: '9h 0m',
-          status: 'Work from office'
-        },
-        {
-          date: '2025-02-19',
-          checkIn: '09:00',
-          checkOut: '18:00',
-          workHours: '9h 0m',
-          status: 'Work from office'
-        },
-        {
-          date: '2025-02-20',
-          checkIn: '10:45',
-          checkOut: '18:00',
-          workHours: '7h 15m',
-          status: 'Late arrival'
-        }
-      ],
-      'EM0098': [
-        {
-          date: '2025-02-17',
-          checkIn: '09:00',
-          checkOut: '18:00',
-          workHours: '9h 0m',
-          status: 'Work from office'
-        },
-        {
-          date: '2025-02-18',
-          checkIn: '09:00',
-          checkOut: '18:00',
-          workHours: '9h 0m',
-          status: 'Work from office'
-        },
-        {
-          date: '2025-02-19',
-          checkIn: '00:00',
-          checkOut: '00:00',
-          workHours: '0m',
-          status: 'Absent'
-        },
-        {
-          date: '2025-02-20',
-          checkIn: '00:00',
-          checkOut: '00:00',
-          workHours: '0m',
-          status: 'Absent'
-        }
-      ]
-    };
-
+    const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = transformAttendanceData(attendances);
+    
     // Get attendance records for the selected employee, or use empty array if none exist
     const attendanceData = attendanceDataByEmployee[selectedEmployee.id] || [];
 
+    
+    // Filter records based on selected filter
+    const filteredAttendanceData = attendanceData.filter(record => {
+      if (attendanceFilter === 'All') return true;
+      if (attendanceFilter === 'Present' && record.status === 'Work from office') return true;
+      if (attendanceFilter === 'Half day' && record.status === 'Half day leave') return true;
+      if (attendanceFilter === 'Absent' && record.status === 'Absent') return true;
+      if (attendanceFilter === 'Late' && record.status === 'Late arrival') return true;
+      return false;
+    });
+    
     // Helper function to get color based on status
     const getStatusStyle = (status: string) => {
       switch (status) {
@@ -530,17 +476,95 @@ const Employees: React.FC = () => {
       if (status === 'Late arrival') return { color: '#854D0E' };
       return { color: colors.green };
     };
+    
+    // Helper function to check if a filter is active
+    const isFilterActive = (filter: string) => {
+      return attendanceFilter === filter;
+    };
 
+    // Mobile card view for attendance records
+    const renderMobileCard = (record: AttendanceRecord, index: number) => {
+      return (
+        <div 
+          key={index} 
+          style={{ 
+            padding: '16px', 
+            marginBottom: '12px', 
+            border: '1px solid #f0f0f0',
+            borderRadius: '8px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+          }}
+        >
+          <div style={{ marginBottom: '12px', fontWeight: 'bold', fontSize: '16px' }}>
+            {record.date}
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            marginBottom: '8px',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Check-in:</span>
+            <span style={{ ...getTimeColor(record.status) }}>{record.checkIn}</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            marginBottom: '8px',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Check-out:</span>
+            <span style={{ color: colors.green }}>{record.checkOut}</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            marginBottom: '8px',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Work hours:</span>
+            <span style={{ color: '#4B5563' }}>{record.workHours}</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span style={{ color: '#6B7280' }}>Status:</span>
+            <span style={{ 
+              padding: '4px 12px', 
+              borderRadius: '4px', 
+              fontSize: '14px',
+              ...getStatusStyle(record.status)
+            }}>
+              {record.status}
+            </span>
+          </div>
+        </div>
+      );
+    };
+    
     return (
       <Card
         title={
-          <div className="desktop-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Title level={4} style={{ color: colors.primary, margin: 0 }}>Attendance Records</Title>
-            <Button
+          <div className="attendance-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div>
+              <Title level={4} style={{ color: colors.primary, margin: 0 }} className="desktop-title">
+                Attendance Overview: {selectedEmployee.name}
+              </Title>
+              <Title level={4} style={{ color: colors.primary, margin: 0 }} className="mobile-title">
+                Attendance Overview
+              </Title>
+            </div>
+            <Button 
               onClick={() => setShowAttendanceView(false)}
-              style={{
-                backgroundColor: colors.primary,
-                color: 'white',
+              style={{ 
+                backgroundColor: colors.primary, 
+                color: 'white', 
                 border: 'none',
                 borderRadius: '4px'
               }}
@@ -552,8 +576,183 @@ const Employees: React.FC = () => {
         }
         style={{...cardStyle, height: '100%'}}
       >
-        {/* Keep all the existing code in the AttendanceView component */}
-        {/* ... */}
+        <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('All') ? colors.primary : 'transparent',
+            color: isFilterActive('All') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('All')}>
+            <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: isFilterActive('All') ? 'white' : colors.primary, marginRight: '8px' }}></div>
+            <span>All</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Present') ? colors.primary : 'transparent',
+            color: isFilterActive('Present') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Present')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Present') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Present') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Present</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Half day') ? colors.primary : 'transparent',
+            color: isFilterActive('Half day') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Half day')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Half day') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Half day') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Half day</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Absent') ? colors.primary : 'transparent',
+            color: isFilterActive('Absent') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Absent')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Absent') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Absent') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Absent</span>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            backgroundColor: isFilterActive('Late') ? colors.primary : 'transparent',
+            color: isFilterActive('Late') ? 'white' : 'inherit'
+          }} onClick={() => setAttendanceFilter('Late')}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              borderRadius: '50%', 
+              border: `1px solid ${isFilterActive('Late') ? 'white' : colors.primary}`, 
+              backgroundColor: isFilterActive('Late') ? 'white' : 'transparent',
+              marginRight: '8px' 
+            }}></div>
+            <span>Late</span>
+          </div>
+        </div>
+            
+        {/* Desktop Table View (hidden on mobile) */}
+        <div className="desktop-table-view" style={{ borderTop: '1px solid #f0f0f0' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>Date</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Check-in
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Check-out
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Work hours
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#6B7280', fontWeight: 500 }}>
+                  Status
+                  <DownOutlined style={{ marginLeft: '4px', fontSize: '12px' }} />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAttendanceData.length > 0 ? (
+                filteredAttendanceData.map((record, index) => (
+                  <tr key={index} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '12px', color: '#4B5563' }}>{record.date}</td>
+                    <td style={{ padding: '12px', ...getTimeColor(record.status) }}>{record.checkIn}</td>
+                    <td style={{ padding: '12px', color: colors.green }}>{record.checkOut}</td>
+                    <td style={{ padding: '12px', color: '#4B5563' }}>{record.workHours}</td>
+                    <td style={{ padding: '12px' }}>
+                      <span style={{ 
+                        padding: '4px 12px', 
+                        borderRadius: '4px', 
+                        fontSize: '14px',
+                        ...getStatusStyle(record.status)
+                      }}>
+                        {record.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#6B7280' }}>
+                    No attendance records match the selected filter.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Mobile Card View (only visible on mobile) */}
+        <div className="mobile-card-view">
+          {filteredAttendanceData.length > 0 ? (
+            filteredAttendanceData.map((record, index) => renderMobileCard(record, index))
+          ) : (
+            <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280' }}>
+              No attendance records match the selected filter.
+            </div>
+          )}
+        </div>
+
+        {/* Mobile back button */}
+        <div className="mobile-back-btn-container">
+          <Button 
+            onClick={() => setShowAttendanceView(false)}
+            style={{ 
+              backgroundColor: colors.primary, 
+              color: 'white', 
+              border: 'none',
+              borderRadius: '4px',
+              width: '100%',
+              marginTop: '20px'
+            }}
+          >
+            Back to Profile
+          </Button>
+        </div>
       </Card>
     );
   };
@@ -563,7 +762,204 @@ const Employees: React.FC = () => {
     .employee-card {
       transition: all 0.3s ease;
     }
-    /* ... rest of styles ... */
+    .employee-card:hover {
+      transform: translateY(-4px);
+      box-shadow: ${colors.shadowMedium};
+    }
+    .ant-radio-button-wrapper {
+      border-radius: 8px !important;
+      border: none !important;
+      transition: all 0.3s ease;
+    }
+    .ant-radio-button-wrapper-checked {
+      background-color: ${colors.primary} !important;
+      color: #fff !important;
+    }
+    .ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):hover {
+      background-color: ${colors.primaryLight} !important;
+      color: #000 !important;
+    }
+    .ant-btn-primary {
+      background-color: ${colors.primary} !important;
+      border-color: ${colors.primary} !important;
+      transition: all 0.3s ease;
+    }
+    .ant-btn-primary:hover {
+      background-color: ${colors.primaryLight} !important;
+      border-color: ${colors.primaryLight} !important;
+      color: #000 !important;
+    }
+    .ant-input {
+      border-radius: 8px !important;
+      transition: all 0.3s ease;
+    }
+    .ant-input:focus {
+      border-color: ${colors.primary} !important;
+      box-shadow: 0 0 0 2px rgba(156, 116, 86, 0.2) !important;
+    }
+    .ant-modal-content {
+      border-radius: 12px !important;
+      overflow: hidden;
+    }
+    .ant-modal-header {
+      border-radius: 12px 12px 0 0 !important;
+      color: black !important;
+    }
+    .ant-modal-title {
+      color: black!important;
+      font-weight: bold !important;
+    }
+    
+    .title-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    
+    .desktop-plus-btn {
+      margin-left: 15px;
+    }
+    
+    .mobile-plus-btn {
+      display: none;
+      margin-top: 10px;
+    }
+    
+    .chart-container {
+      width: 100%;
+      min-height: 300px;
+      display: flex;
+      justify-content: center;
+    }
+    
+    /* Responsive table styles */
+    .desktop-table-view {
+      display: block;
+    }
+    
+    .mobile-card-view {
+      display: none;
+    }
+    
+    /* Responsive attendance view styles */
+    .desktop-title {
+      display: block;
+    }
+    
+    .mobile-title {
+      display: none;
+    }
+    
+    .desktop-back-btn {
+      display: block;
+    }
+    
+    .mobile-back-btn-container {
+      display: none;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .desktop-table-view {
+        display: none;
+      }
+      
+      .mobile-card-view {
+        display: block;
+        margin-top: 16px;
+      }
+      
+      /* Filter button styles for mobile */
+      .attendance-filter-container {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .attendance-filter-button {
+        margin-bottom: 8px;
+        width: calc(50% - 8px);
+        text-align: center;
+      }
+      
+      .desktop-title {
+        display: none;
+      }
+      
+      .mobile-title {
+        display: block;
+      }
+      
+      .desktop-back-btn {
+        display: none;
+      }
+      
+      .mobile-back-btn-container {
+        display: block;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .period-filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .period-filters button {
+        width: 100%;
+        margin-right: 0 !important;
+      }
+      .radio-group-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .radio-group-mobile .ant-radio-button-wrapper {
+        margin-bottom: 8px;
+        width: 100%;
+        text-align: center;
+      }
+      .chart-container {
+        max-width: 200px !important;
+      }
+      .desktop-plus-btn {
+        display: none;
+      }
+      .mobile-plus-btn {
+        display: block;
+        margin: 10px auto 0;
+      }
+      .title-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+    }
+    
+    .ant-select-focused .ant-select-selector,
+    .ant-select-selector:focus,
+    .ant-select-selector:active,
+    .ant-select-open .ant-select-selector {
+      border-color: ${colors.primary} !important;
+      box-shadow: 0 0 0 2px rgba(156, 116, 86, 0.2) !important;
+    }
+    
+    .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      background-color: ${colors.primaryLight} !important;
+      color: black !important;
+    }
+    
+    .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+      background-color: rgba(156, 116, 86, 0.1) !important;
+    }
+    
+    .ant-select-dropdown {
+      border-radius: 8px !important;
+      overflow: hidden;
+    }
+    
+    .ant-select:hover .ant-select-selector {
+      border-color: ${colors.primary} !important;
+    }
   `;
 
   return (
