@@ -70,18 +70,19 @@ const Signup: React.FC = () => {
         setCurrentStep(currentStep - 1);
     };
 
-    const onFinish = async (values) => {
-        const userData = {
-            firstName: values.firstName,
-            lastName: values.lastName,
-            mobile: values.mobile,
-            email: values.email,
-            role: values.role,
-            password: values.password
-        };
+   const onFinish = async (values: SignupFormValues) => {
+     const userData = {
+       firstName: values.firstName,
+       lastName: values.lastName,
+       mobile: values.mobile,
+       email: values.email,
+       role: values.role,
+       password: values.password
+     };
 
-        await dispatch(registerUser(userData) as any);
-    };
+     console.log('Sending user data:', userData); // For debugging
+     await dispatch(registerUser(userData) as any);
+   };
 
     const steps = [
         {

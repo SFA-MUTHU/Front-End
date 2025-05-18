@@ -14,6 +14,7 @@ import MessagingPage from './pages/MessagingPage'; // Changed from Messaging to 
 import './App.css';
 import Profile from "./pages/profile";
 import AllNotifications from './pages/AllNotifications';
+import MarkAttendance from './pages/MarkAttendance';
 
 const App: React.FC = () => {
   // You would normally check for authentication here
@@ -39,6 +40,7 @@ const App: React.FC = () => {
         <Route path="/messaging" element={isAuthenticated ? <MessagingPage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
         <Route path="/all-notifications" element={isAuthenticated ? <AllNotifications /> : <Navigate to="/login" />} />
+        <Route path="/markattendance" element={isAuthenticated ? <MarkAttendance /> : <Navigate to="/login" />} />
         {/* Default Route Redirect */}
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
