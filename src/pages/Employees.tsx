@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Col, Row, List, Avatar, Input, Button, Modal, Form, Upload, Typography, InputNumber, Select, Spin } from 'antd';
-import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined } from '@ant-design/icons';
+import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined,DeleteOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -122,7 +122,7 @@ const Employees: React.FC = () => {
     birthday: emp.birthday || 'N/A',
     address: emp.address || 'N/A',
     status: 'online', // Default status
-    avatar: `https://randomuser.me/api/portraits/men/${emp.id % 30}.jpg`,
+    avatar: ``,
     employeeId: `EM${emp.id.toString().padStart(4, '0')}`,
     location: emp.location || 'N/A',
     role: emp.role,
@@ -1047,10 +1047,29 @@ const Employees: React.FC = () => {
                             />
                           }
                           title={
-                            <div className="flex justify-between items-center">
-                              <Text strong style={{ color: colors.primary }}>{employee.name}</Text>
-                              <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>
-                            </div>
+                           <div className="flex justify-between items-center">
+                             <Text strong style={{ color: colors.primary }}>{employee.name}</Text>
+                             <div className="flex items-center">
+                               <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>
+                             <DeleteOutlined
+                               style={{ marginLeft: '8px', color: colors.red, cursor: 'pointer' }}
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 Modal.confirm({
+                                   title: 'Delete Employee',
+                                   content: `Are you sure you want to delete ${employee.name}?`,
+                                   okText: 'Yes',
+                                   okType: 'danger',
+                                   cancelText: 'No',
+                                   onOk() {
+                                     // Add delete employee logic here
+                                     console.log('Delete employee:', employee.id);
+                                   },
+                                 });
+                               }}
+                             />
+                             </div>
+                           </div>
                           }
                           description={
                             <div>
