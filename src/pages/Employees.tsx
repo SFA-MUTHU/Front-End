@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, List, Avatar, Input, Button, Modal, Form, Upload, Typography, InputNumber, Select, Spin } from 'antd';
-import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined,DeleteOutlined } from '@ant-design/icons';
+import { Card, Col, Row, List, Avatar, Input, Button, Modal, Form, Upload, Typography, InputNumber, Select, Spin, message, Popconfirm } from 'antd';
+import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import "../style/status.css";
 
 import { useDispatch, useSelector } from 'react-redux';
-import { getEmployees } from '../redux/employeeSlice';
-import { RootState } from '../redux/store';
-import { Employee } from '../services/employeeService';
+import { getEmployees, createEmployee, deleteEmployee } from '../redux/employeeSlice';
+import { RootState, AppDispatch } from '../redux/store';
+import { Employee, Attendance } from '../services/employeeService';
 import { getAllAttendances } from '../redux/attendanceSlice';
 
 // Register ChartJS components
@@ -41,19 +41,20 @@ interface MonthlySale {
 interface ExtendedEmployee {
   id: string;
   name: string;
-  phone: string;
-  birthday: string;
-  address: string;
+  email: string;
+  role: string;
+  createdAt: string;
   status: string;
+  // Custom fields for UI display
+  phone?: string;
+  birthday?: string;
+  address?: string;
   avatar?: string;
   employeeId?: string;
   location?: string;
   totalSales?: number;
   monthlySales?: MonthlySale[];
   taskCompletion?: number[];
-  email?: string;
-  role?: string;
-  createdAt?: string;
 }
 
 interface AttendanceRecord {
@@ -64,8 +65,11 @@ interface AttendanceRecord {
   status: string;
 }
 
+// Import the proper UploadFile type
+import { UploadFile } from 'antd/es/upload/interface';
+
 const Employees: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { employees, loading, error } = useSelector((state: RootState) => state.employees);
   const { attendances, loadingAttendance, errorAttendance } = useSelector((state: RootState) => state.attendances);
 
@@ -74,12 +78,14 @@ const Employees: React.FC = () => {
   const [taskModalVisible, setTaskModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [taskForm] = Form.useForm();
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<ExtendedEmployee | null>(null);
   const [periodFilter, setPeriodFilter] = useState('This Month');
   const [showAttendanceView, setShowAttendanceView] = useState(false);
   const [attendanceFilter, setAttendanceFilter] = useState('All');
   const [selectedTaskEmployee, setSelectedTaskEmployee] = useState<string>('All');
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null);
 
   const periods = ['Today', 'This Week', 'This Month', 'This Year'];
 
@@ -87,41 +93,44 @@ const Employees: React.FC = () => {
   useEffect(() => {
     dispatch(getEmployees());
     dispatch(getAllAttendances());
-  }, [dispatch]);
-
-
-  // Transform API data to match your existing format
-  const transformAttendanceData = (apiData) => {
+  }, [dispatch]);  // Transform API data to match your existing format
+  const transformAttendanceData = (apiData: Attendance[]) => {
     const transformed: Record<string, AttendanceRecord[]> = {};
     
-    apiData.data.forEach(item => {
-      if (!transformed[item.staff_id]) {
-        transformed[item.staff_id] = [];
-      }
-      
-      transformed[item.staff_id].push({
-        date: new Date(item.date).toISOString().split('T')[0], // Format to YYYY-MM-DD
-        checkIn: item.check_in,
-        checkOut: item.check_out,
-        workHours: item.work_hours,
-        status: item.status === 'Present' ? 'Work from office' : 
-               item.status === 'Late' ? 'Late arrival' : 
-               item.status === 'Half Day' ? 'Half day leave' : 
-               'Absent' // Map API status to your UI status
-      });
-    });
+    if (apiData && apiData.length > 0) {
+      apiData.forEach((item: Attendance) => {
+        if (!transformed[item.staff_id.toString()]) {
+          transformed[item.staff_id.toString()] = [];
+        }
+        
+        transformed[item.staff_id.toString()].push({
+          date: new Date(item.date).toISOString().split('T')[0], // Format to YYYY-MM-DD
+          checkIn: item.check_in || '',
+          checkOut: item.check_out || '',
+          workHours: item.work_hours || '',
+          status: item.status === 'Present' ? 'Work from office' : 
+                  item.status === 'Late' ? 'Late arrival' : 
+                  item.status === 'Half Day' ? 'Half day leave' : 
+                  'Absent' // Map API status to your UI status
+        });
+      });    }
     
     return transformed;
   };
+  
+  // Handle file upload changes
+  const handleUploadChange = ({ fileList }: { fileList: FileType[] }) => {
+    setFileList(fileList);
+  };
 
-  // Map API response to component's expected format
+  // Transform API data to ExtendedEmployee format for the component
   const mappedEmployees: ExtendedEmployee[] = employees.map((emp: Employee) => ({
     id: emp.id.toString(),
     name: `${emp.first_name} ${emp.last_name}`,
     phone: emp.phone || 'N/A',
     birthday: emp.birthday || 'N/A',
     address: emp.address || 'N/A',
-    status: 'online', // Default status
+    status: 'active', // Default status
     avatar: ``,
     employeeId: `EM${emp.id.toString().padStart(4, '0')}`,
     location: emp.location || 'N/A',
@@ -130,27 +139,69 @@ const Employees: React.FC = () => {
     createdAt: emp.created_at,
     totalSales: emp.totalSales || 0,
     monthlySales: emp.monthlySales || [],
-    taskCompletion: emp.taskCompletions  || []
+    taskCompletion: emp.taskCompletions || []
   }));
 
   // Filter employees based on search term
   const filteredEmployees = mappedEmployees.filter(e =>
     e.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const showModal = () => {
+    setIsEditing(false);
+    setEditingEmployeeId(null);
+    form.resetFields();
+    setModalVisible(true);
+  };
 
-  const showModal = () => setModalVisible(true);
   const handleOk = () => {
     form.validateFields().then(values => {
-      console.log('Success:', values);
+      // Map form values to API payload
+      const employeeData = {
+        nic: values.employeeNic,
+        first_name: values.employeeFname,
+        last_name: values.employeeLname,
+        phone: values.phoneNumber,
+        birthday: values.birthday,
+        address: values.address,
+        // handle profileImage if needed
+      };
+
+      if (isEditing && editingEmployeeId) {
+        // Update existing employee
+        // Since we don't have an updateEmployee action yet, we could use API directly
+        // or just give feedback that this would update the employee
+        message.info('Employee update functionality would go here');
+        
+        // Refresh employee list
+        dispatch(getEmployees());
+      } else {
+        // Create new employee
+        dispatch(createEmployee(employeeData))
+          .unwrap()
+          .then(() => {
+            message.success('Employee added successfully');
+            // Refresh employee list
+            dispatch(getEmployees());
+          })
+          .catch(error => {
+            message.error(`Failed to add employee: ${error}`);
+          });
+      }
+      
       setModalVisible(false);
-      setFileList([]);
       form.resetFields();
-    }).catch(info => console.log('Validate Failed:', info));
+      setFileList([]);
+      setIsEditing(false);
+      setEditingEmployeeId(null);
+    }).catch(info => console.log('Validation Failed:', info));
   };
+  
   const handleCancel = () => {
     setModalVisible(false);
     setFileList([]);
     form.resetFields();
+    setIsEditing(false);
+    setEditingEmployeeId(null);
   };
 
   const showTaskModal = () => setTaskModalVisible(true);
@@ -280,10 +331,6 @@ const Employees: React.FC = () => {
       <p className="text-gray-500 m-0 mt-2">Add Photo</p>
     </div>
   );
-
-  const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
-    setFileList(fileList);
-  };
 
   // Employee Summary Component
   const EmployeeSummary = () => {
@@ -427,18 +474,17 @@ const Employees: React.FC = () => {
           </Button>
         </div>
       </Card>
-    );
+    ); // End of EmployeeInfo component
   };
-
+  
   // Attendance View Component
-   // Attendance View Component
-   const AttendanceView = () => {
+  const AttendanceView = () => {
     if (!selectedEmployee) return null;
     if (loadingAttendance) return <div>Loading attendances...</div>;
-    if (errorAttendance) return <div>Error: {error}</div>;
-
+    if (errorAttendance) return <div>Error: {errorAttendance}</div>; 
+    
     // Employee-specific attendance data mapped by employee ID
-    const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = transformAttendanceData(attendances);
+    const attendanceDataByEmployee: Record<string, AttendanceRecord[]> = transformAttendanceData(attendances || []);
     
     // Get attendance records for the selected employee, or use empty array if none exist
     const attendanceData = attendanceDataByEmployee[selectedEmployee.id] || [];
@@ -1048,9 +1094,27 @@ const Employees: React.FC = () => {
                           }
                           title={
                            <div className="flex justify-between items-center">
-                             <Text strong style={{ color: colors.primary }}>{employee.name}</Text>
-                             <div className="flex items-center">
-                               <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>
+                             <Text strong style={{ color: colors.primary }}>{employee.name}</Text>                             <div className="flex items-center">
+                               <span className={`status-indicator ${employee.status === 'online' ? 'status-online' : 'status-offline'}`}></span>                             <EditOutlined
+                               style={{ marginLeft: '8px', color: colors.primary, cursor: 'pointer' }}
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 // Set editing mode
+                                 setIsEditing(true);
+                                 setEditingEmployeeId(employee.id);
+                                 
+                                 // Set form values for editing
+                                 form.setFieldsValue({
+                                   employeeNic: employee.id,
+                                   employeeFname: employee.name.split(' ')[0],
+                                   employeeLname: employee.name.split(' ').slice(1).join(' '),
+                                   phoneNumber: employee.phone,
+                                   birthday: employee.birthday,
+                                   address: employee.address || employee.location,
+                                 });
+                                 setModalVisible(true);
+                               }}
+                             />
                              <DeleteOutlined
                                style={{ marginLeft: '8px', color: colors.red, cursor: 'pointer' }}
                                onClick={(e) => {
@@ -1062,8 +1126,15 @@ const Employees: React.FC = () => {
                                    okType: 'danger',
                                    cancelText: 'No',
                                    onOk() {
-                                     // Add delete employee logic here
-                                     console.log('Delete employee:', employee.id);
+                                     // Dispatch delete action
+                                     dispatch(deleteEmployee(parseInt(employee.id)))
+                                       .unwrap()
+                                       .then(() => {
+                                         message.success(`Employee ${employee.name} has been deleted`);
+                                       })
+                                       .catch((error) => {
+                                         message.error(`Failed to delete employee: ${error}`);
+                                       });
                                    },
                                  });
                                }}
@@ -1115,7 +1186,7 @@ const Employees: React.FC = () => {
                             <Select.Option value="All">All</Select.Option>
                             {employees.map(emp => (
                               <Select.Option key={emp.id} value={emp.id}>
-                                {emp.name}
+                                {emp.first_name} {emp.last_name}
                               </Select.Option>
                             ))}
                           </Select>
@@ -1147,9 +1218,8 @@ const Employees: React.FC = () => {
                           style={{ borderRadius: 8, backgroundColor: colors.primary, borderColor: colors.primary }}
                         >
                           Add Employee
-                        </Button>
-                        <Modal
-                          title="Add Employee"
+                        </Button>                        <Modal
+                          title={isEditing ? "Edit Employee" : "Add Employee"}
                           open={modalVisible}
                           onOk={handleOk}
                           onCancel={handleCancel}
@@ -1247,15 +1317,14 @@ const Employees: React.FC = () => {
                               rules={[{ required: true, message: 'Enter address!' }]}
                             >
                               <Input placeholder="Enter Employee’s Address" />
-                            </Form.Item>
-                            <Button
+                            </Form.Item>                            <Button
                               type="primary"
                               htmlType="submit"
                               className="w-full h-12 rounded-lg"
                               onClick={handleOk}
                               style={{ borderRadius: 8, backgroundColor: colors.primary, borderColor: colors.primary }}
                             >
-                              Add Employee
+                              {isEditing ? "Update Employee" : "Add Employee"}
                             </Button>
                           </Form>
                         </Modal>
@@ -1329,7 +1398,7 @@ const Employees: React.FC = () => {
                 <Select.Option value="all">All Employees</Select.Option>
                 {employees.map(emp => (
                   <Select.Option key={emp.id} value={emp.id}>
-                    {emp.name}
+                    {emp.first_name} {emp.last_name}
                   </Select.Option>
                 ))}
               </Select>

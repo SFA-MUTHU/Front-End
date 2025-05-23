@@ -8,6 +8,8 @@ import authReducer from './loginSlice';
 import signupReducer from './signSlice';
 import attendanceReducer from './attendanceSlice';
 import supplierReducer from './supplierSlice';
+import dashboardReducer from './dashboardSlice';
+import productReducer from './productSlice';
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +21,8 @@ export const store = configureStore({
     signup: signupReducer,
     attendances: attendanceReducer,
     suppliers: supplierReducer,
+    products: productReducer,
+    dashboard: dashboardReducer,
   },
 });
 

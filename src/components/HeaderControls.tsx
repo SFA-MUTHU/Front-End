@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Avatar, Dropdown, Menu, Badge, Space, Typography } from 'antd';
+import { Avatar, Dropdown, Badge, Space, Typography } from 'antd';
 import {
     UserOutlined,
     BellOutlined,
@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from 'react-responsive';
 import '../style/HeaderControls.css'; // Import the CSS file for animations
+import type { MenuProps } from 'antd';
 
 const { Text } = Typography;
 
@@ -40,97 +41,47 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
         return () => clearInterval(interval);
     }, []);
 
+    // Menu item definitions
+    const userMenuItems: MenuProps['items'] = [
+        { key: '1', icon: <UserOutlined />, label: 'Profile', onClick: () => navigate('/profile') },
+        { type: 'divider' },
+        { key: '3', icon: <LogoutOutlined />, label: 'Sign Out', onClick: () => navigate('/login') },
+    ];
 
+    const notificationsMenuItems: MenuProps['items'] = [
+        { key: '1', label: (
+                <div>
+                    <Text strong>New Order</Text>
+                    <div>Order #12345 received</div>
+                    <Text type="secondary" style={{ fontSize: '12px' }}>5 minutes ago</Text>
+                </div>
+            ) },
+        { key: '2', label: (
+                <div>
+                    <Text strong>Stock Alert</Text>
+                    <div>Item "T-Shirt XL" low on stock</div>
+                    <Text type="secondary" style={{ fontSize: '12px' }}>1 hour ago</Text>
+                </div>
+            ) },
+        { key: '3', label: (
+                <div>
+                    <Text strong>New Employee</Text>
+                    <div>John Doe joined the team</div>
+                    <Text type="secondary" style={{ fontSize: '12px' }}>2 days ago</Text>
+                </div>
+            ) },
+        { type: 'divider' },
+        { key: '4', label: <Text style={{ color: colors.primary }}>View all notifications</Text>, onClick: () => navigate('/all-notifications') },
+    ];
 
-    const userMenu = (
-        <Menu
-            items={[
-                {
-                    key: '1',
-                    icon: <UserOutlined />,
-                    label: 'Profile',
-                    onClick: () => navigate('/profile'),
-                },
-
-                {
-                    type: 'divider',
-                },
-                {
-                    key: '3',
-                    icon: <LogoutOutlined />,
-                    label: 'Sign Out',
-                    onClick: () => navigate('/login'),
-                },
-            ]}
-        />
-    );
-
-    const notificationsMenu = (
-        <Menu
-            items={[
-                {
-                    key: '1',
-                    label: (
-                        <div>
-                            <Text strong>New Order</Text>
-                            <div>Order #12345 received</div>
-                            <Text type="secondary" style={{ fontSize: '12px' }}>5 minutes ago</Text>
-                        </div>
-                    ),
-                },
-                {
-                    key: '2',
-                    label: (
-                        <div>
-                            <Text strong>Stock Alert</Text>
-                            <div>Item "T-Shirt XL" low on stock</div>
-                            <Text type="secondary" style={{ fontSize: '12px' }}>1 hour ago</Text>
-                        </div>
-                    ),
-                },
-                {
-                    key: '3',
-                    label: (
-                        <div>
-                            <Text strong>New Employee</Text>
-                            <div>John Doe joined the team</div>
-                            <Text type="secondary" style={{ fontSize: '12px' }}>2 days ago</Text>
-                        </div>
-                    ),
-                },
-                {
-                    type: 'divider',
-                },
-                {
-                    key: '4',
-                    label: <Text style={{ color: colors.primary }}>View all notifications</Text>,
-                    onClick: () => navigate('/all-notifications'),
-                },
-            ]}
-        />
-    );
-
-    const roleMenu = (
-        <Menu
-            items={[
-                {
-                    key: '1',
-                    label: 'Sales Admin',
-                },
-                {
-                    key: '2',
-                    label: 'Inventory Manager',
-                },
-                {
-                    key: '3',
-                    label: 'Customer Support',
-                },
-            ]}
-        />
-    );
+    const roleMenuItems: MenuProps['items'] = [
+        { key: '1', label: 'Sales Admin' },
+        { key: '2', label: 'Inventory Manager' },
+        { key: '3', label: 'Customer Support' },
+    ];
 
     return (
-        <Space size={isMobile ? "small" : "large"} align="center" direction={isMobile ? "vertical" : "horizontal"}>
+        <Space size={isMobile ? 'small' : 'large'} align='center' direction={isMobile ? 'vertical' : 'horizontal'}>
             {!isMobile && (
                 <>
                     <ReloadOutlined
@@ -142,8 +93,8 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                         onClick={() => window.location.reload()}
                     />
 
-                    <Dropdown overlay={notificationsMenu} placement="bottomRight" arrow trigger={['click']}>
-                        <Badge count={3} size="small">
+                    <Dropdown menu={{ items: notificationsMenuItems }} placement='bottomRight' arrow trigger={['click']}>
+                        <Badge count={3} size='small'>
                             <BellOutlined
                                 className={blink ? 'blink' : ''}
                                 style={{
@@ -155,7 +106,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                         </Badge>
                     </Dropdown>
 
-                    <Dropdown overlay={roleMenu} trigger={['click']}>
+                    <Dropdown menu={{ items: roleMenuItems }} trigger={['click']}>
                         <Space style={{ cursor: 'pointer' }}>
                             <Text strong>Sales Admin</Text>
                             <DownOutlined style={{ fontSize: '12px' }} />
@@ -167,7 +118,7 @@ const HeaderControls: React.FC<HeaderControlsProps> = ({
                 </>
             )}
 
-            <Dropdown overlay={userMenu} placement="bottomRight" arrow trigger={['click']}>
+            <Dropdown menu={{ items: userMenuItems }} placement='bottomRight' arrow trigger={['click']}>
                 <Space style={{ cursor: 'pointer', marginTop: isMobile ? '-10px' : '0' }}>
                     <Avatar
                         src={userAvatar}

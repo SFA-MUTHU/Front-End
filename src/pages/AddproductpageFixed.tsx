@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Form, Input, Button, Select, Row, Col, Card, message, InputNumber, Divider, Typography, Result, Modal, Space, Table } from 'antd';
 import { PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import '../style/main.scss';
 import { useDispatch, useSelector } from 'react-redux';
@@ -50,38 +49,27 @@ interface VariantData {
   size: string;
   color: string;
   stockQuantity: number;
-  sku?: string;
-  price?: number;
-  attributes?: {
-    size: string;
-    color: string;
-    [key: string]: string | number | boolean | null;
-  };
 }
 
 const AddProductPage: React.FC = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   
   // Improve category data handling
   const categoriesState = useSelector((state: RootState) => state.products.categories);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+
   // Better categories extraction using useMemo to avoid dependency issues
   const categoriesList = useMemo(() => {
     let categories: Category[] = [];
     if (Array.isArray(categoriesState)) {
       categories = categoriesState;
       console.log('Categories from array:', categoriesState);
-    } else if (categoriesState && typeof categoriesState === 'object') {
-      // Use type assertion with a more specific interface
-      interface CategoryResponse {
-        data?: Category[];
-      }
-      const typedState = categoriesState as CategoryResponse;
-      if (typedState.data && Array.isArray(typedState.data)) {
-        categories = typedState.data;
-        console.log('Categories from data property:', typedState.data);
+    } else if (categoriesState && typeof categoriesState === 'object' && 'data' in categoriesState) {
+      const categoryData = (categoriesState as any).data;
+      if (Array.isArray(categoryData)) {
+        categories = categoryData;
+        console.log('Categories from data property:', categoryData);
       }
     }
     return categories;
@@ -255,58 +243,40 @@ const AddProductPage: React.FC = () => {
           <Button type="link" danger onClick={() => removeVariant(index)}>Delete</Button>
         </Space>
       ),
-    },  ];  // Create product variant function that matches backend schema
-  const createProductVariant = async (data: VariantData) => {
+    },
+  ];
+
+  // Create product variant function that matches backend expectations  const createProductVariant = async (variantData: VariantData) => {
     try {
-      console.log('Creating variant with payload:', data);
+      console.log('Creating variant with payload:', variantData);
       
-      // Match the schema structure of ProductVariants exactly - using snake_case for backend database
-      const payload = {
-        product_id: data.productId, // Use product_id instead of productId as in schema.prisma
-        size: data.size,
-        color: data.color,
-        stock: data.stockQuantity // Use stock as in schema.prisma, not stockQuantity
-      };
-      
-      console.log('Sending variant payload to API:', payload);
-      
-      // Send data to the endpoint that's properly set up in the backend
-      const response = await fetch(`http://localhost:3000/api/products/${data.productId}/variants`, {
+      // Use direct POST to products endpoint to create variants
+      const response = await fetch(`http://localhost:3000/api/products/${variantData.productId}/variants`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          product_id: variantData.productId, // Using snake_case to match schema
+          name: `${variantData.size} - ${variantData.color}`, // Create a display name
+          size: variantData.size,
+          color: variantData.color,
+          stock: variantData.stockQuantity // Important: Schema uses "stock" not "stockQuantity"
+        }),
       });
       
       if (!response.ok) {
-        // Enhanced error handling
-        let errorMessage = `Error ${response.status}`;
-        
+        // Improved error handling
         try {
-          // Try to get JSON error first
-          const contentType = response.headers.get('content-type');
-          if (contentType && contentType.includes('application/json')) {
-            const errorData = await response.json();
-            console.error('Server error response (JSON):', errorData);
-            errorMessage = errorData.error || errorMessage;
-          } else {
-            // If not JSON, get as text
-            const errorText = await response.text();
-            console.error('Server error response (Text):', errorText);
-            errorMessage = errorText || errorMessage;
-          }
-        } catch (parseError) {
-          // If parsing fails, use status text
-          errorMessage = response.statusText || errorMessage;
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Error ${response.status}`);
+        } catch (jsonError) {
+          const errorText = await response.text();
+          throw new Error(errorText || `Error ${response.status}: ${response.statusText}`);
         }
-        
-        throw new Error(errorMessage);
       }
       
-      const result = await response.json();
-      console.log('Variant created successfully:', result);
-      return result;
+      return await response.json();
     } catch (error) {
       console.error('Error creating product variant:', error);
       throw error;
@@ -345,49 +315,24 @@ const AddProductPage: React.FC = () => {
         
         const productData = await productResponse.json();
         console.log('Product created successfully:', productData);
-          // Create variants if any
-        if (variants.length > 0 && productData.id) {          try {
-            console.log(`Creating ${variants.length} variants for product ${productData.id}`);
-            let successCount: number = 0;
-            
+        
+        // Create variants if any
+        if (variants.length > 0 && productData.id) {
+          try {
             for (const variant of variants) {
-              try {
-                // Make sure stock is a number
-                const stockQuantity = typeof variant.stock === 'number' ? 
-                  variant.stock : 
-                  parseInt(String(variant.stock), 10) || 0;
-                
-                const variantData: VariantData = {
-                  productId: productData.id,
-                  size: variant.size || 'Standard',
-                  color: variant.color || 'Default',
-                  stockQuantity: stockQuantity
-                };
-                
-                console.log(`Creating variant: ${variantData.size} - ${variantData.color} with stock ${variantData.stockQuantity}`);
-                const result = await createProductVariant(variantData);
-                console.log('Variant creation result:', result);
-                successCount++;
-              } catch (individualVariantError) {
-                console.error(`Error creating individual variant:`, individualVariantError);
-                // Display more specific error for debugging
-                const errorMsg = individualVariantError instanceof Error 
-                  ? individualVariantError.message 
-                  : 'Unknown error';
-                message.error(`Variant creation failed: ${errorMsg}`);
-              }
+              const variantData: VariantData = {
+                productId: productData.id,
+                size: variant.size,
+                color: variant.color,
+                stockQuantity: variant.stock
+              };
+              
+              await createProductVariant(variantData);
             }
-            
-            if (successCount === variants.length) {
-              message.success('Product and all variants added successfully!');
-            } else if (successCount > 0) {
-              message.warning(`Product created but only ${successCount} of ${variants.length} variants were saved.`);
-            } else {
-              message.warning('Product created but no variants could be saved.');
-            }
+            message.success('Product and variants added successfully!');
           } catch (variantError) {
-            console.error('Error in variant creation process:', variantError);
-            message.warning('Product created but variants failed to save.');
+            console.error('Error creating variants:', variantError);
+            message.warning('Product created but some variants failed to save.');
           }
         } else {
           message.success('Product added successfully!');
@@ -429,9 +374,9 @@ const AddProductPage: React.FC = () => {
                   type="primary"
                   key="inventory"
                   size={isMobile ? 'middle' : 'large'}
-                  style={{ backgroundColor: colors.primary, borderColor: colors.primary }}                  onClick={() => {
-                    // Use React Router navigation
-                    navigate('/products');
+                  style={{ backgroundColor: colors.primary, borderColor: colors.primary }}
+                  onClick={() => {
+                    window.location.href = '/products';
                   }}
                 >
                   Go to Products

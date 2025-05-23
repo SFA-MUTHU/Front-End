@@ -6,11 +6,15 @@ import {
   updateProduct as updateProductAPI,
   deleteProduct as deleteProductAPI,
   getProductById,
+  createProductVariant as createVariantAPI,
+  getProductVariants as getVariantsAPI,
   Product,
   Category,
-  ProductsListResponse
+  ProductsListResponse,
+  ProductVariant
 } from '../services/productService';
 
+// Add product variants to the interface
 interface ProductState {
   products: Product[];
   categories: Category[];
@@ -24,6 +28,7 @@ interface ProductState {
   loading: boolean;
   error: string | null;
   success: boolean;
+  productVariants: Record<number, ProductVariant[]>; // Map of product ID to variants
 }
 
 const initialState: ProductState = {
@@ -38,7 +43,8 @@ const initialState: ProductState = {
   },
   loading: false,
   error: null,
-  success: false
+  success: false,
+  productVariants: {},
 };
 
 // Fetch all products with pagination and filtering
@@ -106,6 +112,24 @@ export const deleteProductThunk = createAsyncThunk(
   async (id: number) => {
     await deleteProductAPI(id);
     return id;
+  }
+);
+
+// Fetch product variants
+export const fetchProductVariants = createAsyncThunk(
+  'products/fetchVariants',
+  async (productId: number) => {
+    const variants = await getVariantsAPI(productId);
+    return { productId, variants };
+  }
+);
+
+// Create a product variant
+export const createProductVariant = createAsyncThunk(
+  'products/createVariant',
+  async (variantData: Partial<ProductVariant>) => {
+    const variant = await createVariantAPI(variantData);
+    return variant;
   }
 );
 
@@ -215,6 +239,44 @@ const productSlice = createSlice({
       .addCase(deleteProductThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to delete product';
+      })
+
+    // Fetch Product Variants
+      .addCase(fetchProductVariants.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductVariants.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productVariants[action.payload.productId] = action.payload.variants;
+      })
+      .addCase(fetchProductVariants.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch product variants';
+      })
+
+    // Create Product Variant
+      .addCase(createProductVariant.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(createProductVariant.fulfilled, (state, action) => {
+        state.loading = false;
+        
+        // Add the new variant to the appropriate product's variants
+        const productId = action.payload.product_id;
+        if (!state.productVariants[productId]) {
+          state.productVariants[productId] = [];
+        }
+        state.productVariants[productId].push(action.payload);
+        
+        state.success = true;
+      })
+      .addCase(createProductVariant.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to create product variant';
+        state.success = false;
       });
   },
 });
