@@ -104,7 +104,6 @@ const DashboardNavigation: React.FC<{ children?: React.ReactNode }> = ({ childre
         switch (location.pathname) {
             case '/home': return 'Overview';
             case '/employees': return 'Employees';
-            case '/employees': return 'Employees ';
             case '/markattendance': return 'Employees / Mark Attendance';
            
             case '/customers': return 'Customers';

@@ -15,7 +15,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../style/Customers.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { addCustomer } from '../redux/customerSlice';
+import { 
+  addCustomer, 
+  fetchCustomers, 
+  deleteCustomer, 
+  fetchCustomerById,
+  updateCustomer 
+} from '../redux/customerSlice';
 import { AppDispatch, RootState } from '../redux/store';
 import { fetchCustomerStats } from '../redux/customerCardSlice';
 
@@ -237,6 +243,7 @@ const Customers: React.FC = () => {
   // Moved useDispatch inside the component
   const dispatch = useDispatch<AppDispatch>();
   const { stats, loading: statsLoading } = useSelector((state: RootState) => state.customerCard);
+  const { customers, loading: customersLoading, error: customersError } = useSelector((state: RootState) => state.customers);
 
   const [activeTab, setActiveTab] = useState('1');
   const [searchTerm, setSearchTerm] = useState('');
@@ -244,42 +251,32 @@ const Customers: React.FC = () => {
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
-
-  // Fetch customer statistics when component mounts
+  // Fetch customer statistics and customers with pagination when component mounts
   useEffect(() => {
     dispatch(fetchCustomerStats());
-  }, [dispatch]);
+    dispatch(fetchCustomers({
+      page: 1,
+      limit: 20,
+      filter: { 
+        searchTerm: searchTerm || undefined,
+        status: activeTab === '1' ? undefined : activeTab
+      }
+    }));
+  }, [dispatch, activeTab, searchTerm]);
 
-  // Customer data
-  const allCustomersData: CustomerData[] = [
-    {
-      key: '1',
-      name: 'James Wilson',
-      phone: '123-456-7890',
-      package: 'Gold',
-      address: '123 Main St, City',
-      buy: 1250.0,
-      email: 'james@example.com',
-      avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-      joinDate: '2023-01-15',
-      lastPurchase: '2024-02-28',
-      status: 'active'
-    },
-    {
-      key: '2',
-      name: 'Ava Harris',
-      phone: '987-654-3210',
-      package: 'Silver',
-      address: '456 Park Ave, Metropolis',
-      buy: 845.0,
-      email: 'ava@example.com',
-      avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-      joinDate: '2022-11-20',
-      lastPurchase: '2024-03-05',
-      status: 'active'
-    },
-
-  ];
+  const dataSource = customers.map(c => ({
+    key: c.id?.toString() || '',
+    name: c.name,
+    phone: c.phone,
+    package: (c.customer_group_id === 1 ? 'Gold' : c.customer_group_id === 2 ? 'Silver' : c.customer_group_id === 3 ? 'Platinum' : 'Basic') as any,
+    address: c.address || '',
+    buy: 0,
+    email: c.email,
+    avatar: undefined,
+    joinDate: c.created_at,
+    lastPurchase: c.updated_at,
+    status: c.status as 'active' | 'inactive' || 'active',
+  }));
 
   const styleElement = document.createElement('style');
   const css = `
@@ -296,14 +293,14 @@ const Customers: React.FC = () => {
   document.head.appendChild(styleElement);
 
   const getFilteredData = () => {
-    let filteredByPackage: CustomerData[] = allCustomersData;
+    let filteredByPackage: CustomerData[] = dataSource;
 
     if (activeTab === '2') {
-      filteredByPackage = allCustomersData.filter(customer => customer.package === 'Basic');
+      filteredByPackage = dataSource.filter(customer => customer.package === 'Basic');
     } else if (activeTab === '3') {
-      filteredByPackage = allCustomersData.filter(customer => customer.package === 'Platinum');
+      filteredByPackage = dataSource.filter(customer => customer.package === 'Platinum');
     } else if (activeTab === '4') {
-      filteredByPackage = allCustomersData.filter(customer =>
+      filteredByPackage = dataSource.filter(customer =>
         customer.package === 'Gold' || customer.package === 'Silver');
     }
 
@@ -333,27 +330,70 @@ const Customers: React.FC = () => {
       setLoading(false);
     }, 600);
   };
-
-  const getActionMenu = (record: CustomerData) => (
-    <Menu
-      onClick={({ key }) => {
-        if (key === 'view') {
-          message.info(`Viewing details for ${record.name}`);
-        } else if (key === 'message') {
-          message.info(`Sending message to ${record.name}`);
-        } else if (key === 'edit') {
-          message.info(`Editing ${record.name}`);
-        } else if (key === 'delete') {
-          message.warning(`Deleting ${record.name}`);
+  const getActionMenu = (record: CustomerData) => {
+    const handleDeleteCustomer = () => {
+      Modal.confirm({
+        title: 'Are you sure you want to delete this customer?',
+        content: 'This action cannot be undone',
+        okText: 'Yes, Delete',
+        okType: 'danger',
+        cancelText: 'No, Cancel',
+        onOk: () => {
+          const customerId = parseInt(record.key);
+          if (!isNaN(customerId)) {
+            dispatch(deleteCustomer(customerId))
+              .unwrap()
+              .then(() => {
+                message.success(`Customer ${record.name} has been deleted successfully`);
+                dispatch(fetchCustomers({
+                  page: 1,
+                  limit: 20,
+                  filter: {}
+                }));
+              })
+              .catch((error) => {
+                message.error(`Failed to delete customer: ${error}`);
+              });
+          } else {
+            message.error('Invalid customer ID');
+          }
         }
-      }}
-    >
-      <Menu.Item key="view" icon={<UserOutlined />}>View Profile</Menu.Item>
-      <Menu.Item key="message" icon={<MailOutlined />}>Send Message</Menu.Item>
-      <Menu.Item key="edit" icon={<EditOutlined />}>Edit Details</Menu.Item>
-      <Menu.Item key="delete" danger icon={<DeleteOutlined />}>Remove Customer</Menu.Item>
-    </Menu>
-  );
+      });
+    };
+    
+    return (
+      <Menu
+        onClick={({ key }) => {
+          if (key === 'view') {
+            const customerId = parseInt(record.key);
+            if (!isNaN(customerId)) {
+              dispatch(fetchCustomerById(customerId))
+                .unwrap()
+                .then(() => {
+                  message.info(`Viewing details for ${record.name}`);
+                  // In a real app, this might navigate to a detail page
+                })
+                .catch((error) => {
+                  message.error(`Failed to load customer details: ${error}`);
+                });
+            }
+          } else if (key === 'message') {
+            navigate('/messaging', { state: { selectedCustomers: [record.key] } });
+          } else if (key === 'edit') {
+            message.info(`Editing ${record.name}`);
+            // In a real app, this would open an edit modal or navigate to edit page
+          } else if (key === 'delete') {
+            handleDeleteCustomer();
+          }
+        }}
+      >
+        <Menu.Item key="view" icon={<UserOutlined />}>View Profile</Menu.Item>
+        <Menu.Item key="message" icon={<MailOutlined />}>Send Message</Menu.Item>
+        <Menu.Item key="edit" icon={<EditOutlined />}>Edit Details</Menu.Item>
+        <Menu.Item key="delete" danger icon={<DeleteOutlined />}>Remove Customer</Menu.Item>
+      </Menu>
+    );
+  };
 
   const handleMessageClick = () => {
     if (selectedCustomers.length === 0) {
@@ -364,8 +404,12 @@ const Customers: React.FC = () => {
       navigate('/messaging', { state: { selectedCustomers } });
     }
   };
-
-  const handleAddCustomer = (values: any) => {
+  const handleAddCustomer = (values: {
+    customerName: string;
+    email: string;
+    phoneNumber: string;
+    paymentMethod: string;
+  }) => {
     const customerData = {
       name: values.customerName,
       email: values.email,
@@ -379,6 +423,13 @@ const Customers: React.FC = () => {
       .then(() => {
         message.success(`Customer ${values.customerName} added successfully`);
         setModalVisible(false);
+        
+        // Refresh the customer list
+        dispatch(fetchCustomers({
+          page: 1,
+          limit: 20,
+          filter: {}
+        }));
       })
       .catch((error) => {
         message.error(`Failed to add customer: ${error}`);
@@ -609,16 +660,39 @@ const Customers: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-            >
-              <Table
+            >              <Table
                 columns={columns}
                 dataSource={filteredData}
-                loading={loading}
+                loading={customersLoading}
                 pagination={{
-                  pageSize: 5,
+                  current: 1, // This would come from state in a full implementation
+                  pageSize: 10,
+                  total: filteredData.length,
                   showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} customers`,
                   showSizeChanger: true,
                   pageSizeOptions: ['5', '10', '20'],
+                  onChange: (page, pageSize) => {
+                    // Dispatch pagination action in a real implementation
+                    dispatch(fetchCustomers({
+                      page,
+                      limit: pageSize,
+                      filter: {
+                        searchTerm: searchTerm || undefined,
+                        status: activeTab === '1' ? undefined : activeTab
+                      }
+                    }));
+                  },
+                  onShowSizeChange: (current, size) => {
+                    // Handle page size change
+                    dispatch(fetchCustomers({
+                      page: current,
+                      limit: size,
+                      filter: {
+                        searchTerm: searchTerm || undefined,
+                        status: activeTab === '1' ? undefined : activeTab
+                      }
+                    }));
+                  }
                 }}
                 rowSelection={{
                   onChange: (selectedRowKeys) => {

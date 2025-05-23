@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
-import { Card, Col, Row, List, Avatar, Tag, Select, Input, Statistic, Typography, Badge } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Col, Row, List, Avatar, Tag, Select, Input, Statistic, Typography, Badge, Spin, Alert } from 'antd';
 import { MoreOutlined, ArrowUpOutlined, CrownOutlined, TrophyOutlined, WalletOutlined, RollbackOutlined, SmileOutlined } from '@ant-design/icons';
-import DashboardNavigation from '../components/DashboardNavigation'; // Check this for Dropdown usage
+import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import '../style/main.scss';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+import { 
+  fetchDashboardData, 
+  fetchSalesTargets, 
+  fetchAnalyticsData,
+  fetchRecentActivity
+} from '../redux/dashboardSlice';
+import { AppDispatch } from '../redux/store';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, TimeScale, Title, Tooltip, Legend);
@@ -28,13 +37,14 @@ const colors = {
 
 interface StatCardProps {
   title: string;
-  value: string;
+  value: string | number;
   change: string;
   period: string;
   icon?: React.ReactNode;
+  isLoading?: boolean;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon }) => {
+const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon, isLoading }) => {
   const getCardStyles = () => {
     switch (title) {
       case 'Profit':
@@ -90,67 +100,123 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, period, icon 
         <Text style={{ color: '#888', fontSize: '16px', fontWeight: 'bold' }}>{title}</Text>
         {icon || <MoreOutlined style={{ color: '#bbb' }} />}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        {cardIcon}
-        <AntTitle level={title === 'Top Performance' ? 2 : 3} style={{ margin: 0, color: valueColor }}>
-          {value}
-        </AntTitle>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Badge
-          count={
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                background: colors.green,
-                color: 'white',
-                padding: '2px 8px',
-                borderRadius: 12,
-                fontSize: '12px',
-              }}
-            >
-              <ArrowUpOutlined style={{ fontSize: '10px' }} /> {change}
-            </div>
-          }
-        />
-        <Text type="secondary" style={{ fontSize: '12px' }}>
-          from {period}
-        </Text>
-      </div>
+      {isLoading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+          <Spin size="small" />
+        </div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            {cardIcon}
+            <AntTitle level={title === 'Top Performance' ? 2 : 3} style={{ margin: 0, color: valueColor }}>
+              {typeof value === 'number' ? `$${value.toLocaleString()}` : value}
+            </AntTitle>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Badge
+              count={
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    background: colors.green,
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: 12,
+                    fontSize: '12px',
+                  }}
+                >
+                  <ArrowUpOutlined style={{ fontSize: '10px' }} /> {change}
+                </div>
+              }
+            />
+            <Text type="secondary" style={{ fontSize: '12px' }}>
+              from {period}
+            </Text>
+          </div>
+        </>
+      )}
     </Card>
   );
 };
 
-const soldItems = [
-  { name: 'Mr. T-Shirt', status: 'Active'},
-  { name: 'Jersey Frock', status: 'Inactive' },
-  { name: 'Smart Jacket', status: 'Active' },
-  { name: 'Casual Shirt', status: 'Active' },
-  { name: 'Formal Pants', status: 'Inactive'},
-  { name: 'Summer Dress', status: 'Active' },
-];
 
-const topSellers = [
-  { name: 'Bhishan K.C' },
-  { name: 'Tom Cruise' },
-  { name: 'Jack Sparrow' },
-  { name: 'William'},
-  { name: 'Thomas Selby' },
-];
 
 const getInitials = (name: string) => {
   const initials = name.split(' ').map(word => word[0]).join('');
   return initials.toUpperCase();
 };
 
+// Add console logging to debug the component rendering
 const Home: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  
+  // Check if dashboard state exists in Redux store
+  const dashboardState = useSelector((state: RootState) => {
+    return state.dashboard || {
+      dashboardData: null,
+      salesTargets: null,
+      analyticsData: null,
+      recentActivity: null,
+      loading: false,
+      error: null
+    };
+  });
+  
+  // Destructure the dashboard state
+  const { 
+    dashboardData, 
+    salesTargets, 
+    analyticsData, 
+    recentActivity, 
+    loading, 
+    error 
+  } = dashboardState;
+
   const [filter, setFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [salesPeriod, setSalesPeriod] = useState('current_month');
 
-  const filteredItems = filter === 'All' ? soldItems : soldItems.filter(item => item.status === filter);
-  const filteredSellers = topSellers.filter(seller => seller.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Fetch dashboard data when component mounts
+  useEffect(() => {
+    console.log("Fetching dashboard data from API...");
+    dispatch(fetchDashboardData());
+    dispatch(fetchSalesTargets(salesPeriod));
+    dispatch(fetchAnalyticsData());
+    dispatch(fetchRecentActivity({ limit: 5 }));
+  }, [dispatch, salesPeriod]);
+
+  // Helper function to calculate percentage change
+  const calculatePercentageChange = (current: number, previous: number): string => {
+    if (!previous) return "0%";
+    const change = ((current - previous) / previous) * 100;
+    return `${change.toFixed(0)}%`;
+  };
+
+  // Use percentage changes directly from the API
+  const formatPercentage = (value: number | undefined): string => {
+    if (value === undefined || isNaN(value)) return "0%";
+    return `${Math.round(value)}%`;
+  };
+
+  // Use the values directly from the API when available
+  const profitChange = formatPercentage(dashboardData?.metrics?.profitChange);
+  const returnChange = formatPercentage(dashboardData?.metrics?.returnChange);
+  const loanChange = formatPercentage(dashboardData?.metrics?.loanChange);
+  const performanceChange = formatPercentage(dashboardData?.metrics?.performanceChange);
+
+  // Use actual data from the API with no fallbacks to dummy data
+  const soldItemsSource = dashboardData?.soldItems || [];
+  const filteredItems = filter === 'All' 
+    ? soldItemsSource 
+    : soldItemsSource.filter(item => item.status === filter);
+  
+  // Use actual suppliers for Top Sellers section
+  const topSellers = dashboardData?.topSellers || [];
+  const filteredSellers = topSellers.filter(seller => 
+    seller.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const commonChartOptions = {
     responsive: true,
@@ -179,12 +245,13 @@ const Home: React.FC = () => {
     },
   };
 
+  // Use real sales data instead of dummy data
   const salesData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     datasets: [
       {
         label: 'Sales',
-        data: [12, 19, 13, 15, 22, 27],
+        data: dashboardData?.metrics?.monthlySales || [],
         borderColor: colors.primary,
         backgroundColor: colors.primaryLight,
         tension: 0.4,
@@ -194,12 +261,13 @@ const Home: React.FC = () => {
     ],
   };
 
+  // Use dashboard metrics if available with no fallback to hardcoded values
   const revenueTimeData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     datasets: [
       {
         label: 'Revenue',
-        data: [180000, 190000, 210000, 220000, 235000, 225000, 240000, 250000, 235000, 245000, 260000, 256000],
+        data: dashboardData?.metrics?.monthlyRevenue || [],
         borderColor: colors.accent,
         backgroundColor: 'rgba(71, 184, 129, 0.05)',
         tension: 0.3,
@@ -208,7 +276,7 @@ const Home: React.FC = () => {
       },
       {
         label: 'Expenses',
-        data: [80000, 85000, 95000, 90000, 100000, 110000, 105000, 115000, 120000, 110000, 125000, 130000],
+        data: dashboardData?.metrics?.monthlyExpenses || [],
         borderColor: colors.red,
         backgroundColor: 'rgba(231, 76, 60, 0.05)',
         tension: 0.3,
@@ -218,20 +286,57 @@ const Home: React.FC = () => {
     ],
   };
 
+  if (error) {
+    return (
+      <DashboardNavigation>
+        <Alert
+          message="Error"
+          description={`Failed to load dashboard data: ${error}`}
+          type="error"
+          showIcon
+        />
+      </DashboardNavigation>
+    );
+  }
+
   return (
     <DashboardNavigation>
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Profit" value="$498,000" change="24%" period="last month" />
+          <StatCard 
+            title="Profit" 
+            value={dashboardData?.metrics?.profit || 0}
+            change={profitChange}
+            period="last month" 
+            isLoading={loading}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Total Return" value="$27,000" change="8%" period="last month" />
+          <StatCard 
+            title="Total Return" 
+            value={dashboardData?.metrics?.totalReturn || 0}
+            change={returnChange}
+            period="last month" 
+            isLoading={loading}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Supplier Loan" value="$498,000" change="16%" period="last month" />
+          <StatCard 
+            title="Supplier Loan" 
+            value={dashboardData?.metrics?.supplierLoan || 0}
+            change={loanChange}
+            period="last month" 
+            isLoading={loading}
+          />
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <StatCard title="Top Performance" value="Premium" change="12%" period="last month" />
+          <StatCard 
+            title="Top Performance" 
+            value={dashboardData?.metrics?.topPerformance || ""}
+            change={performanceChange}
+            period="last month" 
+            isLoading={loading}
+          />
         </Col>
       </Row>
 
@@ -239,7 +344,14 @@ const Home: React.FC = () => {
         {/* Sold Items Card */}
         <Col xs={24} md={8}>
           <Card
-            title={<AntTitle level={5} style={{ margin: 0 }}>Sold Items</AntTitle>}
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <AntTitle level={5} style={{ margin: 0 }}>Sold Items</AntTitle>
+                <Tag color={colors.primary}>
+                  {dashboardData?.metrics?.totalProducts || 0} Products
+                </Tag>
+              </div>
+            }
             extra={
               <Select
                 defaultValue="All"
@@ -247,6 +359,7 @@ const Home: React.FC = () => {
                 style={{ width: 120 }}
                 size="small"
                 variant="borderless"
+                disabled={!soldItemsSource.length}
               >
                 <Option value="All">All</Option>
                 <Option value="Active">Active</Option>
@@ -261,25 +374,40 @@ const Home: React.FC = () => {
             }}
             styles={{ body: { padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' } }}
           >
-            <List
-              itemLayout="horizontal"
-              dataSource={filteredItems}
-              renderItem={item => (
-                <List.Item style={{ padding: '12px 0' }}>
-                  <List.Item.Meta
-                    avatar={<Avatar src={item.imgSrc} />}
-                    title={
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text strong>{item.name}</Text>
-                        <Tag color={item.status === 'Active' ? colors.accent : colors.red} style={{ borderRadius: '10px' }}>
-                          {item.status}
-                        </Tag>
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                <Spin />
+              </div>
+            ) : soldItemsSource.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <MoreOutlined style={{ fontSize: '24px' }} />
+                <Text>No products available in inventory</Text>
+              </div>
+            ) : filteredItems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                <Text>No {filter.toLowerCase()} products found</Text>
+              </div>
+            ) : (
+              <List
+                itemLayout="horizontal"
+                dataSource={filteredItems}
+                renderItem={item => (
+                  <List.Item style={{ padding: '12px 0' }}>
+                    <List.Item.Meta
+                      avatar={<Avatar src={item.imgSrc} style={{ backgroundColor: colors.primaryLight }}>{item.name.charAt(0)}</Avatar>}
+                      title={
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Text strong>{item.name}</Text>
+                          <Tag color={item.status === 'Active' ? colors.accent : colors.red} style={{ borderRadius: '10px' }}>
+                            {item.status}
+                          </Tag>
+                        </div>
+                      }
+                    />
+                  </List.Item>
+                )}
+              />
+            )}
           </Card>
         </Col>
 
@@ -287,6 +415,18 @@ const Home: React.FC = () => {
         <Col xs={24} md={8}>
           <Card
             title={<AntTitle level={5} style={{ margin: 0 }}>Sales Report</AntTitle>}
+            extra={
+              <Select
+                defaultValue={salesPeriod}
+                onChange={value => setSalesPeriod(value)}
+                style={{ width: 140 }}
+                size="small"
+              >
+                <Option value="current_month">This Month</Option>
+                <Option value="current_quarter">This Quarter</Option>
+                <Option value="current_year">This Year</Option>
+              </Select>
+            }
             hoverable
             style={{
               borderRadius: 12,
@@ -296,35 +436,49 @@ const Home: React.FC = () => {
           >
             <Statistic
               title={<Text type="secondary">Total Sales</Text>}
-              value={112893}
+              value={salesTargets?.actual || dashboardData?.metrics?.totalSales || 0}
               precision={2}
               valueStyle={{ color: colors.primary, fontSize: '24px', fontWeight: 'bold' }}
             />
-            <div style={{ marginTop: 16, height: 250 }}>
-              <Line
-                data={salesData}
-                options={{
-                  ...commonChartOptions,
-                  scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
-                    x: { grid: { display: false } },
-                  },
-                }}
-              />
-            </div>
+            {loading || !dashboardData?.metrics?.monthlySales?.length ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
+                <Spin />
+              </div>
+            ) : (
+              <div style={{ marginTop: 16, height: 250 }}>
+                <Line
+                  data={salesData}
+                  options={{
+                    ...commonChartOptions,
+                    scales: {
+                      y: { beginAtZero: true, grid: { color: 'rgba(0, 0, 0, 0.05)' } },
+                      x: { grid: { display: false } },
+                    },
+                  }}
+                />
+              </div>
+            )}
           </Card>
         </Col>
 
         {/* Top Sellers Card */}
         <Col xs={24} md={8}>
           <Card
-            title={<AntTitle level={5} style={{ margin: 0 }}>Top Sellers</AntTitle>}
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <AntTitle level={5} style={{ margin: 0 }}>Top Sellers</AntTitle>
+                <Tag color={colors.primary}>
+                  {topSellers.length} Sellers
+                </Tag>
+              </div>
+            }
             extra={
               <Search
                 placeholder="Search"
                 onChange={e => setSearchTerm(e.target.value)}
                 style={{ width: 150 }}
                 size="small"
+                disabled={!topSellers.length}
               />
             }
             hoverable
@@ -335,32 +489,52 @@ const Home: React.FC = () => {
             }}
             styles={{ body: { padding: '12px', height: 'calc(100% - 58px)', overflowY: 'auto' } }}
           >
-            <List
-              itemLayout="horizontal"
-              dataSource={filteredSellers}
-              renderItem={(seller, index) => (
-                <List.Item style={{ padding: '12px 0' }}>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        style={{
-                          backgroundColor: colors.primary,
-                          border: index < 3 ? `2px solid ${colors.primary}` : 'none',
-                        }}
-                      >
-                        {getInitials(seller.name)}
-                      </Avatar>
-                    }
-                    title={
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Text strong>{seller.name}</Text>
-                        {index === 0 && <CrownOutlined style={{ color: '#FFD700', marginLeft: 8 }} />}
-                      </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+                <Spin />
+              </div>
+            ) : topSellers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <SmileOutlined style={{ fontSize: '24px' }} />
+                <Text>No sellers data available</Text>
+              </div>
+            ) : filteredSellers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                <Text>No sellers match your search</Text>
+              </div>
+            ) : (
+              <List
+                itemLayout="horizontal"
+                dataSource={filteredSellers}
+                renderItem={(seller, index) => (
+                  <List.Item style={{ padding: '12px 0' }}>
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          style={{
+                            backgroundColor: colors.primary,
+                            border: index < 3 ? `2px solid ${colors.primary}` : 'none',
+                          }}
+                        >
+                          {getInitials(seller.name)}
+                        </Avatar>
+                      }
+                      title={
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Text strong>{seller.name}</Text>
+                            {index === 0 && seller.salesCount > 0 && <CrownOutlined style={{ color: '#FFD700', marginLeft: 8 }} />}
+                          </div>
+                          <Tag color={colors.accent}>
+                            {seller.salesCount || 0} sales
+                          </Tag>
+                        </div>
+                      }
+                    />
+                  </List.Item>
+                )}
+              />
+            )}
           </Card>
         </Col>
       </Row>
@@ -368,7 +542,19 @@ const Home: React.FC = () => {
       <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
         <Col span={24}>
           <Card
-            title={<AntTitle level={5} style={{ margin: 0 }}>Revenue</AntTitle>}
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <AntTitle level={5} style={{ margin: 0 }}>Revenue</AntTitle>
+                <div>
+                  <Tag color={colors.accent} style={{ marginRight: 8 }}>
+                    Sales: ${dashboardData?.metrics?.totalRevenue?.toLocaleString() || '0'}
+                  </Tag>
+                  <Tag color={colors.red}>
+                    Expenses: ${dashboardData?.metrics?.monthlyExpenses?.reduce((a, b) => a + b, 0).toLocaleString() || '0'}
+                  </Tag>
+                </div>
+              </div>
+            }
             hoverable
             style={{
               borderRadius: 12,
@@ -377,46 +563,54 @@ const Home: React.FC = () => {
           >
             <Statistic
               title={<Text type="secondary">Total Revenue</Text>}
-              value={256000}
+              value={dashboardData?.metrics?.totalRevenue || 0}
               precision={2}
               valueStyle={{ color: colors.primary, fontSize: '24px', fontWeight: 'bold' }}
-              prefix="RS"
+              prefix="$"
             />
-            <div style={{ marginTop: 20, height: 300 }}>
-              <Line
-                data={revenueTimeData}
-                options={{
-                  ...commonChartOptions,
-                  interaction: { mode: 'index', intersect: false },
-                  plugins: {
-                    ...commonChartOptions.plugins,
-                    tooltip: {
-                      callbacks: {
-                        label: function (context) {
-                          let label = context.dataset.label || '';
-                          if (label) label += ': ';
-                          if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
-                          }
-                          return label;
+            {loading || !dashboardData?.metrics?.monthlyRevenue?.length ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '120px 0' }}>
+                <Spin />
+              </div>
+            ) : (
+              <div style={{ marginTop: 20, height: 300 }}>
+                <Line
+                  data={revenueTimeData}
+                  options={{
+                    ...commonChartOptions,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                      ...commonChartOptions.plugins,
+                      tooltip: {
+                        callbacks: {
+                          label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                              label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                            }
+                            return label;
+                          },
                         },
                       },
                     },
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: { callback: value => '$' + value.toLocaleString() },
-                      grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        ticks: { callback: value => '$' + value.toLocaleString() },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                      },
+                      x: { grid: { display: false } },
                     },
-                    x: { grid: { display: false } },
-                  },
-                }}
-              />
-            </div>
+                  }}
+                />
+              </div>
+            )}
           </Card>
         </Col>
       </Row>
+
+
     </DashboardNavigation>
   );
 };

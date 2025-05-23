@@ -5,7 +5,7 @@ import DashboardNavigation from '../components/DashboardNavigation';
 import AddSupplierForm from './Addsupplierpage';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
-import { fetchSuppliers, fetchSupplierDetails, createSupplier } from '../redux/supplierSlice';
+import { fetchSuppliers, fetchSupplierById, fetchSupplierProducts, createSupplier } from '../redux/supplierSlice';
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -103,7 +103,6 @@ const Suppliers: React.FC = () => {
       setFilteredSuppliers(filtered);
     }
   }, [searchTerm, suppliers]);
-
   // Handle supplier click and fetch supplier details
   const handleSupplierClick = (supplier: string) => {
     setSelectedSupplier(supplier);
@@ -111,7 +110,9 @@ const Suppliers: React.FC = () => {
     // Find the supplier ID to fetch details
     const selectedSupplierObj = suppliers.find(s => s.name === supplier);
     if (selectedSupplierObj?.id) {
-      dispatch(fetchSupplierDetails(selectedSupplierObj.id));
+      dispatch(fetchSupplierById(selectedSupplierObj.id));
+      // Also fetch the products for this supplier
+      dispatch(fetchSupplierProducts(selectedSupplierObj.id));
     }
   };
 
@@ -167,19 +168,37 @@ const Suppliers: React.FC = () => {
       name: supplierName,
       data: mockData
     };
-  };
-
-  // Handle adding a new supplier
-  const handleAddSupplier = (data: any) => {
+  };  // Define the interface for supplier form data
+  interface SupplierFormData {
+    supplierID: string;
+    supplierName: string;
+    telephone: string;
+    address: string;
+    email?: string;
+    bankAccount?: {
+      accountNumber: string;
+      bankName: string;
+      branch: string;
+      accountType: string;
+    };
+  }
+    // Handle adding a new supplier
+  const handleAddSupplier = (data: SupplierFormData) => {
     // Transform data to match API requirements
     const supplierData = {
       name: data.supplierName,
       contact_person: data.supplierName,
       phone_number: data.telephone,
       address: data.address,
-      bankAccount: data.bankAccount
+      email: data.email || undefined, // Include email if provided, otherwise undefined
+      bank_account_details: {
+        accountNumber: data.bankAccount?.accountNumber,
+        bankName: data.bankAccount?.bankName,
+        branch: data.bankAccount?.branch,
+        accountType: data.bankAccount?.accountType
+      } // Use the correct structure expected by API
     };
-
+    
     dispatch(createSupplier(supplierData))
       .unwrap()
       .then(() => {
@@ -351,8 +370,7 @@ const Suppliers: React.FC = () => {
                       </Avatar>
                       <Text strong={selectedSupplier === supplier.name} style={{ color: selectedSupplier === supplier.name ? '#9C7456' : '#333' }}>
                         {supplier.name}
-                      </Text>
-                    </div>
+                      </Text>                    </div>
                   ))
                 )}
                 {!loading && filteredSuppliers.length === 0 && (

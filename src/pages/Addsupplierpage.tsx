@@ -15,7 +15,7 @@ interface SupplierFormData {
   supplierName: string;
   telephone: string;
   address: string;
-
+  email?: string; // Added optional email field
   bankAccount?: BankAccountDetails;
 
 }
@@ -26,12 +26,12 @@ interface AddSupplierPageProps {
   onSubmit: (data: SupplierFormData) => void;
 }
 
-const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) => {
-  const [formData, setFormData] = useState<SupplierFormData>({
+const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) => {  const [formData, setFormData] = useState<SupplierFormData>({
     supplierID: 'S0096',
     supplierName: '',
     telephone: '',
     address: '',
+    email: '',
   });
   
   const [showBankForm, setShowBankForm] = useState(false);
@@ -57,8 +57,7 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
       dataToSubmit.bankAccount = bankFormData;
     }
     onSubmit(dataToSubmit);
-    
-    // Reset form
+      // Reset form
     setFormData({
       supplierID: `S${Math.floor(Math.random() * 10000)
         .toString()
@@ -66,6 +65,7 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
       supplierName: '',
       telephone: '',
       address: '',
+      email: '',
     });
     setBankFormData({
       accountNumber: '',
@@ -90,7 +90,7 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       footer={null}
       width={800}
@@ -159,9 +159,7 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
               className="w-full rounded-lg p-2 border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               required
             />
-          </div>
-
-          <div className="mb-4">
+          </div>          <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
             <input
               type="text"
@@ -171,6 +169,18 @@ const Addsupplierpage = ({ visible, onCancel, onSubmit }: AddSupplierPageProps) 
               placeholder="Enter Supplier's Address"
               className="w-full rounded-lg p-2 border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter Supplier's Email"
+              className="w-full rounded-lg p-2 border border-gray-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
           </div>
 

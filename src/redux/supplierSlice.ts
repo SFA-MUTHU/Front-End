@@ -1,18 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as supplierService from '../services/supplierService';
 
+// Fetch all suppliers
 export const fetchSuppliers = createAsyncThunk(
   'suppliers/fetchAll',
-  async (params: { page?: number; limit?: number; filter?: any } = {}, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const { page = 1, limit = 10, filter = {} } = params;
-      return await supplierService.getSuppliers(page, limit, filter);
+      return await supplierService.getSuppliers();
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
   }
 );
 
+// Fetch supplier by ID
 export const fetchSupplierById = createAsyncThunk(
   'suppliers/fetchById',
   async (id: number, { rejectWithValue }) => {
@@ -24,20 +25,22 @@ export const fetchSupplierById = createAsyncThunk(
   }
 );
 
-export const fetchSupplierDetails = createAsyncThunk(
-  'suppliers/fetchDetails',
+// Fetch supplier products
+export const fetchSupplierProducts = createAsyncThunk(
+  'suppliers/fetchProducts',
   async (id: number, { rejectWithValue }) => {
     try {
-      return await supplierService.getSupplierDetails(id);
+      return await supplierService.getSupplierProducts(id);
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
   }
 );
 
+// Create a new supplier
 export const createSupplier = createAsyncThunk(
   'suppliers/create',
-  async (supplierData: any, { rejectWithValue }) => {
+  async (supplierData: supplierService.Supplier, { rejectWithValue }) => {
     try {
       return await supplierService.createSupplier(supplierData);
     } catch (error) {
@@ -46,6 +49,7 @@ export const createSupplier = createAsyncThunk(
   }
 );
 
+// Update an existing supplier
 export const updateSupplier = createAsyncThunk(
   'suppliers/update',
   async ({ id, data }: { id: number; data: Partial<supplierService.Supplier> }, { rejectWithValue }) => {
@@ -57,11 +61,13 @@ export const updateSupplier = createAsyncThunk(
   }
 );
 
+// Delete a supplier
 export const deleteSupplier = createAsyncThunk(
   'suppliers/delete',
   async (id: number, { rejectWithValue }) => {
     try {
-      return await supplierService.deleteSupplier(id);
+      await supplierService.deleteSupplier(id);
+      return id;
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -71,7 +77,7 @@ export const deleteSupplier = createAsyncThunk(
 interface SupplierState {
   suppliers: supplierService.Supplier[];
   currentSupplier: supplierService.Supplier | null;
-  supplierDetails: supplierService.SupplierDetails | null;
+  supplierProducts: Record<number, supplierService.SupplierProduct[]>;
   loading: boolean;
   error: string | null;
   pagination: {
@@ -85,7 +91,7 @@ interface SupplierState {
 const initialState: SupplierState = {
   suppliers: [],
   currentSupplier: null,
-  supplierDetails: null,
+  supplierProducts: {},
   loading: false,
   error: null,
   pagination: {
@@ -113,8 +119,7 @@ const supplierSlice = createSlice({
       .addCase(fetchSuppliers.pending, (state) => {
         state.loading = true;
         state.error = null;
-      })
-      .addCase(fetchSuppliers.fulfilled, (state, action) => {
+      })      .addCase(fetchSuppliers.fulfilled, (state, action) => {
         state.loading = false;
         state.suppliers = action.payload.data;
         state.pagination = action.payload.pagination;
@@ -123,6 +128,7 @@ const supplierSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      
       // Fetch supplier by ID
       .addCase(fetchSupplierById.pending, (state) => {
         state.loading = true;
@@ -136,19 +142,24 @@ const supplierSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      // Fetch supplier details
-      .addCase(fetchSupplierDetails.pending, (state) => {
+      
+      // Fetch supplier products
+      .addCase(fetchSupplierProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchSupplierDetails.fulfilled, (state, action) => {
+      .addCase(fetchSupplierProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.supplierDetails = action.payload;
+        state.supplierProducts = {
+          ...state.supplierProducts,
+          [action.meta.arg]: action.payload
+        };
       })
-      .addCase(fetchSupplierDetails.rejected, (state, action) => {
+      .addCase(fetchSupplierProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+      
       // Create supplier
       .addCase(createSupplier.pending, (state) => {
         state.loading = true;
@@ -157,11 +168,17 @@ const supplierSlice = createSlice({
       .addCase(createSupplier.fulfilled, (state, action) => {
         state.loading = false;
         state.suppliers = [...state.suppliers, action.payload];
+        state.pagination = {
+          ...state.pagination,
+          total: state.pagination.total + 1,
+          pages: Math.ceil((state.pagination.total + 1) / state.pagination.limit)
+        };
       })
       .addCase(createSupplier.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
+      
       // Update supplier
       .addCase(updateSupplier.pending, (state) => {
         state.loading = true;
@@ -180,6 +197,7 @@ const supplierSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      
       // Delete supplier
       .addCase(deleteSupplier.pending, (state) => {
         state.loading = true;
@@ -187,8 +205,15 @@ const supplierSlice = createSlice({
       })
       .addCase(deleteSupplier.fulfilled, (state, action) => {
         state.loading = false;
-        // Remove the deleted supplier from the list
-        state.suppliers = state.suppliers.filter(supplier => supplier.id !== action.meta.arg);
+        state.suppliers = state.suppliers.filter(supplier => supplier.id !== action.payload);
+        state.pagination = {
+          ...state.pagination,
+          total: state.pagination.total - 1,
+          pages: Math.ceil((state.pagination.total - 1) / state.pagination.limit)
+        };
+        if (state.currentSupplier?.id === action.payload) {
+          state.currentSupplier = null;
+        }
       })
       .addCase(deleteSupplier.rejected, (state, action) => {
         state.loading = false;

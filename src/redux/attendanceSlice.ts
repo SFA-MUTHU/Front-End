@@ -19,7 +19,8 @@ export const getAllAttendances = createAsyncThunk(
   'attendances/getAllAttendances',
   async (_, { rejectWithValue }) => {
     try {
-      return await fetchAllAttendances();
+      const response = await fetchAllAttendances();
+      return response; // This will be { data: Attendance[] }
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch attendances');
     }
@@ -37,10 +38,9 @@ const attendanceSlice = createSlice({
       .addCase(getAllAttendances.pending, (state) => {
         state.loadingAttendance = true;
         state.errorAttendance = null;
-      })
-      .addCase(getAllAttendances.fulfilled, (state, action) => {
+      })      .addCase(getAllAttendances.fulfilled, (state, action) => {
         state.loadingAttendance = false;
-        state.attendances = action.payload;
+        state.attendances = action.payload.data;
       })
       .addCase(getAllAttendances.rejected, (state, action) => {
         state.loadingAttendance = false;
