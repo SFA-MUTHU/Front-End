@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, message, Typography, Select, Space, Table, Row, Col } from 'antd';
-import { UserOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { Card, Form, Button, message, Typography, Select, Table, Row, Col } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { ClockCircleOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
 import { css } from '@emotion/css';
 
 const { Title, Text } = Typography;
@@ -142,13 +141,12 @@ const MarkAttendance: React.FC = () => {
       form.resetFields();
     }
   };
-
-  const columns = [
+  const columns: ColumnsType<AttendanceRecord> = [
     {
       title: 'Employee ID',
       dataIndex: 'employeeId',
       key: 'employeeId',
-      responsive: ['md'],
+      responsive: ['md' as const],
     },
     {
       title: 'Name',
@@ -159,7 +157,7 @@ const MarkAttendance: React.FC = () => {
       title: 'Date',
       dataIndex: 'date',
       key: 'date',
-      responsive: ['lg'],
+      responsive: ['lg' as const],
     },
     {
       title: 'Check In',

@@ -8,7 +8,6 @@ import {
   getCustomerGroups,
   Customer, 
   CustomerGroup, 
-  CustomerListResponse 
 } from '../services/customerService';
 
 interface CustomerState {

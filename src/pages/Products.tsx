@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Input, Select, Space, Tag, Dropdown, Menu, Modal, Form, message, Typography, Tooltip } from 'antd';
+import { Table, Card, Button, Input, Select, Tag, Dropdown, Menu, Modal, message, Typography, Tooltip } from 'antd';
 import { 
   PlusOutlined, 
   SearchOutlined, 
-  FilterOutlined, 
   EllipsisOutlined,
   EditOutlined,
   DeleteOutlined,
@@ -119,12 +118,11 @@ const Products: React.FC = () => {
       message.error('Failed to load product details');
     }
   };
-
   // Prepare data for table
   const productsData: ExtendedProduct[] = products.map(p => ({ 
     ...p, 
     key: p.id,
-    status: p.status || 'Active',
+    status: 'Active', // Default status since it's not in the Product interface
     sold: Math.floor(Math.random() * 100),
     variants: p.id ? productVariants[p.id] || [] : [] 
   }));
@@ -227,12 +225,11 @@ const Products: React.FC = () => {
           {description.length > 50 ? `${description.substring(0, 50)}...` : description}
         </Tooltip>
       ),
-    },
-    {
+    },    {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
-      render: (price: any) => {
+      render: (price: number) => {
         // Ensure price is a number before calling toFixed
         const numPrice = typeof price === 'number' ? price : Number(price);
         return isNaN(numPrice) ? '$0.00' : `$${numPrice.toFixed(2)}`;
@@ -256,11 +253,10 @@ const Products: React.FC = () => {
         const category = categories.find(c => c.id === categoryId);
         return category ? category.name : 'Unknown';
       },
-    },
-    {
+    },    {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: ExtendedProduct) => (
+      render: (_: unknown, record: ExtendedProduct) => (
         <Dropdown overlay={() => getActionMenu(record)} trigger={['click']}>
           <Button icon={<EllipsisOutlined />} />
         </Dropdown>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, List, Avatar, Input, Button, Modal, Form, Upload, Typography, InputNumber, Select, Spin, message, Popconfirm } from 'antd';
-import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Card, Col, Row, List, Avatar, Input, Button, Modal, Form, Upload, Typography, InputNumber, Select, Spin, message } from 'antd';
+import { PlusOutlined, UploadOutlined, UserOutlined, RightOutlined, DownOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import DashboardNavigation from '../components/DashboardNavigation';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -11,6 +11,7 @@ import { getEmployees, createEmployee, deleteEmployee } from '../redux/employeeS
 import { RootState, AppDispatch } from '../redux/store';
 import { Employee, Attendance } from '../services/employeeService';
 import { getAllAttendances } from '../redux/attendanceSlice';
+import { UploadFile } from 'antd/es/upload/interface';
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, ChartTitle, Tooltip, Legend);
@@ -65,9 +66,6 @@ interface AttendanceRecord {
   status: string;
 }
 
-// Import the proper UploadFile type
-import { UploadFile } from 'antd/es/upload/interface';
-
 const Employees: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { employees, loading, error } = useSelector((state: RootState) => state.employees);
@@ -117,9 +115,8 @@ const Employees: React.FC = () => {
     
     return transformed;
   };
-  
   // Handle file upload changes
-  const handleUploadChange = ({ fileList }: { fileList: FileType[] }) => {
+  const handleUploadChange = ({ fileList }: { fileList: UploadFile[] }) => {
     setFileList(fileList);
   };
 

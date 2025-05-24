@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE_URL, getAuthHeaders } from './apiConfig';
+import { API_BASE_URL } from './apiConfig';
 
 export interface LoginRequest {
   email: string;
@@ -51,7 +51,7 @@ export const isLoggedIn = (): boolean => {
 };
 
 // Get the current user
-export const getCurrentUser = (): any => {
+export const getCurrentUser = (): unknown => {
   const userStr = localStorage.getItem('user');
   if (userStr) return JSON.parse(userStr);
   return null;

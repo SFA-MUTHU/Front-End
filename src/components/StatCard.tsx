@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Badge, Spin, Avatar } from 'antd';
+import { Card, Typography, Badge, Spin } from 'antd';
 import { MoreOutlined, ArrowUpOutlined, ArrowDownOutlined, CrownOutlined, TrophyOutlined, WalletOutlined, RollbackOutlined } from '@ant-design/icons';
 
 const { Text, Title } = Typography;
