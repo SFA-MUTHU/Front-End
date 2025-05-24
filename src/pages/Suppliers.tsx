@@ -11,41 +11,39 @@ const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
 const { Search } = Input;
 
-interface SupplierData {
-  name: string;
-  data: {
-    key: string;
-    billNumber: string;
-    date: string;
-    amount: string;
-    paymentMethod: string;
-    status: string;
-  }[];
+// Interfaces for supplier record and invoice details
+interface SupplierRecord {
+  key: string;
+  billNumber: string;
+  date: string;
+  amount: string;
+  paymentMethod: string;
+  status: 'Success' | 'In Process' | 'Rejected';
+  dueDate?: string;
 }
-
-interface InvoiceDetail {
+interface InvoiceItem {
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+interface InvoiceDetails {
   dueDate: string;
   invoiceDate: string;
   invoiceNumber: string;
   reference: string;
-  items: {
-    description: string;
-    quantity: number;
-    rate: number;
-    amount: number;
-  }[];
+  items: InvoiceItem[];
   subtotal: number;
   discountPercentage: number;
   discountAmount: number;
   total: number;
   amountPaid: number;
-  status: string;
+  status: 'Success' | 'In Process' | 'Rejected';
 }
 
 const Suppliers: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { suppliers, loading, error, pagination } = useSelector((state: RootState) => state.suppliers);
-  const { supplierDetails } = useSelector((state: RootState) => state.suppliers);
+  const { suppliers, loading } = useSelector((state: RootState) => state.suppliers);
 
   const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -54,8 +52,8 @@ const Suppliers: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
-  const [currentSupplierDetails, setCurrentSupplierDetails] = useState<any>(null);
-  const [invoiceDetails, setInvoiceDetails] = useState<any>(null);
+  const [currentSupplierDetails, setCurrentSupplierDetails] = useState<SupplierRecord | null>(null);
+  const [invoiceDetails, setInvoiceDetails] = useState<InvoiceDetails | null>(null);
 
   // Check if mobile on resize and initial load
   useEffect(() => {
@@ -116,13 +114,13 @@ const Suppliers: React.FC = () => {
     }
   };
 
-  const handleViewDetails = (record: any) => {
+  const handleViewDetails = (record: SupplierRecord) => {
     setCurrentSupplierDetails(record);
     setIsDetailsModalVisible(true);
 
     // Construct invoice details from the record data
     // This is a placeholder. Ideally, you would fetch this from an API
-    const invoiceDetail = {
+    const invoiceDetail: InvoiceDetails = {
       dueDate: record.dueDate || "Apr 15, 2024",
       invoiceDate: record.date,
       invoiceNumber: record.billNumber,
@@ -152,14 +150,13 @@ const Suppliers: React.FC = () => {
           : 0,
       status: record.status
     };
-
     setInvoiceDetails(invoiceDetail);
   };
 
   // Generate supplier-specific data based on API data
   const generateSupplierData = (supplierName: string) => {
     // This is mock data, in a real app this would come from API
-    const mockData = [
+    const mockData: SupplierRecord[] = [
       { key: '1', billNumber: '#N5267', date: 'Mar 1, 2024', amount: '$100,000', paymentMethod: 'Card', status: 'Success' },
       { key: '2', billNumber: '#N5268', date: 'Mar 2, 2024', amount: '$85,000', paymentMethod: 'Cash', status: 'In Process' },
     ];
@@ -190,12 +187,12 @@ const Suppliers: React.FC = () => {
       contact_person: data.supplierName,
       phone_number: data.telephone,
       address: data.address,
-      email: data.email || undefined, // Include email if provided, otherwise undefined
+      email: data.email || "",
       bank_account_details: {
-        accountNumber: data.bankAccount?.accountNumber,
-        bankName: data.bankAccount?.bankName,
-        branch: data.bankAccount?.branch,
-        accountType: data.bankAccount?.accountType
+        accountNumber: data.bankAccount?.accountNumber || "",
+        bankName: data.bankAccount?.bankName || "",
+        branch: data.bankAccount?.branch || "",
+        accountType: data.bankAccount?.accountType || ""
       } // Use the correct structure expected by API
     };
     
@@ -226,7 +223,7 @@ const Suppliers: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (text: any, record: any, index: number) => (
+      render: (record: SupplierRecord) => (
         <Button
           icon={<EyeOutlined />}
           type="text"
@@ -242,7 +239,7 @@ const Suppliers: React.FC = () => {
     {
       title: 'Transaction',
       key: 'transaction',
-      render: (_: any, record: any) => (
+      render: (_: unknown, record: SupplierRecord) => (
         <div>
           <div><strong>Bill:</strong> {record.billNumber}</div>
           <div><strong>Date:</strong> {record.date}</div>
@@ -253,7 +250,6 @@ const Suppliers: React.FC = () => {
               {record.status}
             </Tag>
           </div>
-
           <div style={{ marginTop: '8px' }}>
             <Button
               icon={<EyeOutlined />}
@@ -264,7 +260,6 @@ const Suppliers: React.FC = () => {
               View Details
             </Button>
           </div>
-
         </div>
       ),
     },
@@ -610,7 +605,7 @@ const Suppliers: React.FC = () => {
               </div>
 
               {/* Dynamic Items */}
-              {invoiceDetails.items.map((item, index) => (
+              {invoiceDetails.items.map((item: InvoiceItem, index: number) => (
                 <div key={index} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
                   <div style={{ gridColumn: 'span 1' }}>
                     <p style={{ fontSize: '14px' }}>{item.description}</p>

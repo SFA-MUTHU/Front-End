@@ -15,15 +15,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../style/Customers.css';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  addCustomer, 
-  fetchCustomers, 
-  deleteCustomer, 
-  fetchCustomerById,
-  updateCustomer 
+import {
+  addCustomer,
+  fetchCustomers,
+  deleteCustomer,
+  fetchCustomerById
 } from '../redux/customerSlice';
 import { AppDispatch, RootState } from '../redux/store';
 import { fetchCustomerStats } from '../redux/customerCardSlice';
+import { UploadFile } from 'antd/es/upload/interface';
 
 const { Content } = Layout;
 const { Text } = Typography;
@@ -41,6 +41,15 @@ interface CustomerData {
   joinDate?: string;
   lastPurchase?: string;
   status?: 'active' | 'inactive';
+}
+
+// Define form values for adding customer
+interface AddCustomerFormValues {
+  customerName: string;
+  email: string;
+  phoneNumber: string;
+  paymentMethod: string;
+  profileImage?: UploadFile;
 }
 
 // Color theme
@@ -80,11 +89,11 @@ const ResponsiveText: React.FC<{ text: string | number; color: string; className
 // Add Customer Modal Component
 const AddCustomerModal: React.FC<{
   visible: boolean;
-  onOk: (values: any) => void;
+  onOk: (values: AddCustomerFormValues) => void;
   onCancel: () => void;
 }> = ({ visible, onOk, onCancel }) => {
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const handleOk = () => {
     form.validateFields().then(values => {
@@ -100,7 +109,7 @@ const AddCustomerModal: React.FC<{
     onCancel();
   };
 
-  const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
+  const handleUploadChange = ({ fileList }: { fileList: UploadFile[] }) => {
     setFileList(fileList);
   };
 
@@ -241,13 +250,10 @@ const AddCustomerModal: React.FC<{
 
 const Customers: React.FC = () => {
   // Moved useDispatch inside the component
-  const dispatch = useDispatch<AppDispatch>();
-  const { stats, loading: statsLoading } = useSelector((state: RootState) => state.customerCard);
-  const { customers, loading: customersLoading, error: customersError } = useSelector((state: RootState) => state.customers);
+  const dispatch = useDispatch<AppDispatch>();  const { stats } = useSelector((state: RootState) => state.customerCard);
+  const { customers, loading: customersLoading } = useSelector((state: RootState) => state.customers);
 
-  const [activeTab, setActiveTab] = useState('1');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('1');  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
@@ -268,7 +274,7 @@ const Customers: React.FC = () => {
     key: c.id?.toString() || '',
     name: c.name,
     phone: c.phone,
-    package: (c.customer_group_id === 1 ? 'Gold' : c.customer_group_id === 2 ? 'Silver' : c.customer_group_id === 3 ? 'Platinum' : 'Basic') as any,
+    package: (c.customer_group_id === 1 ? 'Gold' : c.customer_group_id === 2 ? 'Silver' : c.customer_group_id === 3 ? 'Platinum' : 'Basic') as 'Gold' | 'Silver' | 'Platinum' | 'Basic',
     address: c.address || '',
     buy: 0,
     email: c.email,
@@ -322,13 +328,8 @@ const Customers: React.FC = () => {
   const totalSpent = stats?.totalRevenue || 0;
   const averageSpend = stats?.averageSpend || 0;
   const topCustomerSpend = stats?.topCustomerSpend || 0;
-
   const handleTabChange = (key: string) => {
-    setLoading(true);
     setActiveTab(key);
-    setTimeout(() => {
-      setLoading(false);
-    }, 600);
   };
   const getActionMenu = (record: CustomerData) => {
     const handleDeleteCustomer = () => {
@@ -492,7 +493,7 @@ const Customers: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, record: CustomerData) => (
+      render: (_: unknown, record: CustomerData) => (
         <Dropdown overlay={getActionMenu(record)} trigger={['click']}>
           <Button type="text" icon={<EllipsisOutlined />} />
         </Dropdown>

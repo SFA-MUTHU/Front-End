@@ -26,7 +26,22 @@ export const logoutUser = createAsyncThunk(
 );
 
 // Define the initial state
-const initialState = {
+interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+  // Add other user fields as needed
+}
+
+interface AuthState {
+  user: AuthUser | null;
+  token: string | null;
+  isLoggedIn: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+const initialState: AuthState = {
   user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') as string) : null,
   token: localStorage.getItem('token'),
   isLoggedIn: !!localStorage.getItem('token'),
@@ -52,12 +67,21 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isLoggedIn = true;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
+        if (action.payload.user && typeof action.payload.user.id !== 'undefined' && typeof action.payload.user.email === 'string') {
+          const userObj = action.payload.user as { id: string; email: string; name?: string };
+          state.user = {
+            id: Number(userObj.id),
+            name: userObj.name || '',
+            email: userObj.email
+          };
+        } else {
+          state.user = null;
+        }
+        state.token = typeof action.payload.token === 'string' ? action.payload.token : null;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        state.error = typeof action.payload === 'string' ? action.payload : null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.isLoggedIn = false;

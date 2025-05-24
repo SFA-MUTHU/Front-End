@@ -13,7 +13,7 @@ const UserProfile: React.FC = () => {
   const { profile, loading, error } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    dispatch(getUserProfile());
+    dispatch(getUserProfile() as any);
   }, [dispatch]);
 
   if (loading) {

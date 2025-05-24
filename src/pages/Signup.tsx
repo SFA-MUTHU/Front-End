@@ -15,6 +15,17 @@ const { Title, Text } = Typography;
 const { Step } = Steps;
 const { Option } = Select;
 
+interface SignupFormValues {
+  firstName: string;
+  lastName: string;
+  mobile: string;
+  email: string;
+  role: string;
+  password: string;
+  confirm: string;
+  agreement: boolean;
+}
+
 const Signup: React.FC = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();

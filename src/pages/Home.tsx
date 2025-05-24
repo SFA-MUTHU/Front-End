@@ -167,10 +167,7 @@ const Home: React.FC = () => {
   // Destructure the dashboard state
   const { 
     dashboardData, 
-    salesTargets, 
-    analyticsData, 
-    recentActivity, 
-    loading, 
+    salesTargets,    loading, 
     error 
   } = dashboardState;
 
@@ -186,14 +183,6 @@ const Home: React.FC = () => {
     dispatch(fetchAnalyticsData());
     dispatch(fetchRecentActivity({ limit: 5 }));
   }, [dispatch, salesPeriod]);
-
-  // Helper function to calculate percentage change
-  const calculatePercentageChange = (current: number, previous: number): string => {
-    if (!previous) return "0%";
-    const change = ((current - previous) / previous) * 100;
-    return `${change.toFixed(0)}%`;
-  };
-
   // Use percentage changes directly from the API
   const formatPercentage = (value: number | undefined): string => {
     if (value === undefined || isNaN(value)) return "0%";
@@ -207,14 +196,13 @@ const Home: React.FC = () => {
   const performanceChange = formatPercentage(dashboardData?.metrics?.performanceChange);
 
   // Use actual data from the API with no fallbacks to dummy data
-  const soldItemsSource = dashboardData?.soldItems || [];
-  const filteredItems = filter === 'All' 
+  const soldItemsSource = dashboardData?.soldItems || [];  const filteredItems = filter === 'All' 
     ? soldItemsSource 
-    : soldItemsSource.filter(item => item.status === filter);
+    : soldItemsSource.filter((item: any) => item.status === filter);
   
   // Use actual suppliers for Top Sellers section
   const topSellers = dashboardData?.topSellers || [];
-  const filteredSellers = topSellers.filter(seller => 
+  const filteredSellers = topSellers.filter((seller: any) => 
     seller.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -389,9 +377,8 @@ const Home: React.FC = () => {
               </div>
             ) : (
               <List
-                itemLayout="horizontal"
-                dataSource={filteredItems}
-                renderItem={item => (
+                itemLayout="horizontal"                dataSource={filteredItems}
+                renderItem={(item: any) => (
                   <List.Item style={{ padding: '12px 0' }}>
                     <List.Item.Meta
                       avatar={<Avatar src={item.imgSrc} style={{ backgroundColor: colors.primaryLight }}>{item.name.charAt(0)}</Avatar>}
@@ -502,11 +489,10 @@ const Home: React.FC = () => {
               <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
                 <Text>No sellers match your search</Text>
               </div>
-            ) : (
-              <List
+            ) : (              <List
                 itemLayout="horizontal"
                 dataSource={filteredSellers}
-                renderItem={(seller, index) => (
+                renderItem={(seller: any, index: number) => (
                   <List.Item style={{ padding: '12px 0' }}>
                     <List.Item.Meta
                       avatar={
@@ -548,9 +534,8 @@ const Home: React.FC = () => {
                 <div>
                   <Tag color={colors.accent} style={{ marginRight: 8 }}>
                     Sales: ${dashboardData?.metrics?.totalRevenue?.toLocaleString() || '0'}
-                  </Tag>
-                  <Tag color={colors.red}>
-                    Expenses: ${dashboardData?.metrics?.monthlyExpenses?.reduce((a, b) => a + b, 0).toLocaleString() || '0'}
+                  </Tag>                  <Tag color={colors.red}>
+                    Expenses: ${dashboardData?.metrics?.monthlyExpenses?.reduce((a: number, b: number) => a + b, 0).toLocaleString() || '0'}
                   </Tag>
                 </div>
               </div>
