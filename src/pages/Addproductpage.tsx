@@ -298,6 +298,7 @@ const AddProductPage: React.FC = () => {
           }
         } catch (parseError) {
           // If parsing fails, use status text
+          console.error('Error parsing response:', parseError);
           errorMessage = response.statusText || errorMessage;
         }
         
